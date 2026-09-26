@@ -50,7 +50,17 @@
 [失败记录](integration-20260927-01-result.md)。修正显式平台导入和 ConfigMap
 data 字段后，含真实 Helm 渲染的 `task quality` 再次通过。新增回归检查覆盖
 离线导入失败时不得安装 Seed、输入文件流、临时归档清理及锁定引用验证。
-真实中断续跑、重复 apply 和交接后负向用例仍须在新基线上运行。
+这些修正在第二轮通过了真实安装；后续结果见下文。
+
+## 第二次真实执行与 ownership 修正
+
+第二轮完成了 Root 创建后的 SIGINT、只提交 Receipt 的续跑、重复 apply 的零
+API 写入，以及三类失败的拒绝和恢复，但发现 38 个普通 Seed 对象仍未被 Argo
+接管，因此整轮 Gate 失败。详见[第二轮记录](integration-20260927-02-result.md)。
+ownership 修正增加了持久清单逐对象检查与精确 Git revision 检查；新的单元
+回归及锁定 Helm 渲染检查通过。对第二轮真实集群执行的只读 probe 也确认新
+检查能拒绝“健康全绿但 Seed 未接管”的状态，API 审计为零写入。
+完整修正后的 Bootstrap 闭环仍须在第三基线实测。
 
 模拟器验证 CLI 的状态和请求契约，不模拟 Kubernetes/Argo CD 的全部语义；
 这些结果不得用于声明生产就绪或完整恢复闭环已成立。

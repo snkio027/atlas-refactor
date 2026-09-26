@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "cluster": "atlas-refactor-test-vs0927c",
+  "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
+  "revision": "integration-20260927-03",
+  "gitopsPath": "gitops/test",
+  "dockerContext": "orbstack",
+  "timeoutSeconds": 900
+}

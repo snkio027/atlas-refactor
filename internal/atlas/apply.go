@@ -31,12 +31,11 @@ func (a *App) verifyRepository(ctx context.Context, files map[string][]byte) err
 	if e != nil {
 		return e
 	}
-	remote, e := a.run(ctx, "git", "ls-remote", "--exit-code", a.Config.RepositoryURL, a.Config.Revision)
+	commit, e := a.sourceCommit(ctx)
 	if e != nil {
-		return errors.New("GitOps source is not reachable; publish the reviewed commit first")
+		return e
 	}
-	lines := strings.Fields(string(remote))
-	if len(lines) != 2 || lines[0] != strings.TrimSpace(string(head)) {
+	if commit != strings.TrimSpace(string(head)) {
 		return errors.New("GitOps revision must resolve to exactly the reviewed local HEAD")
 	}
 	return nil

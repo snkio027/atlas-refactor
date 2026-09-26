@@ -45,6 +45,13 @@ latch，绑定 Identity UID 与配置指纹。此后永远不能由正常流程�
 latch 才是正常路径撤销 Seed 权限的边界；Receipt 记录观察到的接管完成。
 健康状态不决定是否恢复 Seed 权限。旧 Atlas 的状态格式或凭据不会被导入。
 
+第二轮真实测试表明，Synced/Healthy 与有效 Signal 仍不足以证明 Seed 接管。
+`argocd-self` 必须完整同步；观察器核对四个 Application 的实际 commit，并逐个
+读取锁定渲染中的持久 Seed 对象，检查 tracking ID 和 Argo SSA managed fields。
+这些条件在 Receipt 前后都必须成立。Helm hook 的短暂 Job 和辅助 RBAC/SA
+不承担持久接管证据。清单解码使用 client dry-run，集群访问只读；无法解析 Git
+revision 或读取 ownership 时失败关闭。详见第二轮失败记录。
+
 管理员可删除这些记录，所以本实现不宣称具备服务端强制的永久降权。
 在扩大部署范围之前必须完成独立 Recovery、证据保护、跨执行器互斥以及
 恢复演练的设计和运行时验证。

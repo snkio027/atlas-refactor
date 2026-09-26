@@ -1,0 +1,702 @@
+{
+  "status": "FAIL_SEED_OWNERSHIP",
+  "baselineSHA": "881448cc75214760a9145feb96c119807dd78de6",
+  "ref": "refs/tags/integration-20260927-02",
+  "cluster": "atlas-refactor-test-vs0927b",
+  "binarySHA256": "bf2aa1d16d74e73c628cf11b258476538395b70fcb8fa15dc1b15f526c696448",
+  "profileSHA256": "693c6c9245057e0bd8c9c1ba4f22199671375fe8ba6148331ec775c38d8267a8",
+  "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+  "renderHashes": {
+    "bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+    "bootstrap/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+    "bootstrap/root.json": "1f351a993ac3ce8730bc7c24badfeb947c4fd3686762a92173c76130a6cb22b7",
+    "projects/kustomization.yaml": "d1b9716f4f98258b88c42510fcc0b207d4747332fc2db5c11c886a2570df0eda",
+    "projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+    "platform/argocd/signal.json": "08f2605b6ea74953782e5a8ef56abc5e620293515b79ddaaf46b3ead2a067d1a",
+    "platform/argocd/kustomization.yaml": "e713e10b64861497aefdf9009e8cc72338d5023fc34fd0cb74a9420b4171e527",
+    "platform/argocd/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+    "platform/applications/kustomization.yaml": "655815ea0102c8d8053c345fde8d9f0caef2ce710ba20d50134b677ad6e3d57d",
+    "platform/applications/argocd-self.json": "7853c8bc7a5af17a1d0ece0732a9b93deec1c02d16221316a9c53da1799b92aa",
+    "root/kustomization.yaml": "71cf56cc20209731b6be01fba7c831650db61e8e4f21d30f694db4833c9be046",
+    "root/platform.json": "2e4425a771eee10b478fd1171fde93a705d286c8e7a96eafc6a71a28a584baf5",
+    "root/projects.json": "3476ead2d1d1609fd845e3bc2ba050876bb495c1e5673b513317e9d938e0b734"
+  },
+  "tools": {
+    "go": {
+      "version": "go version go1.27.1 darwin/arm64",
+      "sha256": "548608a910c46de32c65a3934f461b1787acf6ddd371044826068d8503b8509b"
+    },
+    "helm": {
+      "version": "v4.2.3+g43e8b7f",
+      "sha256": "e8fe1a6caf4091026ad776eb2fe059a2d7a82fc69c22bd08cbcb3689d93e5c0d"
+    },
+    "kind": {
+      "version": "kind v0.32.0 go1.26.3 darwin/arm64",
+      "sha256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb"
+    },
+    "kubectl": {
+      "version": "{\n  \"clientVersion\": {\n    \"major\": \"1\",\n    \"minor\": \"36\",\n    \"gitVersion\": \"v1.36.3\",\n    \"gitCommit\": \"0f29094e5b73085e3802ecc1298ecae13866bfe6\",\n    \"gitTreeState\": \"clean\",\n    \"buildDate\": \"2026-07-22T18:10:35Z\",\n    \"goVersion\": \"go1.26.5\",\n    \"compiler\": \"gc\",\n    \"platform\": \"darwin/arm64\"\n  },\n  \"kustomizeVersion\": \"v5.8.1\"\n}",
+      "sha256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6"
+    },
+    "git": {
+      "version": "git version 2.54.0 (Apple Git-157)",
+      "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a"
+    }
+  },
+  "dockerServer": {
+    "version": "29.4.0",
+    "architecture": "aarch64",
+    "context": "orbstack"
+  },
+  "applications": {
+    "argocd-self": {
+      "uid": "95801a7b-bf8a-4d44-9779-1af157a84abd",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revision": "881448cc75214760a9145feb96c119807dd78de6",
+      "activeOperation": false
+    },
+    "atlas-refactor-root": {
+      "uid": "10ef02c7-ce44-4df9-ad76-2dfaa095c365",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revision": "881448cc75214760a9145feb96c119807dd78de6",
+      "activeOperation": false
+    },
+    "platform-control": {
+      "uid": "bdd0176a-6026-492c-a1cb-085b411ed0b1",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revision": "881448cc75214760a9145feb96c119807dd78de6",
+      "activeOperation": false
+    },
+    "project-bootstrap": {
+      "uid": "44ccfa24-f68f-4ecc-a888-b855eb7ce410",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revision": "881448cc75214760a9145feb96c119807dd78de6",
+      "activeOperation": false
+    }
+  },
+  "identityUID": "0d162dd6-2a75-4926-a6ee-bd11dcb00aea",
+  "receiptUID": "0701f9a5-2579-428d-b98d-b3a7670bcd83",
+  "durableSeedObjects": 39,
+  "untrackedDurableSeedObjects": 38,
+  "seedObservation": [
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "2f8a6ccc-4713-4365-b64c-345f450b8f4f",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "2e018da0-3275-499f-93d5-05367fa90cf9",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "39916d3f-7853-48ea-98c6-1f4743fe552c",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis",
+      "uid": "0d4d56bf-4fb6-4c36-a4f7-a18e23a18ea8",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "namespace": "argocd",
+      "name": "argocd-application-controller",
+      "uid": "65481890-5994-438f-83d8-91ad4c4f8e38",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "namespace": "argocd",
+      "name": "argocd-applicationset-controller",
+      "uid": "c04453ee-1c3d-4b8a-a739-e875b172f1b2",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "80e437a8-5641-4696-8e1c-ea211014b7b0",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "namespace": "argocd",
+      "name": "argocd-server",
+      "uid": "a8df058c-411b-4188-a661-f93c39f025e9",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-cmd-params-cm",
+      "uid": "1adf6dc5-11b2-497c-82d8-0cbc0ac1ab8e",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-gpg-keys-cm",
+      "uid": "06a27cd0-3aef-4806-a557-8177494f7eaa",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-rbac-cm",
+      "uid": "646484f5-7422-4933-8fb6-956e78b837bd",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-ssh-known-hosts-cm",
+      "uid": "fc93f740-9f0b-4be0-b8f5-24c4f5a1e880",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-tls-certs-cm",
+      "uid": "06fe7f5c-8bca-41dd-a81a-f229e3d6b5f9",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis-health-configmap",
+      "uid": "91d9de42-11f6-4b11-92fa-a478b3982949",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "apiextensions.k8s.io/v1",
+      "kind": "CustomResourceDefinition",
+      "namespace": "",
+      "name": "applications.argoproj.io",
+      "uid": "2bb0bdb6-9c2d-4e01-9c01-87e18454ecfd",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-apiserver"
+      ]
+    },
+    {
+      "apiVersion": "apiextensions.k8s.io/v1",
+      "kind": "CustomResourceDefinition",
+      "namespace": "",
+      "name": "applicationsets.argoproj.io",
+      "uid": "c71f7632-c47b-4688-87df-ad7a6949d061",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-apiserver"
+      ]
+    },
+    {
+      "apiVersion": "apiextensions.k8s.io/v1",
+      "kind": "CustomResourceDefinition",
+      "namespace": "",
+      "name": "appprojects.argoproj.io",
+      "uid": "11f9c441-dceb-4595-8ad3-b17b53b91088",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-apiserver"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRole",
+      "namespace": "",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "0cf8d5d0-f387-4369-8a4c-91a306048e0c",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRole",
+      "namespace": "",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "ce7c1fea-7cad-40c0-8f19-a60f22f0f9bc",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRoleBinding",
+      "namespace": "",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "d25a9eff-aff2-47ad-ac84-d2528bc67cef",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRoleBinding",
+      "namespace": "",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "62846899-664d-4958-8f8f-e7e3a7cd4e10",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "259860fb-fa80-4528-9d52-fd406e7b8090",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-applicationset-controller",
+      "uid": "24d2f897-d07d-427e-ac6f-15092080aab6",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "83dea500-1b36-42f9-8ec7-655dcc9e18c2",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "df643217-4b7a-42e8-b22d-ae19ddf7775e",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "0eee0f85-7cb5-43ac-aee8-bf47dbd99cb0",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-applicationset-controller",
+      "uid": "30f5442d-d9f6-432a-90b4-2e167937918c",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "605c231e-2c4c-4c4e-abc7-fa9ed8d496e3",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "a84d9326-a9e2-497d-80d9-ff289086494d",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-applicationset-controller",
+      "uid": "c8bf2458-8ba2-40bb-9180-6c77e817f034",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "5da862b3-245d-4f6e-8c9b-1080f9ee6558",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "61969643-dc5d-41b3-aced-abc384efe049",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis",
+      "uid": "e3bbe352-5fbb-476e-824e-ebfc7a6665d2",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap"
+      ]
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-applicationset-controller",
+      "uid": "133e5084-2a82-4ef4-8acb-1195c10022b0",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-controller-manager"
+      ]
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-repo-server",
+      "uid": "3e49d885-1242-4879-ae2a-b54db2c91eba",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-controller-manager"
+      ]
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-server",
+      "uid": "f0093090-2c49-468b-8a1d-70be11414e13",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-controller-manager"
+      ]
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis",
+      "uid": "eb0c9b08-051a-4b93-aaf3-ccd5bd3dc5ff",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-controller-manager"
+      ]
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-application-controller",
+      "uid": "10011ec3-b312-47c6-b911-0b2c7dc3ecf1",
+      "hook": false,
+      "tracking": null,
+      "managers": [
+        "atlas-refactor-bootstrap",
+        "kube-controller-manager",
+        "kubectl-patch"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis-secret-init",
+      "uid": "bf8012a8-ce65-42e5-9bec-5cd400c89a03",
+      "hook": true,
+      "tracking": "argocd-self:/ServiceAccount:argocd/atlas-refactor-argocd-redis-secret-init",
+      "managers": [
+        "argocd-controller"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis-secret-init",
+      "uid": "0cabd227-b194-4936-9592-3f42dc7aee99",
+      "hook": true,
+      "tracking": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-redis-secret-init",
+      "managers": [
+        "argocd-controller"
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "namespace": "argocd",
+      "name": "atlas-refactor-argocd-redis-secret-init",
+      "uid": "348d3e62-d27c-4ea8-b00f-becfb087d809",
+      "hook": true,
+      "tracking": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-redis-secret-init",
+      "managers": [
+        "argocd-controller"
+      ]
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "namespace": "argocd",
+      "name": "argocd-cm",
+      "uid": "544bd03f-2fc9-4714-b852-07cc2bec4068",
+      "hook": false,
+      "tracking": "argocd-self:/ConfigMap:argocd/argocd-cm",
+      "managers": [
+        "argocd-controller",
+        "atlas-refactor-bootstrap"
+      ]
+    }
+  ],
+  "rootSuccessfulCreates": 1,
+  "resumeBootstrapMutations": 1,
+  "repeatBootstrapMutations": 0,
+  "controlAndDurableSeedStable": true,
+  "ADR": "Proposed",
+  "behavioralParity": false,
+  "commands": {
+    "first": {
+      "start": "2026-09-26T17:16:38.244572+00:00",
+      "end": "2026-09-26T17:17:39.447030+00:00",
+      "exitCode": 1
+    },
+    "resume": {
+      "start": "2026-09-26T17:18:38.259518+00:00",
+      "end": "2026-09-26T17:18:41.094903+00:00",
+      "exitCode": 0,
+      "bootstrapAPIMutations": 1
+    },
+    "resume-status": {
+      "start": "2026-09-26T17:18:41.274855+00:00",
+      "end": "2026-09-26T17:18:41.895688+00:00",
+      "exitCode": 0
+    },
+    "repeat": {
+      "start": "2026-09-26T17:20:53.210135+00:00",
+      "end": "2026-09-26T17:20:55.113984+00:00",
+      "exitCode": 0,
+      "bootstrapAPIMutations": 0
+    },
+    "repeat-status": {
+      "start": "2026-09-26T17:20:55.301314+00:00",
+      "end": "2026-09-26T17:20:55.938880+00:00",
+      "exitCode": 0
+    },
+    "missing-doctor": {
+      "start": "2026-09-26T17:21:30.274533+00:00",
+      "end": "2026-09-26T17:21:30.278244+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "missing-apply": {
+      "start": "2026-09-26T17:21:30.278460+00:00",
+      "end": "2026-09-26T17:21:30.281407+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "drift-status": {
+      "start": "2026-09-26T17:21:32.301247+00:00",
+      "end": "2026-09-26T17:21:32.482999+00:00",
+      "exitCode": 2,
+      "bootstrapAPIMutations": 0
+    },
+    "drift-apply": {
+      "start": "2026-09-26T17:21:32.488269+00:00",
+      "end": "2026-09-26T17:21:32.879860+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "unhealthy-status": {
+      "start": "2026-09-26T17:24:56.756005+00:00",
+      "end": "2026-09-26T17:24:57.383460+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "unhealthy-apply": {
+      "start": "2026-09-26T17:24:57.390207+00:00",
+      "end": "2026-09-26T17:24:59.004621+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "unhealthy-restored-status": {
+      "start": "2026-09-26T17:25:11.647942+00:00",
+      "end": "2026-09-26T17:25:12.264685+00:00",
+      "exitCode": 0,
+      "bootstrapAPIMutations": 0
+    }
+  },
+  "unhealthyTest": {
+    "statusSubresource": false,
+    "firstAttempt": "NotFound; controller restored; original evidence retained",
+    "successfulRoute": "Application JSON Patch limited to /status/health with UID/RV guards",
+    "controllerRestored": true,
+    "applicationSpecUnchanged": true
+  },
+  "correctedReadOnlyObserverProbe": {
+    "result": "Rejected untracked Seed despite healthy Applications",
+    "exitCode": 0,
+    "bootstrapAPIMutations": 0,
+    "sourceHashes": {
+      "internal/atlas/ownership.go": "dc9eb6d2bb649ad203be9e1e415ab70afe7615a6945bde8a8cd58fc40a4768f1",
+      "internal/atlas/state.go": "23bd696e0f6725f4edd13b1760ea2280d459554a4b34f2ff42bb6de50da3a4c1",
+      "internal/atlas/render.go": "f2e62934dab2131d1029b9bf2d996522fd7b7b75bf6605ec8d74d8ccdd1a0aeb",
+      "internal/atlas/apply.go": "eb3f38209b7343d5c06e96bfd482020f13c6cc595dba005766639ddcdc4f77d5",
+      "internal/atlas/second_baseline_probe_test.go": "b93231cfbdd5ee872ddc22df976c1729aaba01aa26f4528927b80dffbc915e19"
+    }
+  },
+  "driverHashes": {
+    "atlas-refactor-integration-driver-02.py": "86a6be7bc14317de976c746e9535cecf70a1d227489bc30c90112a44176c261e",
+    "atlas-refactor-check-handoff-02.py": "d323d1a8a12f528be118d1b3dc856296599b4333c450c1ce41096c8558ee825b",
+    "atlas-refactor-negative-cases-02.py": "396401624383750281a9833cd7bd6ae2502b2c56ebec8822aa1be32157b7d493"
+  }
+}

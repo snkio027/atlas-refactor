@@ -28,12 +28,13 @@ type Live struct {
 	APIVersion string `json:"apiVersion"`
 	Kind       string `json:"kind"`
 	Metadata   struct {
-		Name            string            `json:"name"`
-		Namespace       string            `json:"namespace"`
-		UID             string            `json:"uid"`
-		Annotations     map[string]string `json:"annotations"`
-		Finalizers      []string          `json:"finalizers"`
-		OwnerReferences []Object          `json:"ownerReferences"`
+		Name            string                                `json:"name"`
+		Namespace       string                                `json:"namespace"`
+		UID             string                                `json:"uid"`
+		Annotations     map[string]string                     `json:"annotations"`
+		Finalizers      []string                              `json:"finalizers"`
+		OwnerReferences []Object                              `json:"ownerReferences"`
+		ManagedFields   []struct{ Manager, Operation string } `json:"managedFields"`
 	} `json:"metadata"`
 	Immutable bool              `json:"immutable"`
 	Data      map[string]string `json:"data"`
@@ -206,7 +207,7 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		}
 		return state(Drifted, "Root missing after handoff intent; recovery required")
 	}
-	if !specMatches(root, a.rootApplication()) {
+	if !specMatches(root, a.rootApplication()) || root.Metadata.Annotations["argocd.argoproj.io/tracking-id"] != "" {
 		return state(Drifted, "External Root drift; no overwrite permitted")
 	}
 	if self != nil && !specMatches(self, a.application("argocd-self", "platform-project", a.Config.GitOpsPath+"/platform/argocd", "0")) {
@@ -226,7 +227,11 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		if root.Metadata.UID != receipt.Data["rootUID"] || (self != nil && self.Metadata.UID != receipt.Data["selfUID"]) || (signal != nil && signal.Metadata.UID != receipt.Data["signalUID"]) {
 			return state(Drifted, "adoption UID contradiction")
 		}
-		if signal == nil || !ready(root) || !ready(self) {
+		complete, e := a.handoffComplete(ctx, root, self, signal)
+		if e != nil {
+			return observation{}, e
+		}
+		if !complete {
 			return state(Degraded, "adopted; GitOps is degraded; Seed remains denied")
 		}
 		return state(Adopted, "GitOps owns reconciliation")
@@ -239,8 +244,14 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 			}
 		}
 	}
-	if ready(root) && ready(self) && signal != nil && inventory {
-		return observation{Report{Handoff, "GitOps ready; receipt can be committed"}, identity, root, self, signal}, nil
+	if inventory {
+		complete, e := a.handoffComplete(ctx, root, self, signal)
+		if e != nil {
+			return observation{}, e
+		}
+		if complete {
+			return observation{Report{Handoff, "GitOps revision and Seed ownership verified; receipt can be committed"}, identity, root, self, signal}, nil
+		}
 	}
 	return state(Handoff, "waiting for GitOps reconciliation; Seed authority is permanently denied")
 }

@@ -119,6 +119,17 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 		}
 		switch args[0] {
 		case "get":
+			if args[1] == "-f" {
+				items := []Object{}
+				for _, want := range s.seedObjects() {
+					meta := want["metadata"].(Object)
+					ns, _ := meta["namespace"].(string)
+					if obj := s.objects[key(want["kind"].(string), ns, meta["name"].(string))]; obj != nil {
+						items = append(items, obj)
+					}
+				}
+				return jsonBytes(Object{"kind": "List", "items": items}), nil
+			}
 			if args[1] == "nodes" {
 				return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"nodeInfo":{"architecture":"arm64","operatingSystem":"linux","kubeletVersion":"v` + l.Kubernetes + `"},"conditions":[{"type":"Ready","status":"True"}]}}]}`), nil
 			}
@@ -139,6 +150,9 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 			}
 			return jsonBytes(o), nil
 		case "create":
+			if args[1] == "--dry-run=client" {
+				return jsonBytes(Object{"kind": "List", "items": s.seedObjects()}), nil
+			}
 			var o Object
 			if e := decode(q.Input, &o); e != nil {
 				return nil, e
@@ -176,13 +190,35 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 func (s *simulator) gitops() {
 	a := s.app
 	root := s.objects[key("Application", "argocd", "atlas-refactor-root")]
-	root["status"] = Object{"sync": Object{"status": "Synced"}, "health": Object{"status": "Healthy"}}
+	root["status"] = Object{"sync": Object{"status": "Synced", "revision": strings.Repeat("a", 40)}, "health": Object{"status": "Healthy"}}
 	self := a.application("argocd-self", "platform-project", a.Config.GitOpsPath+"/platform/argocd", "0")
-	self["status"] = Object{"sync": Object{"status": "Synced"}, "health": Object{"status": "Healthy"}, "resources": []Object{{"group": "", "kind": "ConfigMap", "namespace": "argocd", "name": "atlas-refactor-adoption-signal"}}}
+	self["status"] = Object{"sync": Object{"status": "Synced", "revision": strings.Repeat("a", 40)}, "health": Object{"status": "Healthy"}, "resources": []Object{{"group": "", "kind": "ConfigMap", "namespace": "argocd", "name": "atlas-refactor-adoption-signal"}}}
 	s.put(self)
+	for _, child := range []struct{ name, project, path, wave string }{{"project-bootstrap", "atlas-bootstrap", "/projects", "-20"}, {"platform-control", "platform-project", "/platform/applications", "-10"}} {
+		obj := a.application(child.name, child.project, a.Config.GitOpsPath+child.path, child.wave)
+		obj["status"] = Object{"sync": Object{"status": "Synced", "revision": strings.Repeat("a", 40)}, "health": Object{"status": "Healthy"}}
+		s.put(obj)
+	}
+	for _, obj := range s.seedObjects() {
+		var projected Live
+		_ = decode(jsonBytes(obj), &projected)
+		meta := obj["metadata"].(Object)
+		meta["annotations"] = map[string]string{"argocd.argoproj.io/tracking-id": "argocd-self:" + seedKey(&projected)}
+		meta["managedFields"] = []Object{{"manager": "argocd-controller", "operation": "Apply"}}
+		s.put(obj)
+	}
 	signal := configMap("argocd", "atlas-refactor-adoption-signal", map[string]string{"fingerprint": a.fingerprint()})
 	signal["metadata"].(Object)["annotations"] = map[string]string{"argocd.argoproj.io/tracking-id": "argocd-self:/ConfigMap:argocd/atlas-refactor-adoption-signal"}
 	s.put(signal)
+}
+
+func (s *simulator) seedObjects() []Object {
+	cm := object("ConfigMap", "argocd", "argocd-cm")
+	cm["data"] = map[string]string{"application.resourceTrackingMethod": "annotation"}
+	deployment := object("Deployment", "argocd", "atlas-refactor-argocd-server")
+	deployment["apiVersion"] = "apps/v1"
+	deployment["spec"] = Object{"replicas": 1}
+	return []Object{cm, deployment}
 }
 func fixture(t *testing.T) (*App, *simulator) {
 	t.Helper()

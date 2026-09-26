@@ -88,3 +88,15 @@ auditing, with no request/response bodies. Its profile version is bound into
 cluster identity. This supplies evidence for the first integration gate; it
 does not activate a recovery or production capability. See
 [the integration plan](../integration-first-slice.md). Status remains Proposed.
+
+## Correction after the second live gate
+
+The second baseline produced healthy Applications and a Receipt while 38
+ordinary Seed objects remained untracked. Tighten this proposal's adoption
+evidence: self-sync must cover matching Seed objects, all four Applications
+must report the resolved commit, and every durable rendered Seed object must
+have its exact Argo tracking ID and Argo SSA manager before Receipt commitment
+or an ADOPTED report. A Receipt cannot mask later ownership loss. Ephemeral
+hooks are not durable ownership evidence. This enforces the proposed one-way
+handoff; it does not restore Seed authority, accept the ADR or authorize a new
+runtime target. See the [second-run finding](../integration-20260927-02-result.md).

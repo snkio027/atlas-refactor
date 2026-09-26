@@ -1,6 +1,8 @@
 # Corrected disposable integration gate
 
-Status: PREPARED, not executed. ADR-0001 remains Proposed.
+Status: FAIL at Seed ownership. See the [second-run result](integration-20260927-02-result.md).
+This is the retained plan for baseline `881448cc75214760a9145feb96c119807dd78de6`.
+ADR-0001 remains Proposed.
 
 The [first attempt](integration-20260927-01-result.md) failed before Seed or
 Tier-0 handoff. This second baseline contains only the resulting offline image

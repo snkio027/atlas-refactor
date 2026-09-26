@@ -13,10 +13,11 @@ import (
 )
 
 type App struct {
-	Root   string
-	Config Config
-	Lock   Lock
-	Runner Runner
+	Root           string
+	Config         Config
+	Lock           Lock
+	Runner         Runner
+	resolvedCommit string
 }
 type Object map[string]any
 
@@ -49,7 +50,13 @@ func configMap(namespace, name string, data map[string]string) Object {
 func (a *App) application(name, project, path, wave string) Object {
 	o := object("Application", "argocd", name)
 	o["metadata"].(Object)["annotations"] = Object{"argocd.argoproj.io/sync-wave": wave, "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"}
-	o["spec"] = Object{"project": project, "source": Object{"repoURL": a.Config.RepositoryURL, "targetRevision": a.Config.Revision, "path": path}, "destination": Object{"server": "https://kubernetes.default.svc", "namespace": "argocd"}, "syncPolicy": Object{"automated": Object{"enabled": true, "prune": true, "selfHeal": true}, "syncOptions": []string{"ServerSideApply=true", "ApplyOutOfSyncOnly=true"}}}
+	options := []string{"ServerSideApply=true"}
+	// The first self-sync must apply matching Seed objects to establish tracking
+	// and field ownership. Selective sync skips those already-identical objects.
+	if name != "argocd-self" {
+		options = append(options, "ApplyOutOfSyncOnly=true")
+	}
+	o["spec"] = Object{"project": project, "source": Object{"repoURL": a.Config.RepositoryURL, "targetRevision": a.Config.Revision, "path": path}, "destination": Object{"server": "https://kubernetes.default.svc", "namespace": "argocd"}, "syncPolicy": Object{"automated": Object{"enabled": true, "prune": true, "selfHeal": true}, "syncOptions": options}}
 	return o
 }
 func (a *App) rootApplication() Object {
