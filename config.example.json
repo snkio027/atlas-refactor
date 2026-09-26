@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "cluster": "atlas-refactor-test",
+  "repositoryURL": "",
+  "revision": "main",
+  "gitopsPath": "gitops/test",
+  "dockerContext": "orbstack",
+  "timeoutSeconds": 600
+}

@@ -1,0 +1,5 @@
+/.state/
+/bin/
+/config.local.json
+*.test
+coverage.out

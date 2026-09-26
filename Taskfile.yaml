@@ -1,0 +1,37 @@
+version: '3'
+
+env:
+  GOTOOLCHAIN: local
+  GOPROXY: 'off'
+  GOSUMDB: 'off'
+  GOFLAGS: -mod=readonly
+
+tasks:
+  toolchain:
+    cmds:
+      - test "$(go env GOVERSION)" = "go1.27.1"
+  check:
+    cmds:
+      - task: toolchain
+      - test -z "$(gofmt -l cmd internal)"
+      - go vet ./...
+  test:
+    cmds:
+      - task: toolchain
+      - go test -race ./...
+  quality:
+    cmds:
+      - task: check
+      - task: test
+  build:
+    cmds:
+      - task: toolchain
+      - mkdir -p bin
+      - env CGO_ENABLED=0 go build -trimpath -o bin/atlas ./cmd/atlas
+  build:matrix:
+    cmds:
+      - task: toolchain
+      - mkdir -p bin
+      - env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o bin/atlas-darwin-arm64 ./cmd/atlas
+      - env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/atlas-linux-amd64 ./cmd/atlas
+      - env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o bin/atlas-linux-arm64 ./cmd/atlas
