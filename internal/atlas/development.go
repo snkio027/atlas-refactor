@@ -50,6 +50,9 @@ func (a *App) prepareDevelopment() error {
 	if p.Lock.Images["node"] != a.Lock.NodeImage || p.Lock.Images["argo"] != a.Lock.ArgoImage || p.Lock.Images["redis"] != a.Lock.RedisImage {
 		return errors.New("development and base image locks disagree")
 	}
+	if e = p.ValidateCapabilityActivation(); e != nil {
+		return e
+	}
 	files, e := p.BundleFiles()
 	if e != nil {
 		return e
@@ -65,7 +68,7 @@ func (a *App) prepareDevelopment() error {
 		}
 	}
 	d := &developmentBundle{files: files, fingerprint: platform.BundleDigest(files), images: platform.ImageList(p.Lock.Images), apps: map[string]Object{}}
-	if d.baselineFingerprint, e = validateDevelopmentBaseline(files, a.Config.Schema); e != nil {
+	if d.baselineFingerprint, e = a.validateDevelopmentBaseline(files, a.Config.Schema); e != nil {
 		return e
 	}
 	for path, dst := range map[string]*Object{"platform/development/bootstrap/root.json": &d.root, "platform/development/bootstrap/project.json": &d.project, "platform/development/bootstrap/kind.json": &d.kind} {
@@ -91,7 +94,7 @@ func (a *App) prepareDevelopment() error {
 			d.apps[name] = o
 		}
 	}
-	if len(d.apps) != 14 || d.apps["cilium"] == nil || d.apps["argocd-self"] == nil {
+	if len(d.apps) != 4+len(p.Config.Components) || d.apps["cilium"] == nil || d.apps["argocd-self"] == nil {
 		return errors.New("incomplete development control graph")
 	}
 	if a.development != nil && a.development.fingerprint != d.fingerprint {
@@ -239,7 +242,7 @@ func validateDevelopmentKind(data []byte) error {
 
 // The snapshot preserves the first instantiation identity. Current GitOps leaf
 // payloads may evolve, but the authority-bearing Bootstrap contract must match.
-func validateDevelopmentBaseline(files map[string][]byte, schema int) (string, error) {
+func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (string, error) {
 	var baseline struct {
 		Schema       int               `json:"schema"`
 		Commit       string            `json:"commit"`
@@ -269,11 +272,34 @@ func validateDevelopmentBaseline(files map[string][]byte, schema int) (string, e
 		"gitops/platform/networking/cilium/overlays/development/kustomization.yaml",
 	}
 	if schema == 3 {
+		snapshot := files["platform/development/bootstrap/baseline-v3.json"]
+		expected := "6971d4560e39e6148f6155f7f4263181e9b8df62c1c8706ba6a9f00761ae7ab9"
+		if a.fixtureSnapshotDigest != "" {
+			expected = a.fixtureSnapshotDigest
+		}
+		if digest(snapshot) != expected {
+			return "", errors.New("four-node instantiation snapshot changed")
+		}
+		if err := strictJSON(snapshot, &baseline); err != nil {
+			return "", err
+		}
 		contract := map[string][]byte{}
 		for _, path := range bound {
 			b, ok := files[path]
 			if !ok {
 				return "", fmt.Errorf("missing Bootstrap contract input: %s", path)
+			}
+
+			// Only the Tier-1 catalog and its least-privilege project projection can
+			// evolve. prepareDevelopment validates both against the declared catalog.
+			if path == "gitops/platform/applications/overlays/development/resources.json" {
+				b = files["platform/development/capabilities/core-applications.json"]
+			}
+			if path == "gitops/platform/management/projects/overlays/development/resources.json" {
+				b = files["platform/development/capabilities/core-projects.json"]
+			}
+			if digest(b) != baseline.BundleHashes[path] {
+				return "", fmt.Errorf("frozen instantiation contract changed: %s", path)
 			}
 			contract[path] = b
 		}

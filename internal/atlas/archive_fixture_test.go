@@ -52,6 +52,22 @@ func prepareFixtureArchives(t *testing.T, a *App) {
 	if e = os.WriteFile(path, jsonBytes(lock), 0600); e != nil {
 		t.Fatal(e)
 	}
+	// The fixture pins its synthetic archive snapshot; production retains the
+	// fixed f6d35ec snapshot digest and has no runtime override input.
+	snapshotPath := filepath.Join(a.Root, "platform/development/bootstrap/baseline-v3.json")
+	snapshotBytes, e := os.ReadFile(snapshotPath)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var snapshot Object
+	if e = json.Unmarshal(snapshotBytes, &snapshot); e != nil {
+		t.Fatal(e)
+	}
+	snapshot["bundleHashes"].(map[string]any)["platform/development/versions.lock.json"] = digest(jsonBytes(lock))
+	if e = os.WriteFile(snapshotPath, jsonBytes(snapshot), 0600); e != nil {
+		t.Fatal(e)
+	}
+	a.fixtureSnapshotDigest = digest(jsonBytes(snapshot))
 	if e = os.MkdirAll(filepath.Join(a.Root, ".state/images"), 0700); e != nil {
 		t.Fatal(e)
 	}
