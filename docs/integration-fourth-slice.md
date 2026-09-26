@@ -1,10 +1,10 @@
 # Resource-scope integration gate
 
-Status: PREPARED, not executed. ADR-0001 remains Proposed.
+Status: PASSED for the approved disposable target. See [the result](integration-20260927-04-result.md). ADR-0001 remains Proposed.
 
 The [third run](integration-20260927-03-result.md) exposed incorrect observer
-assumptions about Argo CD's CRD and cluster-scoped tracking behavior. The next
-candidate corrects interpretation without changing the GitOps topology,
+assumptions about Argo CD's CRD and cluster-scoped tracking behavior. This
+baseline corrects interpretation without changing the GitOps topology,
 restoring Seed authority, or excluding any of the 39 durable Seed resources.
 
 - Immutable source ref: `integration-20260927-04`; exact commit recorded before approval.

@@ -3,9 +3,10 @@
 从 Atlas 的架构和失败经验出发，用 Go 独立实现 Bootstrap。
 
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
-模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第三次真实运行确认了
-Argo 对持久 Seed 的同步，但 observer 对 CRD / 集群级 tracking 的错误假设
-阻止了 Receipt 提交，完整交接仍未证明。见[第三轮失败记录](docs/integration-20260927-03-result.md)。
+模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第四次真实运行已通过最小
+Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 Seed 的证据、
+重复 apply 零写入，以及三类失败拒绝与恢复。见[第四轮结果](docs/integration-20260927-04-result.md)。
+此结论限于下述可丢弃环境；ADR 保持 Proposed，尚未进行原 Atlas 权威切换。
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
 ## 构建与检查
@@ -41,8 +42,10 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality
 
 第一次固定配置见 `profiles/integration.json`，对应不可移动的第一次基线。
 第二、三次固定配置分别为 `profiles/integration-02.json` 和 `profiles/integration-03.json`。
-资源作用域修正后的候选配置为 `profiles/integration-04.json`，目标与证据要求见
-[第四次集成 Gate](docs/integration-fourth-slice.md)。
+已通过的固定配置为 `profiles/integration-04.json`，基线为 `integration-20260927-04`
+（`0ef918801dac84ac913416f4c1756bf08045a485`）。目标与证据要求见
+[第四次集成 Gate](docs/integration-fourth-slice.md)。重跑须使用对应基线的干净 checkout；
+main 后续的文档提交不改变已测试的 GitOps revision。
 `status --check` 是严格退出码的显式写法。
 新建测试节点启用 Metadata-only API 写入审计，日志位于私有 `.state/audit/`；
 记录中不包含请求/响应正文。ADR 保持 Proposed。
@@ -115,7 +118,7 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 
 这个版本不实现跨主机锁、独立恢复命令或对管理员删除证据的 Admission 防护。
 `immutable` 防止内容修改，不能防止删除重建。因此它是可丢弃环境中的验证实现，
-不能作为生产恢复或安全隔离保证。完整集成 Gate、私有 Git 支持、发布二进制的
+不能作为生产恢复或安全隔离保证。更广的运行环境、私有 Git 支持、发布二进制的
 签名/SBOM/来源证明，以及工具分发摘要验证仍待后续工作。
 
 ## 文档

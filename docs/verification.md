@@ -77,3 +77,21 @@ ownership 修正增加了持久清单逐对象检查与精确 Git revision 检�
 的 spec SSA、当前清单和成功同步记录。包含真实 Helm 的 task quality、Kustomize
 和三平台构建通过；真实第三集群只读 probe 通过且审计零写入。此 probe 不执行
 apply、不提交 Receipt，也不证明新的完整 Bootstrap 闭环。
+
+## 第四次真实执行：最小 Bootstrap Gate 通过
+
+固定基线 `0ef918801dac84ac913416f4c1756bf08045a485` 在独立集群
+`atlas-refactor-test-vs0927d` 完成完整验收。Root 仅创建一次；Root 后中断保留
+latch 且无 Receipt；续跑只创建 Receipt；四个 Application 在精确 SHA 上
+Synced/Healthy，39 个持久 Seed 的接管证据全部通过。重复 apply 零写入，
+控制对象与全部持久资源身份、内容和 tracking 稳定。
+
+缺失 artifact、配置 drift、controller 暂停期间的 unhealthy 注入均令正常
+Bootstrap 返回非零，审计零 Bootstrap 写入；全部恢复后 status --check 返回
+ADOPTED/0、controller 为 1/1。四项显式故障注入/恢复 patch 单独计入审计。
+首次启动曾因准备目录权限过宽在本地被拒，收紧权限后使用原基线重试；失败
+记录保留。含锁定真实 Helm 的 task quality 再次通过。
+
+见[第四轮结果及证据](integration-20260927-04-result.md)。本轮证明约定的可丢弃
+环境最小正常 Bootstrap 行为闭环，不代表完整旧 Shell CLI 对等或生产权威切换。
+ADR 仍为 Proposed；所有实验集群与证据保留，原 Atlas 不变。

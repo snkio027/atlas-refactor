@@ -1,0 +1,1562 @@
+{
+  "baseline": {
+    "status": "EXECUTED_PASSED",
+    "baselineSHA": "0ef918801dac84ac913416f4c1756bf08045a485",
+    "ref": "refs/tags/integration-20260927-04",
+    "cluster": "atlas-refactor-test-vs0927d",
+    "binarySHA256": "5cdb0e380078528ba02a6d39504029ef8a1a24a9ec687a8849f2d37548e4c28f",
+    "profileSHA256": "f2d6907911909dab27a7bf5669ff935f690583ff008fa6f9c1dd1eea009b27cc",
+    "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+    "renderHashes": {
+      "bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+      "bootstrap/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+      "bootstrap/root.json": "32756e3eb0f8c83966ebc1790d95efd4cd6ca821ca151359f110fd7f51dcf4a8",
+      "projects/kustomization.yaml": "d1b9716f4f98258b88c42510fcc0b207d4747332fc2db5c11c886a2570df0eda",
+      "projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+      "platform/argocd/signal.json": "79e0b69449c32dc136c6aef50084424f0bfc91e7526df36d7fa91b4ca2dc9c5e",
+      "platform/argocd/kustomization.yaml": "e713e10b64861497aefdf9009e8cc72338d5023fc34fd0cb74a9420b4171e527",
+      "platform/argocd/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+      "platform/applications/kustomization.yaml": "655815ea0102c8d8053c345fde8d9f0caef2ce710ba20d50134b677ad6e3d57d",
+      "platform/applications/argocd-self.json": "7a950c9cff6963b451a87db3ccf2d27ab41f8e561a41e0a31333f033f439e18d",
+      "root/kustomization.yaml": "71cf56cc20209731b6be01fba7c831650db61e8e4f21d30f694db4833c9be046",
+      "root/platform.json": "7e8d6e3c9d3a22192b66ee154fa497f41867d4cb516edd54c131141577d66573",
+      "root/projects.json": "fc0cff7aec5e9b9b08e3cfc42600e3b09d063c338e831a9b9692fd33b1a825f1"
+    },
+    "tools": {
+      "go": {
+        "sha256": "548608a910c46de32c65a3934f461b1787acf6ddd371044826068d8503b8509b",
+        "version": "go version go1.27.1 darwin/arm64"
+      },
+      "helm": {
+        "sha256": "e8fe1a6caf4091026ad776eb2fe059a2d7a82fc69c22bd08cbcb3689d93e5c0d",
+        "version": "v4.2.3+g43e8b7f"
+      },
+      "kind": {
+        "sha256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb",
+        "version": "kind v0.32.0 go1.26.3 darwin/arm64"
+      },
+      "kubectl": {
+        "sha256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6",
+        "version": "{\n  \"clientVersion\": {\n    \"major\": \"1\",\n    \"minor\": \"36\",\n    \"gitVersion\": \"v1.36.3\",\n    \"gitCommit\": \"0f29094e5b73085e3802ecc1298ecae13866bfe6\",\n    \"gitTreeState\": \"clean\",\n    \"buildDate\": \"2026-07-22T18:10:35Z\",\n    \"goVersion\": \"go1.26.5\",\n    \"compiler\": \"gc\",\n    \"platform\": \"darwin/arm64\"\n  },\n  \"kustomizeVersion\": \"v5.8.1\"\n}"
+      },
+      "docker": {
+        "sha256": "70d5a06adf388bd09b652f47ddc9ca31663a3e5353d24188bdb0054b3014ab3e",
+        "version": "{\"Client\":{\"Version\":\"29.4.0\",\"ApiVersion\":\"1.54\",\"DefaultAPIVersion\":\"1.54\",\"GitCommit\":\"9d7ad9f\",\"GoVersion\":\"go1.26.4\",\"Os\":\"darwin\",\"Arch\":\"arm64\",\"BuildTime\":\"Fri Aug  7 04:38:56 2026\",\"Context\":\"orbstack\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Engine - Community\"},\"Version\":\"29.4.0\",\"ApiVersion\":\"1.54\",\"MinAPIVersion\":\"1.40\",\"Os\":\"linux\",\"Arch\":\"arm64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.4.0\",\"Details\":{\"ApiVersion\":\"1.54\",\"Arch\":\"arm64\",\"BuildTime\":\"Tue Apr  7 08:35:43 2026\",\"Experimental\":\"true\",\"GitCommit\":\"daa0cb7f\",\"GoVersion\":\"go1.26.1\",\"KernelVersion\":\"7.0.14-orbstack-00380-ga7e0a2dc9535\",\"MinAPIVersion\":\"1.40\",\"Module\":\"github.com/moby/moby/v2\",\"ModuleVersion\":\"v2.0.0+unknown\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.2.2\",\"Details\":{\"GitCommit\":\"301b2dac98f15c27117da5c8af12118a041a31d9\"}},{\"Name\":\"runc\",\"Version\":\"1.5.1\",\"Details\":{\"GitCommit\":\"bb14dabeb7185bb72c8c86735d090dcb20f36587\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"daa0cb7f\",\"GoVersion\":\"go1.26.1\",\"KernelVersion\":\"7.0.14-orbstack-00380-ga7e0a2dc9535\",\"Experimental\":true,\"BuildTime\":\"2026-04-07T08:35:43.000000000+00:00\"}}"
+      },
+      "git": {
+        "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a",
+        "version": "git version 2.54.0 (Apple Git-157)"
+      }
+    }
+  },
+  "result": {
+    "result": "PASS_BOUNDED_DISPOSABLE_BOOTSTRAP_GATE",
+    "baselineSHA": "0ef918801dac84ac913416f4c1756bf08045a485",
+    "cluster": "atlas-refactor-test-vs0927d",
+    "externalRootSuccessfulCreates": 1,
+    "handoffLatchCreates": 1,
+    "receiptCreates": 1,
+    "bootstrapMutationsOnResume": 1,
+    "bootstrapMutationsAfterReceipt": 0,
+    "repeatBootstrapMutations": 0,
+    "durableSeedObjects": 39,
+    "trackedWithArgoSSA": 36,
+    "CRDsWithSpecSSAAndExactSyncEvidence": 3,
+    "ephemeralHooksExcludedFromStableIdentity": 4,
+    "stableControlAndDurableContentAcrossRepeatAndRestoration": true,
+    "managerChangesFromFixture": {
+      "apps|StatefulSet|argocd|atlas-refactor-argocd-application-controller": {
+        "before": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager"
+        ],
+        "after": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager",
+          "kubectl-patch"
+        ]
+      }
+    },
+    "fixtureMutations": {
+      "unhealthy-pause-controller": {
+        "auditID": "15e4be47-7b73-4cd6-981f-a5c5749fae02",
+        "resource": "statefulsets",
+        "name": "atlas-refactor-argocd-application-controller",
+        "mutationCount": 1
+      },
+      "unhealthy-inject-status": {
+        "auditID": "5507ebf3-97d5-4f4a-b09a-453b226af052",
+        "resource": "applications",
+        "name": "argocd-self",
+        "mutationCount": 1
+      },
+      "unhealthy-restore-health": {
+        "auditID": "eac4b474-0284-472d-ba92-6f9391770c77",
+        "resource": "applications",
+        "name": "argocd-self",
+        "mutationCount": 1
+      },
+      "unhealthy-restore-controller": {
+        "auditID": "9c664a00-6b83-487e-92f2-31c2d7da1ba9",
+        "resource": "statefulsets",
+        "name": "atlas-refactor-argocd-application-controller",
+        "mutationCount": 1
+      }
+    },
+    "controllerReadyReplicas": 1,
+    "finalState": "ADOPTED",
+    "finalStatusExitCode": 0,
+    "originalAtlasMutations": 0,
+    "limitations": [
+      "single owner, local macOS ARM64 CLI, one-node Kind/OrbStack",
+      "health fault is controlled status injection while controller is paused",
+      "not full old Shell CLI parity, production readiness, admission enforcement or recovery cutover"
+    ]
+  },
+  "preClusterLocalRefusal": {
+    "command": {
+      "args": [
+        "/private/tmp/atlas-refactor-integration-04/bin/atlas-darwin-arm64",
+        "apply",
+        "--config",
+        "profiles/integration-04.json",
+        "--tool-dir",
+        "/private/tmp/atlas-refactor-integration-04/.state/evidence/integration-20260927-04/wrapped-tools",
+        "--approve-cluster",
+        "atlas-refactor-test-vs0927d",
+        "--approve-tier0"
+      ],
+      "start": "2026-09-26T18:06:41.174219+00:00",
+      "end": "2026-09-26T18:06:42.180436+00:00",
+      "exitCode": 1,
+      "rootInterruption": false
+    },
+    "error": ".state must be owner-only",
+    "correction": {
+      "scope": "local filesystem only",
+      "beforeMode": "0o755",
+      "afterMode": "0o700",
+      "kubeconfigExisted": false,
+      "auditDirectoryExisted": false,
+      "baselineUnchanged": true,
+      "firstDiagnostic": ".state must be owner-only"
+    }
+  },
+  "preflightCommands": [
+    {
+      "name": "head",
+      "started": "2026-09-26T18:04:20.242873+00:00",
+      "finished": "2026-09-26T18:04:20.254157+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "worktree",
+      "started": "2026-09-26T18:04:20.254416+00:00",
+      "finished": "2026-09-26T18:04:20.265706+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "anonymous-ref",
+      "started": "2026-09-26T18:04:20.265947+00:00",
+      "finished": "2026-09-26T18:04:20.919604+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "doctor",
+      "started": "2026-09-26T18:04:20.920370+00:00",
+      "finished": "2026-09-26T18:04:21.999322+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "initial-status",
+      "started": "2026-09-26T18:04:21.999684+00:00",
+      "finished": "2026-09-26T18:04:22.109587+00:00",
+      "exitCode": 1
+    },
+    {
+      "name": "render-a",
+      "started": "2026-09-26T18:04:22.112270+00:00",
+      "finished": "2026-09-26T18:04:22.355629+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "render-b",
+      "started": "2026-09-26T18:04:22.358397+00:00",
+      "finished": "2026-09-26T18:04:22.597818+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-go",
+      "started": "2026-09-26T18:04:22.608681+00:00",
+      "finished": "2026-09-26T18:04:22.616676+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-helm",
+      "started": "2026-09-26T18:04:22.642382+00:00",
+      "finished": "2026-09-26T18:04:22.664136+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-kind",
+      "started": "2026-09-26T18:04:22.668713+00:00",
+      "finished": "2026-09-26T18:04:22.674628+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-kubectl",
+      "started": "2026-09-26T18:04:22.698211+00:00",
+      "finished": "2026-09-26T18:04:22.719331+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-docker",
+      "started": "2026-09-26T18:04:22.748006+00:00",
+      "finished": "2026-09-26T18:04:22.777179+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "version-git",
+      "started": "2026-09-26T18:04:22.777926+00:00",
+      "finished": "2026-09-26T18:04:22.787757+00:00",
+      "exitCode": 0
+    },
+    {
+      "name": "binary-build-info",
+      "started": "2026-09-26T18:04:22.788032+00:00",
+      "finished": "2026-09-26T18:04:22.794586+00:00",
+      "exitCode": 0
+    }
+  ],
+  "commands": [
+    {
+      "start": "2026-09-26T18:07:53.006068+00:00",
+      "end": "2026-09-26T18:08:54.226216+00:00",
+      "exitCode": 1,
+      "label": "first"
+    },
+    {
+      "start": "2026-09-26T18:08:54.413165+00:00",
+      "end": "2026-09-26T18:08:55.289915+00:00",
+      "exitCode": 1,
+      "label": "interrupted-status",
+      "state": "HANDOFF_PENDING"
+    },
+    {
+      "start": "2026-09-26T18:10:09.430143+00:00",
+      "end": "2026-09-26T18:10:14.512244+00:00",
+      "exitCode": 0,
+      "label": "resume",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 1
+      }
+    },
+    {
+      "start": "2026-09-26T18:10:14.672748+00:00",
+      "end": "2026-09-26T18:10:16.710008+00:00",
+      "exitCode": 0,
+      "label": "resume-status",
+      "state": "ADOPTED"
+    },
+    {
+      "start": "2026-09-26T18:10:42.216431+00:00",
+      "end": "2026-09-26T18:10:44.695691+00:00",
+      "exitCode": 0,
+      "label": "repeat",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0
+      }
+    },
+    {
+      "start": "2026-09-26T18:10:44.858571+00:00",
+      "end": "2026-09-26T18:10:46.840917+00:00",
+      "exitCode": 0,
+      "label": "repeat-status",
+      "state": "ADOPTED"
+    },
+    {
+      "start": "2026-09-26T18:11:30.268388+00:00",
+      "end": "2026-09-26T18:11:30.271827+00:00",
+      "exitCode": 1,
+      "label": "missing-doctor",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:11:30.271994+00:00",
+      "end": "2026-09-26T18:11:30.275169+00:00",
+      "exitCode": 1,
+      "label": "missing-apply",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:11:30.286051+00:00",
+      "end": "2026-09-26T18:11:32.241912+00:00",
+      "exitCode": 0,
+      "label": "missing-restored-status",
+      "state": "ADOPTED",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:12:07.983199+00:00",
+      "end": "2026-09-26T18:12:08.223630+00:00",
+      "exitCode": 2,
+      "label": "drift-status",
+      "state": "DRIFTED",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:12:08.229635+00:00",
+      "end": "2026-09-26T18:12:08.648211+00:00",
+      "exitCode": 1,
+      "label": "drift-apply",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:12:08.654075+00:00",
+      "end": "2026-09-26T18:12:10.603988+00:00",
+      "exitCode": 0,
+      "label": "drift-restored-status",
+      "state": "ADOPTED",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:12:45.922261+00:00",
+      "end": "2026-09-26T18:12:46.571745+00:00",
+      "exitCode": 1,
+      "label": "unhealthy-status",
+      "state": "ADOPTED_DEGRADED",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:12:46.578396+00:00",
+      "end": "2026-09-26T18:12:48.224919+00:00",
+      "exitCode": 1,
+      "label": "unhealthy-apply",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:13:01.500832+00:00",
+      "end": "2026-09-26T18:13:03.462813+00:00",
+      "exitCode": 0,
+      "label": "unhealthy-restored-status",
+      "state": "ADOPTED",
+      "audit": {
+        "bootstrapUser": "kubernetes-admin",
+        "mutationCount": 0,
+        "phase": "post-adoption"
+      }
+    },
+    {
+      "start": "2026-09-26T18:13:40.338563+00:00",
+      "end": "2026-09-26T18:13:42.278469+00:00",
+      "exitCode": 0,
+      "label": "final-status",
+      "state": "ADOPTED"
+    },
+    {
+      "start": "2026-09-26T18:14:30.578675+00:00",
+      "end": "2026-09-26T18:14:31.944104+00:00",
+      "exitCode": 0,
+      "label": "quality"
+    }
+  ],
+  "latchBoundaryAudit": {
+    "bootstrapWritesAfterLatch": [
+      {
+        "verb": "create",
+        "resource": "applications",
+        "namespace": "argocd",
+        "name": "atlas-refactor-root",
+        "auditID": "8f58d56b-4184-4147-938f-937077c35829"
+      },
+      {
+        "verb": "create",
+        "resource": "configmaps",
+        "namespace": "kube-system",
+        "name": "atlas-refactor-receipt",
+        "auditID": "d41e055a-eb17-4d33-8742-1760c0034d41"
+      }
+    ],
+    "seedMutationCountAfterLatch": 0,
+    "excludedAuthorizedFixtureMutations": 4
+  },
+  "finalHandoffProof": {
+    "baselineSHA": "0ef918801dac84ac913416f4c1756bf08045a485",
+    "applications": {
+      "atlas-refactor-root": {
+        "uid": "8784e5a9-7a04-42b9-b998-0a66f42ba313",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "atlas-bootstrap",
+        "path": "gitops/test/root",
+        "tracking": null
+      },
+      "project-bootstrap": {
+        "uid": "ed0255f5-51be-4521-9dd7-6511a61def4b",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "atlas-bootstrap",
+        "path": "gitops/test/projects",
+        "tracking": "atlas-refactor-root:argoproj.io/Application:argocd/project-bootstrap"
+      },
+      "platform-control": {
+        "uid": "f9cb8f5c-26e6-467f-ba34-28f76e915d27",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "platform-project",
+        "path": "gitops/test/platform/applications",
+        "tracking": "atlas-refactor-root:argoproj.io/Application:argocd/platform-control"
+      },
+      "argocd-self": {
+        "uid": "24ab6d9e-2c1a-4049-a3f3-babe2e59be5c",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "platform-project",
+        "path": "gitops/test/platform/argocd",
+        "tracking": "platform-control:argoproj.io/Application:argocd/argocd-self"
+      }
+    },
+    "control": {
+      "identity": {
+        "uid": "c47f4455-08ab-493c-898d-03fe56dee76c",
+        "data": {
+          "cluster": "atlas-refactor-test-vs0927d",
+          "dockerContext": "orbstack",
+          "gitopsPath": "gitops/test",
+          "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+          "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
+          "revision": "integration-20260927-04",
+          "schema": "atlas-refactor/identity/v1",
+          "substrateProfile": "kind-ipv4-audit/v1"
+        },
+        "immutable": true
+      },
+      "handoff": {
+        "uid": "c1491f2e-7dbd-4b51-8612-f82a98c78ff9",
+        "data": {
+          "fingerprint": "e87684481def3471d40a9b3aca49bd37e6bc7bcd61a4cbe2e7df9bf7e21425f3",
+          "identityUID": "c47f4455-08ab-493c-898d-03fe56dee76c"
+        },
+        "immutable": true
+      },
+      "receipt": {
+        "uid": "5b645f3f-2fb5-4a50-87f2-eb974b658e28",
+        "data": {
+          "fingerprint": "e87684481def3471d40a9b3aca49bd37e6bc7bcd61a4cbe2e7df9bf7e21425f3",
+          "identityUID": "c47f4455-08ab-493c-898d-03fe56dee76c",
+          "rootUID": "8784e5a9-7a04-42b9-b998-0a66f42ba313",
+          "selfUID": "24ab6d9e-2c1a-4049-a3f3-babe2e59be5c",
+          "signalUID": "b4682aa8-dae4-42a1-b5a4-b8c87efa56aa"
+        },
+        "immutable": true
+      },
+      "signal": {
+        "uid": "b4682aa8-dae4-42a1-b5a4-b8c87efa56aa",
+        "data": {
+          "fingerprint": "e87684481def3471d40a9b3aca49bd37e6bc7bcd61a4cbe2e7df9bf7e21425f3"
+        },
+        "immutable": true
+      },
+      "atlas-bootstrap": {
+        "uid": "a5d6dafe-69a3-416d-82e2-9ff2e2a65a49",
+        "spec": {
+          "clusterResourceWhitelist": [],
+          "destinations": [
+            {
+              "namespace": "argocd",
+              "server": "https://kubernetes.default.svc"
+            }
+          ],
+          "namespaceResourceWhitelist": [
+            {
+              "group": "argoproj.io",
+              "kind": "Application"
+            },
+            {
+              "group": "argoproj.io",
+              "kind": "AppProject"
+            }
+          ],
+          "sourceRepos": [
+            "https://github.com/snkio027/atlas-refactor.git"
+          ]
+        }
+      },
+      "platform-project": {
+        "uid": "3be555c4-bf47-4a81-8e39-be7b1f38395e",
+        "spec": {
+          "clusterResourceWhitelist": [
+            {
+              "group": "apiextensions.k8s.io",
+              "kind": "CustomResourceDefinition"
+            },
+            {
+              "group": "rbac.authorization.k8s.io",
+              "kind": "ClusterRole"
+            },
+            {
+              "group": "rbac.authorization.k8s.io",
+              "kind": "ClusterRoleBinding"
+            }
+          ],
+          "destinations": [
+            {
+              "namespace": "argocd",
+              "server": "https://kubernetes.default.svc"
+            }
+          ],
+          "namespaceResourceWhitelist": [
+            {
+              "group": "argoproj.io",
+              "kind": "Application"
+            },
+            {
+              "group": "",
+              "kind": "ConfigMap"
+            },
+            {
+              "group": "",
+              "kind": "Secret"
+            },
+            {
+              "group": "",
+              "kind": "Service"
+            },
+            {
+              "group": "",
+              "kind": "ServiceAccount"
+            },
+            {
+              "group": "apps",
+              "kind": "Deployment"
+            },
+            {
+              "group": "apps",
+              "kind": "StatefulSet"
+            },
+            {
+              "group": "batch",
+              "kind": "Job"
+            },
+            {
+              "group": "networking.k8s.io",
+              "kind": "NetworkPolicy"
+            },
+            {
+              "group": "rbac.authorization.k8s.io",
+              "kind": "Role"
+            },
+            {
+              "group": "rbac.authorization.k8s.io",
+              "kind": "RoleBinding"
+            }
+          ],
+          "sourceRepos": [
+            "https://github.com/snkio027/atlas-refactor.git"
+          ]
+        }
+      },
+      "argocd-self": {
+        "uid": "24ab6d9e-2c1a-4049-a3f3-babe2e59be5c",
+        "spec": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "project": "platform-project",
+          "source": {
+            "path": "gitops/test/platform/argocd",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "integration-20260927-04"
+          },
+          "syncPolicy": {
+            "automated": {
+              "enabled": true,
+              "prune": true,
+              "selfHeal": true
+            },
+            "syncOptions": [
+              "ServerSideApply=true"
+            ]
+          }
+        }
+      },
+      "atlas-refactor-root": {
+        "uid": "8784e5a9-7a04-42b9-b998-0a66f42ba313",
+        "spec": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "project": "atlas-bootstrap",
+          "source": {
+            "path": "gitops/test/root",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "integration-20260927-04"
+          },
+          "syncPolicy": {
+            "automated": {
+              "enabled": true,
+              "prune": true,
+              "selfHeal": true
+            },
+            "syncOptions": [
+              "ServerSideApply=true",
+              "ApplyOutOfSyncOnly=true"
+            ]
+          }
+        }
+      },
+      "platform-control": {
+        "uid": "f9cb8f5c-26e6-467f-ba34-28f76e915d27",
+        "spec": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "project": "platform-project",
+          "source": {
+            "path": "gitops/test/platform/applications",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "integration-20260927-04"
+          },
+          "syncPolicy": {
+            "automated": {
+              "enabled": true,
+              "prune": true,
+              "selfHeal": true
+            },
+            "syncOptions": [
+              "ServerSideApply=true",
+              "ApplyOutOfSyncOnly=true"
+            ]
+          }
+        }
+      },
+      "project-bootstrap": {
+        "uid": "ed0255f5-51be-4521-9dd7-6511a61def4b",
+        "spec": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "project": "atlas-bootstrap",
+          "source": {
+            "path": "gitops/test/projects",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "integration-20260927-04"
+          },
+          "syncPolicy": {
+            "automated": {
+              "enabled": true,
+              "prune": true,
+              "selfHeal": true
+            },
+            "syncOptions": [
+              "ServerSideApply=true",
+              "ApplyOutOfSyncOnly=true"
+            ]
+          }
+        }
+      }
+    },
+    "durableSeedObjects": {
+      "networking.k8s.io|NetworkPolicy|argocd|atlas-refactor-argocd-application-controller": {
+        "uid": "b0f1b3bc-d75b-46d4-bb1a-0729e5f942b5",
+        "tracking": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "35bf8ea01188ace6b6a22d5f1979231270acf330781091709b670b1a9270e26b"
+      },
+      "networking.k8s.io|NetworkPolicy|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "38830a62-9a67-450d-af35-7ea2f605dd95",
+        "tracking": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "7b659be0eb2d19402f3e954d99e2fec2bdc5b62bf6985db44fb0b93b0007c83d"
+      },
+      "networking.k8s.io|NetworkPolicy|argocd|atlas-refactor-argocd-server": {
+        "uid": "8913363f-acf4-4ffe-86bb-0f478c00a8c7",
+        "tracking": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "b7fecdea7ad2b4fd377de44093506bfc80b28b9e0e416251e5c9f2fe1874d5d3"
+      },
+      "networking.k8s.io|NetworkPolicy|argocd|atlas-refactor-argocd-redis": {
+        "uid": "93891818-1660-40f7-88fb-f5ba99567a70",
+        "tracking": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-redis",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "1ec77307c42fa29182e9e9bcc4b3182dab4d71d98abab5aa4b015628dee0d3a2"
+      },
+      "|ServiceAccount|argocd|argocd-application-controller": {
+        "uid": "a4efc946-0c95-483a-9423-caa0ceac902a",
+        "tracking": "argocd-self:/ServiceAccount:argocd/argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ServiceAccount|argocd|argocd-applicationset-controller": {
+        "uid": "59331c43-69c6-4550-a380-7dcf0e58b906",
+        "tracking": "argocd-self:/ServiceAccount:argocd/argocd-applicationset-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ServiceAccount|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "a991f04b-e7df-4559-8eb9-3b658f9fd881",
+        "tracking": "argocd-self:/ServiceAccount:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ServiceAccount|argocd|argocd-server": {
+        "uid": "e477e3bc-f5cb-4aad-9839-5c038ff69921",
+        "tracking": "argocd-self:/ServiceAccount:argocd/argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ConfigMap|argocd|argocd-cmd-params-cm": {
+        "uid": "2d7cf0c7-7137-43c1-965f-ed1aa450fd59",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-cmd-params-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d9bce4e193353b33d05b4ea31804c81549662e145a7e1377a498ac055ddfc316"
+      },
+      "|ConfigMap|argocd|argocd-gpg-keys-cm": {
+        "uid": "77d1e238-5f55-45dd-a73b-1bc880a4ce86",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-gpg-keys-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ConfigMap|argocd|argocd-rbac-cm": {
+        "uid": "f460be18-5685-46d3-a5b0-b7e669cdc39f",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-rbac-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "9c748e7a1ad3d8c3fbdf3e2fe3c666694635e172155ebaf6b62318144381651d"
+      },
+      "|ConfigMap|argocd|argocd-ssh-known-hosts-cm": {
+        "uid": "6480ec66-ef0f-4787-bbb9-53b8e1e5f27d",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-ssh-known-hosts-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "7a13d835d3d7c65d7086e0e838af10122b2657dcb7d6746a6df1288e3081bd78"
+      },
+      "|ConfigMap|argocd|argocd-tls-certs-cm": {
+        "uid": "e68e2f3c-20d1-4859-aaa0-e12d42d6ff8c",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-tls-certs-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "|ConfigMap|argocd|atlas-refactor-argocd-redis-health-configmap": {
+        "uid": "ae6c998f-366d-43ef-a224-f273dac2dad2",
+        "tracking": "argocd-self:/ConfigMap:argocd/atlas-refactor-argocd-redis-health-configmap",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "f7892586e1adb3cc6c097400a4a00b44697378e3af7d528680e65155ffd46597"
+      },
+      "apiextensions.k8s.io|CustomResourceDefinition||applications.argoproj.io": {
+        "uid": "61c900db-a80f-448c-8fcf-0a1cea5c0a44",
+        "tracking": null,
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-apiserver"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "8f1486df693457027956f3fd6005ffa480fa81181f4fd2e32ca39ebd7aafe0ee"
+      },
+      "apiextensions.k8s.io|CustomResourceDefinition||applicationsets.argoproj.io": {
+        "uid": "87856fe7-cf0d-4157-8f3e-1d1026e824c5",
+        "tracking": null,
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-apiserver"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "c8d93cfa19cd6510aab2882f14f0bdd61dbce10774fa51df5e2c8a8c47a0386a"
+      },
+      "apiextensions.k8s.io|CustomResourceDefinition||appprojects.argoproj.io": {
+        "uid": "6705d1a6-94bb-4fd9-bccf-c4be0f80c432",
+        "tracking": null,
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-apiserver"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "8157ddfcc57bef73bfb677c7595de462171aca570c9005edcc2ad50e73e6b035"
+      },
+      "rbac.authorization.k8s.io|ClusterRole||atlas-refactor-argocd-application-controller": {
+        "uid": "0295030a-b735-4968-8e8c-aae9ca946129",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "dff7c1e8d7f9571d51f04b0314a266c06bf2eec453e89731c5623dc806d5007c"
+      },
+      "rbac.authorization.k8s.io|ClusterRole||atlas-refactor-argocd-server": {
+        "uid": "b8256641-617f-4e7b-a9a3-7ea90d777215",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "0cdd5ebd339344df4cb50dd6ee0541640974dbe3d885fe51ffd70518e2b33374"
+      },
+      "rbac.authorization.k8s.io|ClusterRoleBinding||atlas-refactor-argocd-application-controller": {
+        "uid": "7b1ca27c-67fb-4788-8946-28481cb9a302",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "f95c32dc2f0146c7b0ecde51b50ba5fac12fcdcac7ed8aae4859a84b20b096be"
+      },
+      "rbac.authorization.k8s.io|ClusterRoleBinding||atlas-refactor-argocd-server": {
+        "uid": "9a1ca2fb-e2f9-4087-ba99-179bc5091b8c",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "097183d2ab5bf206f8b9e755246b8505b29cc7e3282b7697274768f08bc6c5d7"
+      },
+      "rbac.authorization.k8s.io|Role|argocd|atlas-refactor-argocd-application-controller": {
+        "uid": "8c18287c-74f7-4eb3-b515-5ed4de766a73",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "5c04d8630713f050dcb0e0b38e93ba08b5b7d340d56b196f0b8bb3cf04523aa6"
+      },
+      "rbac.authorization.k8s.io|Role|argocd|atlas-refactor-argocd-applicationset-controller": {
+        "uid": "d9d1ff02-3400-468b-948a-b8f2aa49ac68",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-applicationset-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "efd45bae975b4220c34e341234230f7fce98111a2019e71e89ca239271c53926"
+      },
+      "rbac.authorization.k8s.io|Role|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "f8d451e1-3ed4-48c8-8d89-92b2332f099a",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d95789751b1852251a54c437c3947900dfebeb55425e2e873b91845b0991e776"
+      },
+      "rbac.authorization.k8s.io|Role|argocd|atlas-refactor-argocd-server": {
+        "uid": "56193ca2-3ab0-4f58-a6e2-adc66b824786",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d638411bfc7fbefcb0f2f82d7c0530dad2ab2265419383f51ae85b6ea1559aac"
+      },
+      "rbac.authorization.k8s.io|RoleBinding|argocd|atlas-refactor-argocd-application-controller": {
+        "uid": "f961e442-995b-40f8-9641-ba2dd9153370",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "fa97c78d0fef10011cd8046b854f2011b5a003461f29e5c8e880f0ae02257c6f"
+      },
+      "rbac.authorization.k8s.io|RoleBinding|argocd|atlas-refactor-argocd-applicationset-controller": {
+        "uid": "300181b7-c18a-439e-97c9-0ddce2f362a6",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-applicationset-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "0557eade79d40eed71afa3aa997b399d0f781a6c4f5402ac3511ab4c7d31a0cb"
+      },
+      "rbac.authorization.k8s.io|RoleBinding|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "e3cd9a99-0cb9-4297-81c1-63691cb554a6",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "8e1fd64d6a9df8977add53ddb3901bc01535d886f9474f926e47044e1273dc64"
+      },
+      "rbac.authorization.k8s.io|RoleBinding|argocd|atlas-refactor-argocd-server": {
+        "uid": "bc1ebfc2-1fe0-4612-a0e8-531f7f68d495",
+        "tracking": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "25013d4591bc51267df867c7dcd097bdcb622f142bdc7199038bf58d82567a8e"
+      },
+      "|Service|argocd|atlas-refactor-argocd-applicationset-controller": {
+        "uid": "2f76b21c-1ca7-421b-be75-60a65da124e1",
+        "tracking": "argocd-self:/Service:argocd/atlas-refactor-argocd-applicationset-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "e5650b868b6c840064037fbc5618e88a531f294b15de41fdab431460ac6ea200"
+      },
+      "|Service|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "46e78554-e227-4a92-a012-f1d5365377f1",
+        "tracking": "argocd-self:/Service:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "82eafca3ee2761d2bf702d779c0fd620b0384990999f5fb2e4d77a0bf9837d80"
+      },
+      "|Service|argocd|atlas-refactor-argocd-server": {
+        "uid": "f26096dc-22c5-4a13-a4b0-53fc7effdfd8",
+        "tracking": "argocd-self:/Service:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "f6642e760c6f49801c51628648f1c57595b191e415cce0a60e0ca1dcd8c03742"
+      },
+      "|Service|argocd|atlas-refactor-argocd-redis": {
+        "uid": "38c73a0f-4bda-438e-8314-34155854575d",
+        "tracking": "argocd-self:/Service:argocd/atlas-refactor-argocd-redis",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "64eb41fb3238ab87ac1d94c9a63ccceabcd1b9a7e641a8331938b1e245f67be3"
+      },
+      "apps|Deployment|argocd|atlas-refactor-argocd-applicationset-controller": {
+        "uid": "91a9ab5f-aba3-4c8b-a0c1-5cb7cc12a1e9",
+        "tracking": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-applicationset-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d924bfe969bd88b384b7cf22c10a2fc8d33b2fb0d91c7b47376d684973a333fa"
+      },
+      "apps|Deployment|argocd|atlas-refactor-argocd-repo-server": {
+        "uid": "c17328b7-29b1-464d-a987-6221b8e5e74a",
+        "tracking": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-repo-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "2e569acd67f655a906325bdbd94b7e20bb7f4a1a5413a9465ad876c3168791e2"
+      },
+      "apps|Deployment|argocd|atlas-refactor-argocd-server": {
+        "uid": "83b9b7a9-28b0-4e86-9b92-a15fc3a969e6",
+        "tracking": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-server",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "c368fba152bc223ae60a4d33fdfc7488d3c7c24d9727467e15f98b7f722ea741"
+      },
+      "apps|Deployment|argocd|atlas-refactor-argocd-redis": {
+        "uid": "e9f3da66-553e-4dad-8c76-3dac2146f4fe",
+        "tracking": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-redis",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "e040f49dd52748157f34c29282ec363b953f02c0a63ea61f262d7862d56fd3a2"
+      },
+      "apps|StatefulSet|argocd|atlas-refactor-argocd-application-controller": {
+        "uid": "b07e7667-ae9e-4391-b852-3ed2f2ef5ede",
+        "tracking": "argocd-self:apps/StatefulSet:argocd/atlas-refactor-argocd-application-controller",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap",
+          "kube-controller-manager",
+          "kubectl-patch"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "d7d54c215f5c9f232acebf87328115272fd3905adab93b38991609334ec91a0b"
+      },
+      "|ConfigMap|argocd|argocd-cm": {
+        "uid": "5d4e9225-05cf-4f5b-857d-8fd4ec6085fb",
+        "tracking": "argocd-self:/ConfigMap:argocd/argocd-cm",
+        "managers": [
+          "argocd-controller",
+          "atlas-refactor-bootstrap"
+        ],
+        "argoSSA": true,
+        "contentSHA256": "ddeceed1e621b56389f2ee2d6c872c7a29fb080b4657b9326ab08812d24cafd0"
+      }
+    },
+    "excludedEphemeralHooks": [
+      "|ServiceAccount|argocd|atlas-refactor-argocd-redis-secret-init",
+      "rbac.authorization.k8s.io|Role|argocd|atlas-refactor-argocd-redis-secret-init",
+      "rbac.authorization.k8s.io|RoleBinding|argocd|atlas-refactor-argocd-redis-secret-init",
+      "batch|Job|argocd|atlas-refactor-argocd-redis-secret-init"
+    ]
+  },
+  "CRDReconciliationEvidence": {
+    "applications.argoproj.io": {
+      "uid": "61c900db-a80f-448c-8fcf-0a1cea5c0a44",
+      "trackingAnnotation": null,
+      "argoSSASpecFields": [
+        {
+          "apiVersion": "apiextensions.k8s.io/v1",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                "f:argocd.argoproj.io/sync-options": {},
+                "f:helm.sh/resource-policy": {}
+              },
+              "f:labels": {
+                "f:app.kubernetes.io/name": {},
+                "f:app.kubernetes.io/part-of": {}
+              }
+            },
+            "f:spec": {
+              "f:group": {},
+              "f:names": {
+                "f:kind": {},
+                "f:listKind": {},
+                "f:plural": {},
+                "f:shortNames": {},
+                "f:singular": {}
+              },
+              "f:scope": {},
+              "f:versions": {}
+            }
+          },
+          "manager": "argocd-controller",
+          "operation": "Apply"
+        }
+      ],
+      "currentInventory": [
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applications.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        }
+      ],
+      "syncPhase": "Succeeded",
+      "syncRevision": "0ef918801dac84ac913416f4c1756bf08045a485",
+      "syncResult": [
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io serverside-applied",
+          "name": "applications.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        }
+      ]
+    },
+    "applicationsets.argoproj.io": {
+      "uid": "87856fe7-cf0d-4157-8f3e-1d1026e824c5",
+      "trackingAnnotation": null,
+      "argoSSASpecFields": [
+        {
+          "apiVersion": "apiextensions.k8s.io/v1",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                "f:argocd.argoproj.io/sync-options": {},
+                "f:helm.sh/resource-policy": {}
+              },
+              "f:labels": {
+                "f:app.kubernetes.io/name": {},
+                "f:app.kubernetes.io/part-of": {}
+              }
+            },
+            "f:spec": {
+              "f:group": {},
+              "f:names": {
+                "f:kind": {},
+                "f:listKind": {},
+                "f:plural": {},
+                "f:shortNames": {},
+                "f:singular": {}
+              },
+              "f:scope": {},
+              "f:versions": {}
+            }
+          },
+          "manager": "argocd-controller",
+          "operation": "Apply"
+        }
+      ],
+      "currentInventory": [
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applicationsets.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        }
+      ],
+      "syncPhase": "Succeeded",
+      "syncRevision": "0ef918801dac84ac913416f4c1756bf08045a485",
+      "syncResult": [
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io serverside-applied",
+          "name": "applicationsets.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        }
+      ]
+    },
+    "appprojects.argoproj.io": {
+      "uid": "6705d1a6-94bb-4fd9-bccf-c4be0f80c432",
+      "trackingAnnotation": null,
+      "argoSSASpecFields": [
+        {
+          "apiVersion": "apiextensions.k8s.io/v1",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                "f:argocd.argoproj.io/sync-options": {},
+                "f:helm.sh/resource-policy": {}
+              },
+              "f:labels": {
+                "f:app.kubernetes.io/name": {},
+                "f:app.kubernetes.io/part-of": {}
+              }
+            },
+            "f:spec": {
+              "f:group": {},
+              "f:names": {
+                "f:kind": {},
+                "f:listKind": {},
+                "f:plural": {},
+                "f:shortNames": {},
+                "f:singular": {}
+              },
+              "f:scope": {},
+              "f:versions": {}
+            }
+          },
+          "manager": "argocd-controller",
+          "operation": "Apply"
+        }
+      ],
+      "currentInventory": [
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "appprojects.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        }
+      ],
+      "syncPhase": "Succeeded",
+      "syncRevision": "0ef918801dac84ac913416f4c1756bf08045a485",
+      "syncResult": [
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io serverside-applied",
+          "name": "appprojects.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        }
+      ]
+    }
+  },
+  "repeatStability": {
+    "controlUIDSpecDataStable": true,
+    "durableSeedUIDContentTrackingManagersStable": true,
+    "durableResourceCount": 39
+  },
+  "nodeIdentity": [
+    {
+      "name": "atlas-refactor-test-vs0927d-control-plane",
+      "uid": "781432b5-c062-4f1b-822d-397ac6d19ea9",
+      "nodeInfo": {
+        "architecture": "arm64",
+        "bootID": "1b692ed8-6dde-4176-bd67-d2e0900a6f31",
+        "containerRuntimeVersion": "containerd://2.3.1",
+        "kernelVersion": "7.0.14-orbstack-00380-ga7e0a2dc9535",
+        "kubeProxyVersion": "",
+        "kubeletVersion": "v1.36.1",
+        "machineID": "02244ae8667d43bbbec469f85305661d",
+        "operatingSystem": "linux",
+        "osImage": "Debian GNU/Linux 13 (trixie)",
+        "swap": {
+          "capacity": 17893343232
+        },
+        "systemUUID": "02244ae8667d43bbbec469f85305661d"
+      },
+      "conditions": [
+        {
+          "lastHeartbeatTime": "2026-09-26T18:08:31Z",
+          "lastTransitionTime": "2026-09-26T18:07:58Z",
+          "message": "kubelet has sufficient memory available",
+          "reason": "KubeletHasSufficientMemory",
+          "status": "False",
+          "type": "MemoryPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T18:08:31Z",
+          "lastTransitionTime": "2026-09-26T18:07:58Z",
+          "message": "kubelet has no disk pressure",
+          "reason": "KubeletHasNoDiskPressure",
+          "status": "False",
+          "type": "DiskPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T18:08:31Z",
+          "lastTransitionTime": "2026-09-26T18:07:58Z",
+          "message": "kubelet has sufficient PID available",
+          "reason": "KubeletHasSufficientPID",
+          "status": "False",
+          "type": "PIDPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T18:08:31Z",
+          "lastTransitionTime": "2026-09-26T18:08:20Z",
+          "message": "kubelet is posting ready status",
+          "reason": "KubeletReady",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    }
+  ],
+  "unhealthyFixture": {
+    "injectionRoute": {
+      "route": "status-only JSON patch on Application endpoint",
+      "specMutation": false
+    },
+    "restorationRoute": {
+      "route": "status-only JSON patch on Application endpoint",
+      "specMutation": false
+    },
+    "restoration": {
+      "controllerPauseApplied": true,
+      "healthFaultApplied": true,
+      "errors": []
+    }
+  },
+  "driverSHA256": {
+    "atlas-refactor-integration-driver-04.py": "0e350f56be9bb6be9d73b07d9fad3102e53967c8bacbc91ad5e4506b79017fed",
+    "atlas-refactor-check-handoff-04.py": "ce8b1361a32b4c5df40d5e38e76066672609338c3ac9cd6bddf6aa6fa0695f0c",
+    "atlas-refactor-negative-cases-04.py": "cd7e5d507f38d59217e85cd5ff2d8271f3d75189de85e19244e6de707775e0f9",
+    "atlas-refactor-prepare-evidence-04.py": "1351b2da32ad91748258c2d54489a5e657d6001c3f3c62bf7b8bba36c9f6f35f",
+    "atlas-refactor-finalize-fourth.py": "e67515b6bb1ab65cdde31a488a355cf9f2b4adc0d315d35ab02b5e2c813f7e86"
+  },
+  "privateEvidenceSHA256": {
+    "interrupted-projects-command.json": "150a87d89a82b03162391132733dc4f8da90a327716d02fe7df71597b74da5e4",
+    "repeat-before-identity-command.json": "8cf181e4cfdd9538db7593715b9d410f5e68167e5e3f5db4b29b4130b995965b",
+    "repeat-before-apps-command.json": "ec9aa6d2d515c0d50ca395aedaee951fba23220738e369479ad7f44e46ef8423",
+    "repeat-after-handoff-command.json": "f914e23f4e8902ec4e35791e84f6c5a91ce969f2c9a8ba47d3822a5ad4306d6c",
+    "adopted-receipt-command.json": "c10c078bc254e330445e1ec2f9051883ce5f44769c8b371a5edabbc1dd8d64d1",
+    "quality-command.json": "bb2927501bd269ed40797c0803f560feef1cf835d11e92f0440641f62e3b6a5c",
+    "repeat-before-handoff-command.json": "3f0607826d910d011c5fd148d6e1a68031125fc44f11854b1ef708196d96bf91",
+    "drift-initial-status-command.json": "f020110b801c99de99a6be57c89d8621712c9399045327363d8f6d972a3e5a20",
+    "drift-apply-audit.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "resume-audit.json": "3978b02151e1b09a189d22508f693f88425bf7006217b78e098d8dd7a268c6cd",
+    "unhealthy-inject-status-route.json": "dc59a7bb98fe0c05595f281b0d963a77aae6ce88a7037db04dd7704ad5b37b5e",
+    "drift-initial-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "restored-snapshot.json": "93bbc208fe7f87c747dfbc75aeb1b34a7013855b2fa5146724690b9584d00aec",
+    "resume-before-apps-command.json": "925bda2c1ad08381f97a7f82d2187cf78fe06bd5ea955a50d2dcecd05bbbe3ec",
+    "unhealthy-pause-check-1-command.json": "104b2b81d35acf1bef9ad16eb51058d571721881c601167f3235b73a37a3d2b5",
+    "drift-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "adopted-signal-command.json": "3ffa33e861dc36ecbfb60ca2a28585240a42a2b9f3f239a4d67acae6d56dbb3d",
+    "interrupted-handoff-command.json": "e7c0e7f79b3a7dbb0f926a648c1ee7e69696a278daa33fa989e3756a1548b000",
+    "repeated-projects-command.json": "f1e6e6372c5df829d61e745ca0da284de209d5f5517c0724bb745910bc43cff7",
+    "unhealthy-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "root-created-marker.json": "03009e4300a25a2dc979cd562bcacedc58e427cf2e70732d14df66a5f3d07e40",
+    "unhealthy-inject-status-command.json": "e55d7d227182e2b93f567f0ab23d2c65b5a4fb2dfd622c3445af2c2677025edd",
+    "adopted-projects-command.json": "4ab943121125e1f1582b3fff3658bab15e3b895db40df649856a516686313b2e",
+    "unhealthy-controller-rollout-command.json": "3ade464ccda003617384aac475c77ec8f920d70c158d777db98f1824aa133149",
+    "unhealthy-initial-status-audit.json": "ee8475e9ff4730de0ef5ce2bf1df758603784ea1e843fca0caba522f74869d8f",
+    "restored-signal-command.json": "031037eab767785640d7e108d53c7768a1459e934d05079eb8351309b992a046",
+    "unhealthy-pause-controller-command.json": "9b69109815e878fd842002775243402980fc255faa2ee2c0cf942bbb5744abe7",
+    "unhealthy-inject-status-schema-command.json": "186737ef70069583654c05684c1ad63357f24a6bd9b5b04d8438ad46fe9cda96",
+    "unhealthy-initial-status-command.json": "6b9a9d0f0666ed268ebd68bd9ad26df2953dd54cf3b4a669496f46165a85ca08",
+    "unhealthy-restore-health-spec-check-command.json": "60c5e88f188242c9e3630411602dc43257a8acf2a2e29550df197285438e721f",
+    "drift-restored-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "resume-before-handoff-command.json": "82c2ba0ff6a4b5fcc3bd14627bd33bf08eced8a141990ec6ef831cf33ebf7558",
+    "missing-doctor-audit.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "resume-before-snapshot.json": "3fc65e79e770d2802053949eca92e929f3127a8f59dcb0d41c1db84c310d8ac3",
+    "final-clean-command.json": "72f68779d9b239a194ab842f185e1d4e7dee39683962b8a97a12d74546025d26",
+    "result-summary.json": "958ae49e61fcb187cbde5aa7d120488fc942d2a2b62beb22490ba589f241a81e",
+    "execution-authorization.json": "759d14d2a7c93477aa1727eddd7baae93af17123972e9bdb5af7ce151b96d322",
+    "adopted-seed-command.json": "0336d0f867fa4f16a394b3b2a1c608cfc323d6ed9abc5c4f070d791dd307e996",
+    "first-command.json": "afcb7f4516a772411d5234035f30ec064a1761c80b207305c038cd227988b1b2",
+    "unhealthy-pause-check-0-command.json": "7f1798b71a99c2fd78315ac69fc94bd92458115b38fe46f27bc19b8fd310d438",
+    "wrapper-client-version-command.json": "e7bc3a5c783b8f0381f020f966f3b38ced97d1d9c3b99698341d267e201e321b",
+    "resume-before-projects-command.json": "f59244a67a5ba39c5677bf06810f26e79851cf4808250c830d28fd8be69a24f1",
+    "resume-after-receipt-command.json": "f18b74c43f98e709e53d0ae70880ca73fb893d012ef104871ae736882eced5bd",
+    "missing-initial-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "resume-after-apps-command.json": "0037b65de2f6bbf3edd019eae706e8883a1de0942b6e47b8f49463260eba61e4",
+    "repeat-after-apps-command.json": "77c1862bf0c5dcd1965a7de646a8cc908d015c01c8466516eda4f094cdab1b57",
+    "unhealthy-observed-apps-command.json": "9263f3834bf30cfbf45705573e1190be374950b4545c4fd8d60be7118abdf2ff",
+    "unhealthy-restoration.json": "b99f6a662c727cfecc82e98be439091534f9431fbfea943b837ed03e00e31104",
+    "resume-mutation-summary.json": "14f7038158385e803218becdc48b38be698f8677f476c0fbc6e4b236cb25bef5",
+    "drift-profile.json": "3f345754d21c17b1478dc589a9fb294154fe264896a2fb858ce05599817ff7e6",
+    "missing-final-worktree-command.json": "6739502a6c4f2a0d12c6ecefb3cffdc8428b8983b54d5da8fd51c0f536f8d4d8",
+    "restored-identity-command.json": "25bd1ab2c8cd90ba3ede9d8c6c9eb7b5a682985e67be903385131565b391ec05",
+    "missing-apply-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "repeat-mutation-summary.json": "b557998e6ff41c0d83ef0f9b133aa980894201ae52fafb5ce02b2d86e717c4b0",
+    "unhealthy-pods-0-command.json": "f78a965e22d71a0b9ce164cb7b0fea5af594fe185c8c1cc25a0912b51586f033",
+    "full-audit.json": "71aa9bf8bbbe96da86b1584bb153544134d89e8006c3e794e35c23d77c0125e6",
+    "repeated-handoff-command.json": "ddd8e3b97af37235481bf41aa78096ecba41ffa0028099e27d67e092278d647b",
+    "missing-restored-status-audit.json": "3b988f226dbf708cf31407abd452f7fd022cbe4c8a34161a3c519cf37e4f4df0",
+    "preflight-commands.json": "1ff6f8a15a63dd6c3d2ad9685ff721cfa11600a653664dccf3be82eeed8f0ca8",
+    "unhealthy-status-audit.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "missing-doctor-command.json": "8649e32aec64b8baab60b319da3c014277b88c432175c6173100525e0d2d50e2",
+    "node-identity.json": "8e14261d67d6983f00a48aac13c6b133153b6352d69eec1a227bc201ac753a05",
+    "unhealthy-inject-status-spec-check-command.json": "546745ac248fcf2b1104e9c1965cf54829f4b4ba52a911ae85972fbd929325d2",
+    "resume-after-identity-command.json": "992e0f37d28e4e4764bb7dfa823c237e72afcdcec1a35bb725a421cd5b933321",
+    "unhealthy-apply-command.json": "866d5c92dcf82fb24c664deb6879255ebf5bdcdd7793822e9fa7ed517df6cf61",
+    "adopted-apps-command.json": "da1fd7d844493122b5892bd65899ba3632b401e151dccd5dbab6250074391a47",
+    "unhealthy-controller-original-command.json": "3923d718fb841b19ef801ed4ab6b0dcdfe4febfb52391806b9de58195e6954fc",
+    "drift-status-audit.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "interrupted-snapshot.json": "ea817c08767e9a9f9f726ded391d37abfc1cb6dd9a6fff017f97e4ace8fa126e",
+    "missing-restored-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "first-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unhealthy-observed-identity-command.json": "0bc0a2b36d0662d11dd475fc3a3c708605cf6454b90ec6dfa95a7148347d0b22",
+    "unhealthy-observed-receipt-command.json": "5db6f7f31e933f62f86b5bf77d74ab4139e7a737cd4e9528a3a929a21a73550e",
+    "unhealthy-pods-1-command.json": "25414a000527c629ffb792c345c097264e10b0c1040625feafd4da248abd5a47",
+    "restored-handoff-command.json": "68f84ebb7cdd7d1e5c19f3de337a9a21ffe611bc71e0b93a0a95d68d0942f28a",
+    "repeat-after-identity-command.json": "d78ca5b13d7d0a906edd1828a0aa123008c3c04f71440dfc39b677a97d9c7467",
+    "first-audit.json": "aebb909be206f6143e9fb6a9b06908ec812ced1006571b5640c0b83426144bb1",
+    "adopted-handoff-proof.json": "71dbedab9853cf397343ca2fd1953b19c467b524c2b1de63c91eafb800abd1a6",
+    "unhealthy-apply-audit.json": "726a764917bbf5019ff144da5640222ba01a4e18d269b39bc45ccbb48f221099",
+    "final-controller-command.json": "0cde8f1439aa24e3ac87c63663e615ee145a9c8ff996c7b96d1e9010c910f474",
+    "unhealthy-receipt-command.json": "2cd68baddb36862d86dea9d0a850bbcff2b8751403780d19d9b714478bf81af8",
+    "drift-restored-status-audit.json": "ee1beeabf52f2303dc688cb4d3c22740fa2999b062bf4d11b0d72ab6d669cab0",
+    "interrupted-identity-command.json": "2e392127a4a895bcca972b8ddf7066b789d79ee505d841418a8063fcf9b7413b",
+    "repeat-before-projects-command.json": "01406d9a2e617b96c495f961ab12be0f39241ce37b9134aa3602ba7e8b761379",
+    "repeat-before-receipt-command.json": "1c3e1b7bd6d85a50d2ecd30f9eae7e564051d6bc58155d14916de4d0a43a2ff3",
+    "instrumentation.json": "7debdcf20cce403abd58fda3ba750b0efec236884fce1bb465ab483e398d6abf",
+    "missing-apply-command.json": "528b17b4e5f679c46d086a7d39abe296620c276ff6d14fb81a061d65067acbde",
+    "repeat-after-receipt-command.json": "cbec2a0886d01888d52748f5502545524220cb0adbf1ded200c92da8b142d930",
+    "adopted-handoff-command.json": "5fdf0bcf2b3a9938d2c14bd697b45da1092ee55743980406a0137c3b12f08ec5",
+    "repeated-identity-command.json": "95dce203ef5e4763a3418ecee5f8fcfe5dbc68294eb9358ac4a5c50c1851338e",
+    "baseline.json": "e5bd8ac790a961188d346a90d88e69f841ace60607c22b6142f21e3d7c24fc5f",
+    "drift-apply-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "interrupted-receipt-command.json": "c49f72254a5ea1f1883fba5c4a9c3176c3a836388e97fdea7ac497a0b3c9c14e",
+    "readiness.json": "91ecdfb096b45c39c4509f53f51450b20daaf8dd560d7e5adb9df461826e6c98",
+    "drift-final-worktree-command.json": "5bf9c7785cad79b7e69c46c6aeaa4e2ad65096640dedc7bd66bb87e2cb75e69b",
+    "restored-apps-command.json": "b952fcb183853c5f44e5be5b0528395fb27094c925fcb03e954d4f10e2e7cea7",
+    "latch-boundary-audit.json": "18ec7b560eea84560471ffb74c7ac34a2a53b081b130d125ecf193621ff501bf",
+    "interrupted-status-command.json": "3f62547482fb38cf7d6df0cadc0339d81a3bbece616d340fd779c14584cd5264",
+    "repeated-snapshot.json": "babc1b5a590a02cebb4bcdd6c3e3993fb670c3d5e22aa02fa1197b262106f8de",
+    "drift-restored-status-command.json": "3baefd09f1606a8262aabdd2483bec0b38481e8b2ceba86a96d0903ca133fe86",
+    "unhealthy-observed-snapshot.json": "df6a7e70c6b66f991a31c34ae40e33dad3242d34eacf2a315d34045da00dea8d",
+    "repeat-after-snapshot.json": "c46c0fe913be096db032cb71834399ddd315bf70c3b62fe90f50093164ff048c",
+    "guard-head-command.json": "586e528ea76be5d0df674c8a5d75108cab2e4db39c206cf11add9d973b2ff9a2",
+    "resume-before-receipt-command.json": "33c3035ac77392d6949375223fe1d5e1f10fb59997e549c9983094e92834ef63",
+    "missing-restored-status-command.json": "e7610952ab624f06c738b2dd590f706532a4a67fc43a535cb992df0353bdd898",
+    "unhealthy-restored-status-command.json": "226a01970193164936fb2347358598cfb86a0789b14d67efebffa9d98712751c",
+    "adopted-identity-command.json": "0f4605981dfdfed06b3f8a4a8d8fc5dca8bec8665c6025e2de813bd273f2844c",
+    "resume-before-identity-command.json": "336467c31c46f23c06c5fccd56e32356434f0cbf3d02db7b57028ae8921a5992",
+    "unhealthy-apply-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "unhealthy-final-worktree-command.json": "206a9d787f914ebb682124dddb7ed289f821dc9ba8be6619bd370a8050b339ce",
+    "resume-after-handoff-command.json": "09cceacde80f05765f12bb427a89fd4cccd7531a7c63a75ca9599b8c3fc67c27",
+    "resume-status-command.json": "bb4eb43eae3e9d3bae7483a44a1db35f655a8d17238e973e7c2ae0cb2eb4e133",
+    "repeat-before-snapshot.json": "c46c0fe913be096db032cb71834399ddd315bf70c3b62fe90f50093164ff048c",
+    "missing-apply-audit.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "guard-anonymous-ref-command.json": "ee882db4508a37b3eebaec5fc98243197fa7330e070c2b584917f79909b2f3bb",
+    "repeated-seed-command.json": "7671a8e3e9aa629c25db12e6f3b2ab28617efe99f6b79fda1c69d7a32c18ddc5",
+    "repeat-audit.json": "706304e30f070d5f7a32354dcbc64b173c7d3f86dd7a8cbad2bcf660af2a418a",
+    "repeated-receipt-command.json": "c58bdc411fecd5aa421bc902fbeea6f7c397aa4935a5213dade8008564c35cd2",
+    "restored-projects-command.json": "8db991d32497dd291c0d42f775313960cd205dd7e806e5a1adde5cdf59f68550",
+    "missing-doctor-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "unhealthy-status-command.json": "774fe24b264df1edf5c8b8d2342945e86c8337c94f814f38282b88b330bfc249",
+    "unhealthy-reconcile-status-0-command.json": "1f956ddbb8044fc95c5fdc4d7f6f4998f50c6741d06eb4ef24bc35c6cdaec180",
+    "kubectl-invocations.jsonl": "9e5a1308591fca11ccabaa09e59aabe6677b4c33b097636465b4baa684431c6a",
+    "unhealthy-restored-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "resume-after-projects-command.json": "2ab5548c680851921762b617bacce76e9eafa0c3bca7f91ceadbc575ae712b0c",
+    "repeat-stability.json": "5f6c05ffef3b7d6ede4b36a5bc028cf0f41e1772e518739a1cfe9466be6ad40d",
+    "adopted-snapshot.json": "c46c0fe913be096db032cb71834399ddd315bf70c3b62fe90f50093164ff048c",
+    "final-status-command.json": "e84f13fc812f8fb03ff59951505995b7ae6cfd1ff6972d792dea86bc5314a48b",
+    "drift-initial-status-audit.json": "aad27fdb0eb8b2f2be345e3339f9ce5c1b44d70c50cd70ad2c012fdcb950b8b7",
+    "repeated-apps-command.json": "7e8c18a944fbcb0de0c5af8f0d4aa25989843c7949ac35448af8a7d2b162b46d",
+    "bootstrap-principal.json": "5e20162c54c9422dcedb4173d5570ecb632570ac424f024c98f1b635a12f852d",
+    "restored-handoff-proof.json": "5d9eb6b8330f5685c98dc9f2e2aac778f1d2d289dc22dfe93f5e3209decaeab0",
+    "unhealthy-restore-health-route.json": "dc59a7bb98fe0c05595f281b0d963a77aae6ce88a7037db04dd7704ad5b37b5e",
+    "unhealthy-initial-status-mutation-summary.json": "c6d10e4fe2d45bac6cdcb5761a08646b9fbb499835926983b4fc7f9514473aba",
+    "unhealthy-restore-controller-command.json": "3ff7c4f34e4078f4434dda683f2ddf18e89af8f68fc6c87f2fe4ed23f2da8544",
+    "unhealthy-controller-before-restore-command.json": "679e9c8f20a5ec7317b89c5e2b39ae1eb760ce92686ca67a897e10b6afcf3449",
+    "repeated-handoff-proof.json": "71dbedab9853cf397343ca2fd1953b19c467b524c2b1de63c91eafb800abd1a6",
+    "repeated-signal-command.json": "d1b09b2ec64d91811fc743ada5605c60d193cbec73eadfe2bd4633ea72bc8550",
+    "guard-clean-command.json": "c50c4bdda89588cb831792f4e77dff65f7a2ceacf84bf9b936e95db9ed514a15",
+    "drift-apply-command.json": "14f1295e77e1d23aee9086850d6bf092e2886ba9366e4f24a07e488826e1657d",
+    "missing-initial-status-command.json": "f0e969e002ce6ce0c86f09e9651d2090a1de67fc0241be65a2cb159f28531c09",
+    "repeat-command.json": "c7ada79d7ef1d4a1e7ebe5de085269f713eeb269dafd04a42bd131bcd9e73a17",
+    "resume-after-snapshot.json": "c46c0fe913be096db032cb71834399ddd315bf70c3b62fe90f50093164ff048c",
+    "unhealthy-observed-handoff-command.json": "7e8046c04fe7d09c9ee1ee5acaff894b63e3b01f1de343b9b4737bd70af67b1c",
+    "restored-receipt-command.json": "e2757d3ba661135a97266f74ce1186201a80eacfdbbe576e40b1b624ec0a58a8",
+    "unhealthy-restore-health-schema-command.json": "3e1a8f53e8e3b6437b6092fc9ca93bac84f284bb673471e027aa4ea9d00d3a6d",
+    "unhealthy-app-original-command.json": "8007db4274436992b08fd2178cc6d6bf37863146bf90b15af957bbd6a04ffc48",
+    "unhealthy-app-before-restore-command.json": "5f59d2170118bfbb93dfe9f840802ba569a5215322a3175332ca0bf72d5dc98e",
+    "drift-status-command.json": "4cd5a89b5ba18667a0fa37ff9e7a71b5e8f2e23a237498f91b70ca8742aae99a",
+    "unhealthy-restored-status-audit.json": "d3848fbcacb3b772eec45dcc38e38e036a5aa3fc2c15fe4343ea39fef0d5a17f",
+    "resume-command.json": "39bd71949f3b8a597b1ea84fb1aa3eb2a6b8e8093aabf1f686faac70fa222174",
+    "final-nodes-command.json": "05e097d79ac7dd605c347bb0d2fb21dc01f2fe0c38e18b42effcf3b8ec74df94",
+    "unhealthy-observed-projects-command.json": "40d709717f3568822c1091cc166e788d00be8a55c3a321a01e0b3f986d4300f2",
+    "interrupted-apps-command.json": "8febf2250eba10a2ce7feeb81dade1ab48737224abc851ee31f01465e2545ff4",
+    "restored-seed-command.json": "f643114f22d3829d0e47aca5caf0efc268a2cab2409e662d47578b18c5bd5ef9",
+    "missing-initial-status-audit.json": "7a5b2d785bd9dcc3d9a13f44c531498c97b901a9b0541ff92085e21732c1e932",
+    "first-stderr.txt": "8b650b232212ca5cf6a90d559a5b660824159012bd880c0d109b705d76b0bc8f",
+    "unhealthy-restore-health-command.json": "a4199a9fbf72bc309226d28c2bcf1c90944e29c590552d39be6666fd53c80405",
+    "repeat-status-command.json": "22e962b37be1cbb666320158780e58fae7e2fef043cf1276765582201737ad44",
+    "repeat-after-projects-command.json": "9a2597418a5259f648f6c66b70901fa53385bbe3b9449a90ff5531d5e7138bcf",
+    "attempt-00-private-directory-refusal/first-command.json": "5083089ed04517b8a16a80f832da1403bd707d7a7681bfdded1ea8326595c891",
+    "attempt-00-private-directory-refusal/first-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "attempt-00-private-directory-refusal/correction.json": "f8cc988d5a42011ab4548d80ea58600a629df02c54dff9cfd72958301fad80e4",
+    "attempt-00-private-directory-refusal/first-stderr.txt": "5e7dd142c7e26a4e0b4bad6121574f10a498ffccf8733b24220bd5fddd85a9e0",
+    "render-b/bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+    "render-b/bootstrap/root.json": "32756e3eb0f8c83966ebc1790d95efd4cd6ca821ca151359f110fd7f51dcf4a8",
+    "render-b/projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+    "render-b/platform/argocd/signal.json": "79e0b69449c32dc136c6aef50084424f0bfc91e7526df36d7fa91b4ca2dc9c5e",
+    "render-b/platform/applications/argocd-self.json": "7a950c9cff6963b451a87db3ccf2d27ab41f8e561a41e0a31333f033f439e18d",
+    "render-b/root/platform.json": "7e8d6e3c9d3a22192b66ee154fa497f41867d4cb516edd54c131141577d66573",
+    "render-b/root/projects.json": "fc0cff7aec5e9b9b08e3cfc42600e3b09d063c338e831a9b9692fd33b1a825f1",
+    "driver-sources/atlas-refactor-integration-driver-04.py": "0e350f56be9bb6be9d73b07d9fad3102e53967c8bacbc91ad5e4506b79017fed",
+    "driver-sources/atlas-refactor-finalize-fourth.py": "e67515b6bb1ab65cdde31a488a355cf9f2b4adc0d315d35ab02b5e2c813f7e86",
+    "driver-sources/atlas-refactor-negative-cases-04.py": "cd7e5d507f38d59217e85cd5ff2d8271f3d75189de85e19244e6de707775e0f9",
+    "driver-sources/atlas-refactor-check-handoff-04.py": "ce8b1361a32b4c5df40d5e38e76066672609338c3ac9cd6bddf6aa6fa0695f0c",
+    "driver-sources/atlas-refactor-prepare-evidence-04.py": "1351b2da32ad91748258c2d54489a5e657d6001c3f3c62bf7b8bba36c9f6f35f",
+    "render-a/bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+    "render-a/bootstrap/root.json": "32756e3eb0f8c83966ebc1790d95efd4cd6ca821ca151359f110fd7f51dcf4a8",
+    "render-a/projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+    "render-a/platform/argocd/signal.json": "79e0b69449c32dc136c6aef50084424f0bfc91e7526df36d7fa91b4ca2dc9c5e",
+    "render-a/platform/applications/argocd-self.json": "7a950c9cff6963b451a87db3ccf2d27ab41f8e561a41e0a31333f033f439e18d",
+    "render-a/root/platform.json": "7e8d6e3c9d3a22192b66ee154fa497f41867d4cb516edd54c131141577d66573",
+    "render-a/root/projects.json": "fc0cff7aec5e9b9b08e3cfc42600e3b09d063c338e831a9b9692fd33b1a825f1"
+  },
+  "privateEvidenceLocation": "atlas-refactor/.state/evidence/integration-20260927-04 (retained copy); execution state remains in /private/tmp/atlas-refactor-integration-04/.state",
+  "privacy": "No kubeconfig, private keys, credentials or generated Secret bodies exported. API audit uses Metadata level without request/response bodies."
+}
