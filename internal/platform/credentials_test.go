@@ -28,7 +28,7 @@ func TestOfflineCredentialPreparationIsPrivateScopedAndRepeatable(t *testing.T) 
 	if e := os.MkdirAll(dir, 0700); e != nil {
 		t.Fatal(e)
 	}
-	for _, rel := range []string{"kubeseal.lock.json", "resources/platform-credentials.json"} {
+	for _, rel := range []string{"kubeseal.lock.json"} {
 		b, e := os.ReadFile(filepath.Join(sourceRoot, capabilityDir, rel))
 		if e != nil {
 			t.Fatal(e)
@@ -36,6 +36,9 @@ func TestOfflineCredentialPreparationIsPrivateScopedAndRepeatable(t *testing.T) 
 		if e = os.WriteFile(filepath.Join(p.Root, capabilityDir, rel), b, 0600); e != nil {
 			t.Fatal(e)
 		}
+	}
+	if e := os.WriteFile(filepath.Join(dir, "platform-credentials.json"), []byte(`{"apiVersion":"v1","kind":"List","items":[]}`), 0600); e != nil {
+		t.Fatal(e)
 	}
 	// Disposable in-memory test key only; never installed as a cluster trust root.
 	key, e := rsa.GenerateKey(rand.Reader, 4096)

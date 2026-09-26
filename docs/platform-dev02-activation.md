@@ -25,3 +25,17 @@
 5. 验证 Argo、指标、看板、S3、网络边界和 Bootstrap 权限终止。
 
 此记录区分部署授权、备份例外和实际运行结果；运行证据另行追加，不修改旧 evidence。
+
+## 第一阶段结果
+
+- 发布提交：`844153e7942ac0ae49d6ea4458c0e78895e16804`。
+- 18 个 Application（原 15 + 3 个依赖）；新控制器 Synced/Healthy。
+- AppProject 与能力清单异步更新曾触发 namespace 拒绝；权限由 GitOps 收敛后自动重试。
+- CRD Established 后 Argo 应用健康暂未刷新；执行一次仅请求观察的
+  `kubectl annotate application secrets-crds argocd.argoproj.io/refresh=normal` 后继续。
+  未修改健康状态、放宽权限或修改 Root/Seed。首次运行不声称完全无人干预。
+- 新 Trust Root 已备份到 w1 私有目录，文件 0600；重新读取校验一致，密钥与证书公钥匹配。
+  只有公开证书进入封装流程；本地 receipt 记录 SHA256。物理隔离与恢复演练仍未完成。
+
+所有者另行明确批准将本次 3 份 SealedSecret 密文提交到公开 snkio027/atlas-refactor，
+并推送 codex/development-platform 触发部署；明文及私钥不上传。
