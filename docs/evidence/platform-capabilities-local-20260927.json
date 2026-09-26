@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-09-26T22:05:29.013243+00:00",
+  "baseCommit": "7fb5a268201bf6f2dcc385676cdc946d6b54fb87",
+  "branch": "codex/platform-observability-s3",
+  "status": "local-candidate-not-deployed",
+  "enabledCapabilities": [],
+  "instantiationBaselineCommit": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+  "instantiationSnapshotSHA256": "6971d4560e39e6148f6155f7f4263181e9b8df62c1c8706ba6a9f00761ae7ab9",
+  "candidateResourceCounts": {
+    "capability-foundation": 13,
+    "secrets-crds": 1,
+    "secrets-controller": 18,
+    "platform-credentials": 0,
+    "monitoring-crds": 10,
+    "monitoring-operator": 11,
+    "monitoring": 91,
+    "object-storage": 3,
+    "storage-monitoring": 3
+  },
+  "candidateResourceTotal": 150,
+  "generatedSHA256": {
+    "gitops/platform/foundation/capabilities/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/foundation/capabilities/overlays/development/resources.json": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/rendered.yaml": "46803dbbb158d085dda6f45f9fbd1ab82364f26eb44121fe9ce7650bbe20dee4",
+    "gitops/platform/management/sealed-secrets/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/management/sealed-secrets/overlays/development/resources.json": "83a3a3baea3123c9cbd4cd00563a7c32d26dd32ee52e42f0ae2ecf3dfb5b22a6",
+    "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml": "b57f54f0f9186b0eb2294ad12487e24c0ebf31c268c3f31d48fc32e63408ca4f",
+    "gitops/platform/management/platform-credentials/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/management/platform-credentials/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/crds/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/crds/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/crds/overlays/development/rendered.yaml": "f672e53201130f0523af5dcb9289dcebeef843ade29c6fd0a1aafe3fe56a7e4e",
+    "gitops/platform/observability/operator/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/operator/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/operator/overlays/development/rendered.yaml": "f15dc9607496c9fe40f8168f7b9d8d2321843445f1229e0e4519718c0f7640eb",
+    "gitops/platform/observability/stack/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/stack/overlays/development/resources.json": "1553307afbdb2b526aa88f1c8a3d7073b2ed246cdb6503c645236d5e903bd103",
+    "gitops/platform/observability/stack/overlays/development/rendered.yaml": "6c0680cff00fa9c4e467191261198522f30e1a846864ed05ae87ca38c6859d69",
+    "gitops/platform/storage/seaweedfs/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/storage/seaweedfs/overlays/development/resources.json": "3376f4c7ba4b39f9a007bc9c270255df6fe6b900f56e79f53f124ad613f64d5c",
+    "gitops/platform/observability/storage/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/observability/storage/overlays/development/resources.json": "2aec516c156b2b1558ded6011bb821e602c25114500b38e86fa2af7408c7ad3a"
+  },
+  "checks": {
+    "taskQuality": "PASS; race/vet and real Helm/Kustomize/CRD subset checks",
+    "offlineKubeseal": "PASS; fixture certificate only, no deployed trust root",
+    "capabilityIdentity": "PASS; existing signal unchanged, unready extension ADOPTED_DEGRADED with zero effects, converged extension ADOPTED",
+    "kubernetesDeployment": "NOT_RUN",
+    "gitopsRuntimeAcceptance": "NOT_RUN",
+    "multiPlatformBuild": "PASS; darwin/arm64, linux/amd64, linux/arm64"
+  },
+  "s3Container": {
+    "image": "docker.io/chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+    "container": "atlas-refactor-s3-probe-e76d5ff6",
+    "checks": {
+      "authenticated_list": 200,
+      "put": 200,
+      "get_hash": "853bfc5cdabf581f3a36e993e46b0e0bd9ad365cf902d31611f1d877517aa99a",
+      "head": 200,
+      "presigned_get": 200,
+      "anonymous_denied": 403,
+      "cross_bucket_denied": 403,
+      "multipart": 200,
+      "restart_retained_object": 200,
+      "delete": 204
+    },
+    "scope": "isolated Docker container; no Kubernetes operations",
+    "result": "PASS"
+  },
+  "tools": {
+    "go": "1.27.1",
+    "helm": "4.2.3",
+    "kubectl": "1.36.3",
+    "yq": "4.53.6",
+    "kubeseal": "0.40.0"
+  },
+  "testHarnessNote": "First container restart probe used an obsolete dynamic Docker port. Fixed the test harness to reread the mapping. Final manifest parameters passed.",
+  "existingClusterReadOnlyCheck": {
+    "context": "kind-atlas-refactor-test-dev02",
+    "readyNodes": 4,
+    "applications": 15,
+    "syncedHealthyApplications": 15,
+    "mutationOperations": 0
+  }
+}

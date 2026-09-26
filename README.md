@@ -146,3 +146,6 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 - [ADR-0003：独立切换 Gate 提案（Proposed）](docs/adr/0003-gated-bootstrap-successor-cutover.md)
 - [Atlas 经验采纳清单](docs/atlas-lessons.md)
 - [测试与验证记录](docs/verification.md)
+
+平台能力扩展、监测与 S3 候选的本地命令和部署 Gate，见
+[平台能力扩展](docs/platform-capabilities.md)。

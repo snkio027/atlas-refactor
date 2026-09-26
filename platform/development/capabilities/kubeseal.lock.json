@@ -1,0 +1,7 @@
+{
+  "version": "0.40.0",
+  "executableSHA256": "0e02a514835e24d5330b7625b1ebada878945d266207790e779482ae52b42631",
+  "platform": "darwin/arm64",
+  "archiveSHA256": "sha256:ec8a34b19ff8f1c1dee6fa09e13111b3007aa9ad08de1da28bd65cdc1eaecf93",
+  "source": "https://github.com/bitnami/sealed-secrets/releases/download/v0.40.0/kubeseal-0.40.0-darwin-arm64.tar.gz"
+}

@@ -19,6 +19,9 @@ type App struct {
 	Runner         Runner
 	resolvedCommit string
 	development    *developmentBundle
+	// In-package synthetic archive fixtures pin their own immutable snapshot.
+	// This is never populated from config, flags, environment, or repository data.
+	fixtureSnapshotDigest string
 }
 type Object map[string]any
 

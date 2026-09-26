@@ -1,6 +1,7 @@
 package atlas
 
 import (
+	"atlas-refactor/internal/platform"
 	"bytes"
 	"context"
 	"os"
@@ -232,7 +233,7 @@ func TestDevelopmentGitOpsChangeKeepsBootstrapIdentity(t *testing.T) {
 	if err = os.WriteFile(path, b, 0600); err != nil {
 		t.Fatal(err)
 	}
-	next := &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner}
+	next := &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner, fixtureSnapshotDigest: a.fixtureSnapshotDigest}
 	after, err := next.Render(context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -250,12 +251,57 @@ func TestDevelopmentGitOpsChangeKeepsBootstrapIdentity(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	next = &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner}
-	changed, err := next.Render(context.Background())
+	next = &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner, fixtureSnapshotDigest: a.fixtureSnapshotDigest}
+	_, err = next.Render(context.Background())
+	if err == nil {
+		t.Fatal("changed Seed contract was not rejected")
+	}
+}
+
+func TestDevelopmentCapabilityExtensionPreservesIdentityAndAuthority(t *testing.T) {
+	a, s := developmentFixture(t)
+	apply(t, a)
+	before, err := a.Render(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bytes.Equal(before[developmentSignal], changed[developmentSignal]) {
-		t.Fatal("changed Seed contract reused old identity")
+	n := len(s.effects)
+	p, err := platform.Load(a.Root, platform.Tools{Helm: "helm", Kubectl: "kubectl", YQ: "yq"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	names, err := p.ResolveCapabilities([]string{"capability-foundation"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	projection, err := p.CapabilityActivation(names)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projection["platform/development/capabilities/enabled.json"] = []byte(`{"schema":1,"capabilities":["capability-foundation"]}`)
+	if err = p.Write(projection); err != nil {
+		t.Fatal(err)
+	}
+	next := &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner, fixtureSnapshotDigest: a.fixtureSnapshotDigest}
+	s.app = next
+	after, err := next.Render(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(before[developmentSignal], after[developmentSignal]) {
+		t.Fatal("extension changed initial Signal")
+	}
+	if got := next.Status(context.Background()); got.State != Degraded {
+		t.Fatalf("unsynced extension must remain degraded: %+v", got)
+	}
+	if len(s.effects) != n {
+		t.Fatal("catalog change revived Bootstrap writes")
+	}
+	s.developmentGitops()
+	if got := next.Status(context.Background()); got.State != Adopted {
+		t.Fatalf("converged extension did not remain adopted: %+v", got)
+	}
+	if len(s.effects) != n {
+		t.Fatal("observation mutated cluster")
 	}
 }

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "helm": "4.2.3",
+  "kubectl": "1.36.3",
+  "yq": "4.53.6",
+  "kubernetes": "1.36.1",
+  "images": {
+    "docker.io/bitnami/sealed-secrets-controller:0.40.0": "docker.io/bitnami/sealed-secrets-controller:0.40.0@sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3",
+    "docker.io/chrislusf/seaweedfs:4.47": "docker.io/chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+    "docker.io/grafana/grafana:13.2.2-distroless": "docker.io/grafana/grafana:13.2.2-distroless@sha256:69a5d2d957ca0bba434c160dcd4f2d07de9d6c756a0ba10ae7f52b72ced1e4cc",
+    "quay.io/kiwigrid/k8s-sidecar:2.11.2": "quay.io/kiwigrid/k8s-sidecar:2.11.2@sha256:2912be006f62f9ea080194cf6d3afcd90daead8d101d0ba686a137a849f6a4f6",
+    "quay.io/prometheus-operator/prometheus-operator:v0.94.1": "quay.io/prometheus-operator/prometheus-operator:v0.94.1@sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a",
+    "quay.io/prometheus/alertmanager:v0.34.1": "quay.io/prometheus/alertmanager:v0.34.1@sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a",
+    "quay.io/prometheus/node-exporter:v1.12.1-distroless": "quay.io/prometheus/node-exporter:v1.12.1-distroless@sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106",
+    "quay.io/prometheus/prometheus:v3.15.0-distroless": "quay.io/prometheus/prometheus:v3.15.0-distroless@sha256:b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01",
+    "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0": "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b",
+    "quay.io/prometheus-operator/prometheus-config-reloader:v0.94.1": "quay.io/prometheus-operator/prometheus-config-reloader:v0.94.1@sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b"
+  },
+  "artifacts": {
+    "vendor/platform/kube-prometheus-stack-91.7.0.tgz": {
+      "sha256": "989701d6d289a8303b2357e9fcd40522f82932e36ae0d960ed9f9271e167a5bb",
+      "source": "https://github.com/prometheus-community/helm-charts/releases/download/kube-prometheus-stack-91.7.0/kube-prometheus-stack-91.7.0.tgz",
+      "verification": "prometheus-community/index.yaml chart digest"
+    },
+    "vendor/platform/sealed-secrets-2.20.0.tgz": {
+      "sha256": "6092d219c697f3c9ae3a386ba24bfdd86877c5e2fc8892e2af8a810145b990ef",
+      "source": "https://github.com/bitnami/sealed-secrets/releases/download/helm-v2.20.0/sealed-secrets-2.20.0.tgz",
+      "verification": "GitHub release asset sha256 digest"
+    }
+  }
+}

@@ -43,10 +43,11 @@ type Lock struct {
 }
 type Tools struct{ Helm, Kubectl, YQ string }
 type Project struct {
-	Root   string
-	Config Config
-	Lock   Lock
-	Tools  Tools
+	Root         string
+	Config       Config
+	Lock         Lock
+	Tools        Tools
+	Capabilities *Capabilities
 }
 
 const inputDir = "platform/development"
@@ -54,6 +55,9 @@ const inputDir = "platform/development"
 func readJSON(path string, v any) error {
 	b, e := os.ReadFile(path)
 	if e != nil {
+		return e
+	}
+	if e := uniqueJSONKeys(b); e != nil {
 		return e
 	}
 	d := json.NewDecoder(bytes.NewReader(b))
@@ -91,6 +95,9 @@ func Load(root string, t Tools) (*Project, error) {
 	}
 	if t.Helm == "" || t.Kubectl == "" || t.YQ == "" {
 		return nil, errors.New("helm, kubectl and yq executables are required")
+	}
+	if e := p.loadCapabilities(); e != nil {
+		return nil, e
 	}
 	return p, nil
 }
@@ -327,6 +334,14 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 		}
 	}
 	files[p.Config.Components["local-storage"]+"/rendered.yaml"] = encoded(storage)
+
+	caps, e := p.RenderCapabilities(ctx)
+	if e != nil {
+		return nil, e
+	}
+	for path, b := range caps {
+		files[path] = b
+	}
 	return files, nil
 }
 func (p *Project) Write(files map[string][]byte) error {

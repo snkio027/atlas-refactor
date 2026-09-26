@@ -219,6 +219,12 @@ func validateSchema(value any, s Object, path string) error {
 	return nil
 }
 func (p *Project) Check(ctx context.Context) (int, error) {
+	if e := p.ValidateCapabilityActivation(); e != nil {
+		return 0, e
+	}
+	if _, e := p.CheckCapabilities(ctx); e != nil {
+		return 0, e
+	}
 	files, e := p.Render(ctx)
 	if e != nil {
 		return 0, e

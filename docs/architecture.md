@@ -106,3 +106,10 @@ schema 3 的配置、离线制品准备、首次接管与持续观察的区别�
 [Proposed ADR-0005](adr/0005-four-node-development-workflow.md)。上述 schema 1/2 历史 Gate
 保持原含义；schema 3 在有效 Receipt 后允许 CRD 最近成功同步 SHA 早于当前无资源差异的
 Git SHA，但仍检查当前 Sync/Health、资源清单与 SSA ownership，首次接管要求不变。
+
+## 声明式平台扩展候选
+
+[Proposed ADR-0006](adr/0006-declarative-platform-capabilities.md) 将 schema 3 的首次实例化输入
+与持续 Tier-1 能力选择分离。真实启动快照保持固定，新增能力只经既有 platform-control 接管。
+本地 plan/select/credentials/render/check 入口和验证范围见 [平台能力扩展](platform-capabilities.md)。
+该候选默认未启用，不构成对当前 dev02 的部署批准。

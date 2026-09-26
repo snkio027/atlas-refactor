@@ -1,0 +1,100 @@
+package platform
+
+import (
+	"bytes"
+	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/json"
+	"encoding/pem"
+	"math/big"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+)
+
+func TestOfflineCredentialPreparationIsPrivateScopedAndRepeatable(t *testing.T) {
+	tool := os.Getenv("ATLAS_TEST_KUBESEAL")
+	if tool == "" {
+		t.Skip("set ATLAS_TEST_KUBESEAL to locked kubeseal for offline encryption test")
+	}
+	p := candidate(t)
+	sourceRoot := p.Root
+	p.Root = t.TempDir()
+	dir := filepath.Join(p.Root, capabilityDir, "resources")
+	if e := os.MkdirAll(dir, 0700); e != nil {
+		t.Fatal(e)
+	}
+	for _, rel := range []string{"kubeseal.lock.json", "resources/platform-credentials.json"} {
+		b, e := os.ReadFile(filepath.Join(sourceRoot, capabilityDir, rel))
+		if e != nil {
+			t.Fatal(e)
+		}
+		if e = os.WriteFile(filepath.Join(p.Root, capabilityDir, rel), b, 0600); e != nil {
+			t.Fatal(e)
+		}
+	}
+	// Disposable in-memory test key only; never installed as a cluster trust root.
+	key, e := rsa.GenerateKey(rand.Reader, 4096)
+	if e != nil {
+		t.Fatal(e)
+	}
+	template := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "offline-fixture"}, NotBefore: time.Now().Add(-time.Minute), NotAfter: time.Now().Add(time.Hour), KeyUsage: x509.KeyUsageKeyEncipherment}
+	der, e := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if e != nil {
+		t.Fatal(e)
+	}
+	cert := filepath.Join(p.Root, "test-public.pem")
+	if e = os.WriteFile(cert, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}), 0600); e != nil {
+		t.Fatal(e)
+	}
+	if e = p.PrepareCredentials(context.Background(), cert, tool); e != nil {
+		t.Fatal(e)
+	}
+	privatePath := filepath.Join(p.Root, ".state/capabilities/credentials.json")
+	st, e := os.Stat(privatePath)
+	if e != nil || st.Mode().Perm() != 0600 {
+		t.Fatal("private permissions", e)
+	}
+	var credentials localCredentials
+	if e = readJSON(privatePath, &credentials); e != nil {
+		t.Fatal(e)
+	}
+	path := filepath.Join(p.Root, capabilityDir, "resources/platform-credentials.json")
+	before, e := os.ReadFile(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, secret := range []string{credentials.GrafanaPassword, credentials.AccessKey, credentials.SecretKey} {
+		if bytes.Contains(before, []byte(secret)) {
+			t.Fatal("plaintext leaked")
+		}
+	}
+	missing, e := p.missingCapabilitySecrets([]string{"monitoring", "object-storage"})
+	if e != nil || len(missing) > 0 {
+		t.Fatal(missing, e)
+	}
+	if e = p.PrepareCredentials(context.Background(), cert, tool); e != nil {
+		t.Fatal(e)
+	}
+	after, _ := os.ReadFile(path)
+	if !bytes.Equal(before, after) {
+		t.Fatal("repeat preparation rotated ciphertext")
+	}
+	objects, e := decodeObjects(after)
+	if e != nil || len(objects) != 3 {
+		t.Fatal(len(objects), e)
+	}
+	for _, o := range objects {
+		data := mapping(field(o, "spec", "encryptedData"))
+		if len(data) == 0 {
+			t.Fatal("missing ciphertext")
+		}
+		if _, e := json.Marshal(o); e != nil {
+			t.Fatal(e)
+		}
+	}
+}

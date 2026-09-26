@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "components": {
+    "capability-foundation": {
+      "path": "gitops/platform/foundation/capabilities/overlays/development",
+      "namespace": "argocd",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": []
+    },
+    "secrets-crds": {
+      "path": "gitops/platform/management/sealed-secrets-crds/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -95,
+      "dependsOn": [
+        "capability-foundation"
+      ],
+      "requiredSecrets": []
+    },
+    "secrets-controller": {
+      "path": "gitops/platform/management/sealed-secrets/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -90,
+      "dependsOn": [
+        "secrets-crds"
+      ],
+      "requiredSecrets": []
+    },
+    "platform-credentials": {
+      "path": "gitops/platform/management/platform-credentials/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -80,
+      "dependsOn": [
+        "secrets-controller"
+      ],
+      "requiredSecrets": []
+    },
+    "monitoring-crds": {
+      "path": "gitops/platform/observability/crds/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -40,
+      "dependsOn": [
+        "capability-foundation"
+      ],
+      "requiredSecrets": []
+    },
+    "monitoring-operator": {
+      "path": "gitops/platform/observability/operator/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -30,
+      "dependsOn": [
+        "monitoring-crds",
+        "core:cert-manager"
+      ],
+      "requiredSecrets": []
+    },
+    "monitoring": {
+      "path": "gitops/platform/observability/stack/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -10,
+      "dependsOn": [
+        "monitoring-operator",
+        "platform-credentials",
+        "core:local-storage"
+      ],
+      "requiredSecrets": [
+        {
+          "namespace": "atlas-monitoring",
+          "name": "grafana-admin",
+          "keys": [
+            "admin-user",
+            "admin-password"
+          ]
+        }
+      ]
+    },
+    "object-storage": {
+      "path": "gitops/platform/storage/seaweedfs/overlays/development",
+      "namespace": "atlas-storage",
+      "wave": -10,
+      "dependsOn": [
+        "platform-credentials",
+        "core:local-storage"
+      ],
+      "requiredSecrets": [
+        {
+          "namespace": "atlas-storage",
+          "name": "seaweedfs-auth",
+          "keys": [
+            "seaweedfs_s3_config"
+          ]
+        },
+        {
+          "namespace": "workload-web",
+          "name": "s3-client",
+          "keys": [
+            "AWS_ACCESS_KEY_ID",
+            "AWS_SECRET_ACCESS_KEY"
+          ]
+        }
+      ]
+    },
+    "storage-monitoring": {
+      "path": "gitops/platform/observability/storage/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": 0,
+      "dependsOn": [
+        "monitoring",
+        "object-storage"
+      ],
+      "requiredSecrets": []
+    }
+  },
+  "jobs": [
+    {
+      "release": "sealed-secrets",
+      "chart": "vendor/platform/sealed-secrets-2.20.0.tgz",
+      "namespace": "atlas-secrets",
+      "values": [
+        "platform/development/capabilities/values/sealed-secrets.json"
+      ],
+      "excludeComponents": [],
+      "outputs": [
+        {
+          "component": "secrets-crds",
+          "kinds": [
+            "CustomResourceDefinition"
+          ]
+        },
+        {
+          "component": "secrets-controller",
+          "kinds": []
+        }
+      ]
+    },
+    {
+      "release": "atlas-monitoring",
+      "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
+      "namespace": "atlas-monitoring",
+      "values": [
+        "platform/development/capabilities/values/monitoring.json",
+        "platform/development/capabilities/values/operator-only.json"
+      ],
+      "excludeComponents": [],
+      "outputs": [
+        {
+          "component": "monitoring-crds",
+          "kinds": [
+            "CustomResourceDefinition"
+          ]
+        },
+        {
+          "component": "monitoring-operator",
+          "kinds": []
+        }
+      ]
+    },
+    {
+      "release": "atlas-monitoring",
+      "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
+      "namespace": "atlas-monitoring",
+      "values": [
+        "platform/development/capabilities/values/monitoring.json"
+      ],
+      "excludeComponents": [
+        "monitoring-crds",
+        "monitoring-operator"
+      ],
+      "outputs": [
+        {
+          "component": "monitoring",
+          "kinds": []
+        }
+      ],
+      "projectedTokenMonitors": [
+        "atlas-monitoring-kubelet",
+        "atlas-monitoring-apiserver"
+      ]
+    }
+  ]
+}
