@@ -39,3 +39,40 @@
 
 所有者另行明确批准将本次 3 份 SealedSecret 密文提交到公开 snkio027/atlas-refactor，
 并推送 codex/development-platform 触发部署；明文及私钥不上传。
+
+## 第二阶段与运行结果
+
+发布提交：`d1fbd2ddeda271109530f1ae3625d25bcdde61de`。
+通过 Argo 子应用刷新清除旧 Git 缓存；monitoring-crds 在 Kubernetes 的 10 个 CRD
+全部 Established 后请求了一次健康重新观察。没有改变健康判断或直接 apply 平台清单。
+首次服务探测早于 storage-monitoring 最后一波，看板尚未出现而失败；依赖完成后重新验收通过。
+
+- 24 个 Application 在该 SHA 上 idle / Synced / Healthy；3 个 SealedSecret Synced。
+- Grafana 登录成功，26 个看板（含 Atlas），Prometheus 数据源健康。
+- Prometheus 27 个目标全部 up、31 个规则组，kube_node_info 覆盖 4 节点。
+- Alertmanager 本地测试告警 API 注入、查询与 resolved 通过；未发出外部通知。
+- S3 签名 list/PUT/GET/HEAD/DELETE、预签名、分段上传通过；匿名和跨桶 403。
+- 临时业务探测 Pod：带 s3-client 标签连通，未带标签被拒绝，Service DNS 正常；探测后已清理。
+- 新增 Grafana 2Gi、Prometheus 8Gi、Alertmanager 1Gi、SeaweedFS 16Gi PVC 均 Bound。
+- 原 Web HTTPS 与全部 37 个 Pod/4 节点验证通过，Go Bootstrap 状态 ADOPTED。
+- 原身份、Root、self Application、Signal、Receipt 的 UID/spec/data 不变；重复 apply 退出 0，API 审计显示 kubectl 写入增量 0。
+
+本轮未执行 Kubernetes 存储 Pod 重启持久性测试、全链路 Prometheus 告警触发、
+外部通知、离线密钥恢复或生产切换。锁定 SeaweedFS 的独立容器重启测试属于此前本地证据，
+不得混为本轮 Kubernetes 结果。
+
+## 访问与凭据
+
+[平台能力文档](platform-capabilities.md#网络和权限) 提供 Grafana、Prometheus、S3 的 loopback port-forward 命令。
+Grafana 用户名 `admin`；密码在本机私有 `.state/capabilities/credentials.json` 的 `grafanaPassword` 字段。
+S3 的 accessKey/secretKey 在同一私有文件；业务直接引用 workload-web/s3-client。
+不把凭据复制进应用仓库。默认 bucket 为 uploads，region us-east-1，path-style。
+
+Alertmanager 可另开终端：
+
+```sh
+kubectl --context kind-atlas-refactor-test-dev02 -n atlas-monitoring port-forward --address 127.0.0.1 svc/atlas-monitoring-alertmanager 9093:9093
+```
+
+脱敏证据：[platform-dev02-enabled-20260927.json](evidence/platform-dev02-enabled-20260927.json)。
+该报告永久绑定实际部署提交 d1fbd2d；文档和证据后续提交不改写运行事实。

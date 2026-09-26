@@ -1,0 +1,399 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-09-26T22:46:57.531029+00:00",
+  "scope": "Disposable dev02 capability activation; no original Atlas authority cutover",
+  "deployedCommit": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+  "secretControllerCommit": "844153e7942ac0ae49d6ea4458c0e78895e16804",
+  "instantiationBaselineCommit": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+  "selectedCapabilities": [
+    "monitoring",
+    "object-storage",
+    "storage-monitoring"
+  ],
+  "checks": {
+    "quality": "PASS: Go vet/race, real Helm/Kustomize and CRD structural subset; 346 active GitOps resources",
+    "api": {
+      "cluster": "atlas-refactor-test-dev02",
+      "checks": {
+        "s3": {
+          "authenticatedList": 200,
+          "roundTripSHA256": "dff5f7c1ded9dda49c357f4cd99198cc154f09c7f2e09905fec0aa763eb9457f",
+          "presignedGet": 200,
+          "anonymousDenied": 403,
+          "crossBucketDenied": 403,
+          "multipart": 200,
+          "delete": 204
+        },
+        "grafana": {
+          "login": true,
+          "database": "ok",
+          "dashboardCount": 26,
+          "atlasDashboard": true
+        },
+        "prometheus": {
+          "targetCount": 27,
+          "down": [],
+          "ruleGroups": 31,
+          "nodeMetrics": "4"
+        },
+        "alertmanager": {
+          "apiFiringThenResolved": true,
+          "externalNotificationTested": false
+        }
+      },
+      "startedAt": "2026-09-26T22:42:43.345920+00:00",
+      "result": "PASS"
+    },
+    "network": {
+      "labeledClientAllowed": true,
+      "serviceDNSWorks": true,
+      "unlabeledClientDenied": true
+    },
+    "authority": {
+      "bootstrap": {
+        "state": "ADOPTED",
+        "detail": "GitOps owns reconciliation"
+      },
+      "applyExitCode": 0,
+      "kubectlMutationDelta": 0,
+      "initialIdentitySpecDataUnchanged": true,
+      "identities": {
+        "atlas-refactor-identity": "3e6e492f-4f22-42e6-b7c6-b68ce26ec1a3",
+        "atlas-refactor-handoff": "294ada5b-6443-4bd9-b51c-9888a74745f3",
+        "atlas-refactor-receipt": "561dbada-7491-4ce7-a6f4-cb2be4359d3a",
+        "atlas-refactor-root": "409bd580-a082-45fe-a685-fd94b2681e37",
+        "argocd-self": "79b25cbc-d516-4598-a460-f4cceb9cd068",
+        "atlas-refactor-adoption-signal": "9f7365ae-02ac-4458-99da-0ff2dc1c64c9"
+      }
+    },
+    "sealedControllerRBAC": {
+      "argocd/Secret:get": "denied",
+      "kube-system/Secret:get": "denied",
+      "atlas-monitoring/Secret:create": "allowed",
+      "atlas-storage/Secret:create": "allowed",
+      "workload-web/Secret:create": "allowed"
+    },
+    "existingWebHTTPS": "PASS: atlas-dev verify with cluster CA"
+  },
+  "backup": {
+    "cluster": "atlas-refactor-test-dev02",
+    "keySecretName": "sealed-secrets-keybfk4f",
+    "keySecretUID": "2fc6bf3b-745a-4d81-bcab-b023455ddee8",
+    "backupSHA256": "4f650780cff7e1d8cb3476bbfd022e61862aea005383abd04d468034ff04d387",
+    "certificateSHA256": "5670f4b0ad174650d1da01ec3242640cc45684c69aa5e373102ce61c9ad5a6f4",
+    "keyPairVerified": true,
+    "physicallyIsolated": false,
+    "ownerApprovedDevelopmentException": true,
+    "location": "owner-selected w1 private directory; same host disk"
+  },
+  "nodes": [
+    {
+      "name": "atlas-refactor-test-dev02-control-plane",
+      "uid": "df5c4b82-d1a0-4439-85ac-493562d03323",
+      "ready": true
+    },
+    {
+      "name": "atlas-refactor-test-dev02-worker",
+      "uid": "8a162d28-be7d-4b43-bd41-7d75a9887e7f",
+      "ready": true
+    },
+    {
+      "name": "atlas-refactor-test-dev02-worker2",
+      "uid": "e3deed15-7b0c-4af2-8e80-e00d687cafeb",
+      "ready": true
+    },
+    {
+      "name": "atlas-refactor-test-dev02-worker3",
+      "uid": "784e5288-6fea-4d85-831f-51b99bfef324",
+      "ready": true
+    }
+  ],
+  "readyPodCount": 37,
+  "applications": [
+    {
+      "name": "argocd-self",
+      "uid": "79b25cbc-d516-4598-a460-f4cceb9cd068",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "atlas-refactor-root",
+      "uid": "409bd580-a082-45fe-a685-fd94b2681e37",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "capability-foundation",
+      "uid": "52e313a0-8c90-4e86-8b5d-0f2cf14a0ff2",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "cert-manager",
+      "uid": "8ec59c9a-222b-4b26-9db4-56458e4b61d6",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "cilium",
+      "uid": "033ba74c-6070-4d4e-b789-7ca831d3d6df",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "edge",
+      "uid": "20b29620-513c-4e01-ab8f-53aed8c1153b",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "envoy-crds",
+      "uid": "e5e9a9f6-25a2-4568-b17e-64986642b155",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "envoy-gateway",
+      "uid": "94f0feae-da74-4b35-9f00-4fc1fa94b92d",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "foundation",
+      "uid": "2fbb2c89-a489-4839-8314-7ffb06f04f16",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "gateway-api",
+      "uid": "1be63a7a-e1fb-4a1c-8075-3675656871b3",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "local-pki",
+      "uid": "4aacd3d3-4cf1-4f14-8fb8-09e6d7f16e0f",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "local-storage",
+      "uid": "01b3fb0d-11e6-4c72-85e9-e5615facd950",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "monitoring",
+      "uid": "d1b04432-32f6-4301-bdd5-73d73a6aab28",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "monitoring-crds",
+      "uid": "c1d4f732-4818-4e12-a40d-cf54ce4baf6b",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "monitoring-operator",
+      "uid": "605bed4d-0af4-4410-94d9-cba65732a37c",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "object-storage",
+      "uid": "de79f0bf-041f-4f62-a162-05e2ad2a1ee5",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "platform-control",
+      "uid": "10d73e96-d4a5-4897-a7fe-d399da9f866f",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "platform-credentials",
+      "uid": "5cd29e9c-82a5-485c-a591-881415fd5666",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "project-bootstrap",
+      "uid": "4d28559b-80a4-4314-aca9-70905e30d844",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "secrets-controller",
+      "uid": "b09bbb26-3f5a-43b5-b8c6-cffc34e1f456",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "secrets-crds",
+      "uid": "e0afd8b0-087b-44e0-a11e-f48ed34df036",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "storage-monitoring",
+      "uid": "ff9d2717-cb2a-4b7a-b7ae-2335693a0d33",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "web-smoke",
+      "uid": "615187cd-f1c1-4cdd-8a5a-896acf2cb6c5",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    },
+    {
+      "name": "workload-control",
+      "uid": "83b0ecf9-db5b-4ddc-9bbc-b529fa14f2cd",
+      "revision": "d1fbd2ddeda271109530f1ae3625d25bcdde61de",
+      "sync": "Synced",
+      "health": "Healthy"
+    }
+  ],
+  "pvc": [
+    {
+      "namespace": "atlas-monitoring",
+      "name": "alertmanager-atlas-monitoring-alertmanager-db-alertmanager-atlas-monitoring-alertmanager-0",
+      "uid": "ed4591f2-12a9-4fb1-b4d0-1dca1191e323",
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "atlas-monitoring",
+      "name": "atlas-monitoring-grafana",
+      "uid": "3495433f-f00c-479d-a215-89b605fabc69",
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "atlas-monitoring",
+      "name": "prometheus-atlas-monitoring-prometheus-db-prometheus-atlas-monitoring-prometheus-0",
+      "uid": "cc2a5d72-e625-4c54-b7cb-d3e59cb23d0c",
+      "requested": "8Gi",
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "atlas-storage",
+      "name": "seaweedfs-data",
+      "uid": "510518df-c291-4511-9410-7afece54fb9f",
+      "requested": "16Gi",
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "workload-web",
+      "name": "web-data",
+      "uid": "5a43f20b-8649-45bd-8972-7624a7a6e913",
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    }
+  ],
+  "sealedSecrets": [
+    {
+      "namespace": "atlas-monitoring",
+      "name": "grafana-admin",
+      "synced": true
+    },
+    {
+      "namespace": "atlas-storage",
+      "name": "seaweedfs-auth",
+      "synced": true
+    },
+    {
+      "namespace": "workload-web",
+      "name": "s3-client",
+      "synced": true
+    }
+  ],
+  "generatedSHA256": {
+    "gitops/platform/applications/overlays/development/resources.json": "ca7c663bdc057fb4834aedbb3dd4cc459d175951c64a5061ffbbe27edf1293d8",
+    "gitops/platform/foundation/capabilities/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/foundation/capabilities/overlays/development/resources.json": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c",
+    "gitops/platform/management/platform-credentials/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/management/platform-credentials/overlays/development/resources.json": "c9929bc5e4a77213f404bf32592b54c4bc42e7c7f3330f9e784b606e9c0b7bf1",
+    "gitops/platform/management/projects/overlays/development/resources.json": "8bce9389b636f5bca1ebfb43e98dd0a7584f3bca8dda8c9367eecc4425f3ca5e",
+    "gitops/platform/management/sealed-secrets/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml": "b57f54f0f9186b0eb2294ad12487e24c0ebf31c268c3f31d48fc32e63408ca4f",
+    "gitops/platform/management/sealed-secrets/overlays/development/resources.json": "83a3a3baea3123c9cbd4cd00563a7c32d26dd32ee52e42f0ae2ecf3dfb5b22a6",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/rendered.yaml": "46803dbbb158d085dda6f45f9fbd1ab82364f26eb44121fe9ce7650bbe20dee4",
+    "gitops/platform/management/sealed-secrets-crds/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/crds/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/crds/overlays/development/rendered.yaml": "f672e53201130f0523af5dcb9289dcebeef843ade29c6fd0a1aafe3fe56a7e4e",
+    "gitops/platform/observability/crds/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/operator/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/operator/overlays/development/rendered.yaml": "f15dc9607496c9fe40f8168f7b9d8d2321843445f1229e0e4519718c0f7640eb",
+    "gitops/platform/observability/operator/overlays/development/resources.json": "cdd9b153deeef524956bb2bc3754bb6b9cdbba4dcd8e2b83e9b50d4bba310a4c",
+    "gitops/platform/observability/stack/overlays/development/kustomization.yaml": "e8a15a2800c5313578fb4f792289bf61a23185cc85319a36ccce9ce0bddda3c4",
+    "gitops/platform/observability/stack/overlays/development/rendered.yaml": "6c0680cff00fa9c4e467191261198522f30e1a846864ed05ae87ca38c6859d69",
+    "gitops/platform/observability/stack/overlays/development/resources.json": "1553307afbdb2b526aa88f1c8a3d7073b2ed246cdb6503c645236d5e903bd103",
+    "gitops/platform/observability/storage/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/observability/storage/overlays/development/resources.json": "2aec516c156b2b1558ded6011bb821e602c25114500b38e86fa2af7408c7ad3a",
+    "gitops/platform/storage/seaweedfs/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/storage/seaweedfs/overlays/development/resources.json": "3376f4c7ba4b39f9a007bc9c270255df6fe6b900f56e79f53f124ad613f64d5c",
+    "platform/development/capabilities/enabled.json": "ddab9bc0510a2a83f634b4a1a5675fed3dfc4ec1fc6c14d630deb9c6b0927087",
+    "platform/development/capabilities/versions.lock.json": "30a9441b276f00eaab0a33c0b659983a4b3541f6c605c2c66b519ad1c6afacab"
+  },
+  "toolchain": {
+    "hostArchitecture": "arm64",
+    "go": "go version go1.27.1 darwin/arm64",
+    "helm": "v4.2.3+g43e8b7f",
+    "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+    "kubectl": "v1.36.3",
+    "docker": {
+      "client": "29.4.0",
+      "server": "29.4.0"
+    },
+    "kubeseal": "0.40.0",
+    "yq": "4.53.6"
+  },
+  "remainingGates": [
+    "Physically isolated trust-root backup and restore drill",
+    "Kubernetes storage restart persistence test",
+    "Full Prometheus rule firing to Alertmanager delivery test",
+    "External alert notifications",
+    "HA, admission hardening and production cutover"
+  ],
+  "operatorActions": [
+    "Requested Argo refresh for established secrets-crds and monitoring-crds",
+    "Requested hard refresh of project-bootstrap/platform-control after second publish",
+    "Created and removed two credential-free network probe Pods"
+  ],
+  "firstAttemptNotes": [
+    "AppProject permission race recovered via Argo automatic retry",
+    "First Grafana probe ran before final storage-monitoring wave; rerun after convergence passed"
+  ]
+}

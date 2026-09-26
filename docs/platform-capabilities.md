@@ -1,7 +1,8 @@
 # 平台能力扩展与首批监测 / S3
 
-状态：独立分支 `codex/platform-observability-s3` 上的实现候选。新增能力默认未启用，
-当前 dev02 的 Root、Seed、15 个 Application 和已有 evidence 不因这个分支自动变化。
+状态：已在 `atlas-refactor-test-dev02` 启用监测、告警、Grafana、S3 和密钥物化。
+24 个 Application 已完成 GitOps 同步；运行结果与首次发布操作见
+[dev02 启用记录](platform-dev02-activation.md)。
 规范提议见 [ADR-0006](adr/0006-declarative-platform-capabilities.md)。
 
 ## 日常入口
@@ -21,7 +22,8 @@ ATLAS_TEST_KUBESEAL="$PWD/.state/tools/kubeseal" task quality
 git diff --stat
 ```
 
-目前完整选择会报告 3 个尚未提供的 SealedSecret、共 5 个键，并非“已经可部署”。
+仓库已包含仅供当前 dev02 解密的 3 个 SealedSecret、共 5 个键。新集群必须先建立
+自己的 Trust Root，再按审核流程重新封装；不能把静态密文检查通过当作解密成功。
 `readyToEnable` 只表示静态凭据要求齐备；不能替代控制器实际解密与运行时健康检查。
 `select` 失败时不修改启用选择和两个控制清单。所有命令只操作本地文件。
 
@@ -69,7 +71,7 @@ local-path 的申请容量不构成目录硬配额；SeaweedFS 另外固定 128M
   Kind kubelet 自签证书沿用 chart 的 skip-verify 开发设置；API Server 验证集群 CA。
 - Grafana sidecar 只读取监测 namespace 的 ConfigMap，不跨 namespace 读取 Secret。
 
-上线后可在三个独立终端使用以下访问方式；当前候选未启用时这些 Service 尚不存在：
+当前可在三个独立终端使用以下访问方式：
 
 ```sh
 kubectl --context kind-atlas-refactor-test-dev02 -n atlas-monitoring port-forward --address 127.0.0.1 svc/atlas-monitoring-grafana 3000:80
@@ -82,14 +84,15 @@ bucket `uploads`，强制 path-style；凭据从本 namespace 的 `s3-client` Se
 预签名时必须使用客户端实际访问的 host/port，不能把集群内 DNS 签名 URL 原样交给宿主机浏览器。
 Grafana 密码和本地 S3 凭据位于私有 `.state/capabilities/credentials.json`，不通过 CLI stdout 输出。
 
-## 首次接入 dev02 的审查计划
+## 首次接入流程（dev02 已执行，例外与实测结果另行记录）
 
 1. 完成 ADR/代码审核，记录将部署的精确 commit SHA、目标 dev02 与权限 diff。
    Bootstrap 身份兼容修正必须先经过审核；不能仅 cherry-pick 控制清单。
 2. 获得新 Sealed Secrets trust root 的明确授权后，选择 `secrets-controller`。
    依赖展开为 foundation → secrets-crds → secrets-controller，经已有 platform-control 发布。
    无需重建集群、重建 Root、重发 Seed、修改 atlas-bootstrap 或调用恢复命令。
-3. 确认 controller Healthy，按原架构把私钥备份到物理隔离介质；备份位置/管理尚待所有者确定。
+3. 确认 controller Healthy，按原架构把私钥备份到物理隔离介质；本次 dev02 由所有者明确批准临时使用 w1
+   本机备份，见启用记录，不能记为物理隔离要求已满足。
    只有公开证书传入本地封装工具，私钥不得进入本仓库、截图或日志。
 4. 使用锁定 kubeseal 获取该目标 controller 公共证书，再执行：
 
@@ -111,7 +114,8 @@ Grafana 密码和本地 S3 凭据位于私有 `.state/capabilities/credentials.j
 6. 真实验收：全部新增 App 当前 SHA Synced/Healthy；Secret 实际物化；PVC Bound/Retain；
    Prometheus targets/rules、测试告警 firing/resolved、Grafana 登录/看板、签名 S3 CRUD/预签名/分段上传；
    无权限 Pod 与匿名访问拒绝；重启服务后的数据；Root/Identity/Signal/Receipt UID 不变；重复 apply 零写入。
-   这部分尚未执行，容器 API 测试和 schema 检查不能替代这些证据。
+   当前实测范围见启用记录；其中 Kubernetes 存储重启恢复、完整 Prometheus 规则触发链路
+   和外部通知仍未验证，不以容器测试或 Alertmanager API 注入替代。
 
 首次 trust root 有两个发布阶段，后续已建立依赖的普通组件扩展只需一次选择和审核发布。
 不自动创建外部通知渠道、不自动发送邮件/消息，也不自动导出已有信任根。
@@ -124,8 +128,9 @@ Grafana 密码和本地 S3 凭据位于私有 `.state/capabilities/credentials.j
 - 隔离 Docker 容器验证锁定 SeaweedFS 与清单参数的签名 CRUD、预签名、分段上传、匿名/跨桶 403、重启保留数据。
   初次重启探测因 Docker 动态端口改变而失败；修正测试器重新查询端口后通过，未修改存储数据掩盖结果。
 
-校验不覆盖 Kubernetes admission/CEL、实际四节点调度、NetworkPolicy 执行或 Argo 运行时交接。
-当前启用选择仍为 `[]`；没有新增组件的 Kubernetes 成功报告。
+本轮已完成实际四节点调度、NetworkPolicy 正/负向探测、GitOps 收敛及服务 API 验收。
+完整结果见 [运行证据](evidence/platform-dev02-enabled-20260927.json)。这不是完整 admission/CEL、
+HA、离线恢复或生产就绪证明。后续基础能力优先级见 [组件评估](platform-next-components.md)。
 
 ## 上游依据
 
