@@ -58,5 +58,10 @@ apiServer:
 			{"hostPath": filepath.Join(a.Root, ".state/audit-policy.yaml"), "containerPath": "/etc/kubernetes/atlas-audit/policy.yaml", "readOnly": true},
 			{"hostPath": auditDir, "containerPath": "/var/log/kubernetes/atlas-audit", "readOnly": false},
 		}}}}
+	if a.development != nil {
+		config["networking"] = a.development.kind["networking"]
+		nodes := a.development.kind["nodes"].([]any)
+		config["nodes"].([]Object)[0]["extraPortMappings"] = nodes[0].(map[string]any)["extraPortMappings"]
+	}
 	return json.MarshalIndent(config, "", "  ")
 }

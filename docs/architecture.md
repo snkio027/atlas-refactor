@@ -59,8 +59,8 @@ revision 或读取 ownership 时失败关闭。详见第二、三轮失败记录
 管理员可删除这些记录，所以本实现不宣称具备服务端强制的永久降权。
 更广的共享或生产部署仍须先完成独立 Recovery、证据保护、跨执行器互斥以及
 恢复演练。用户另行提出先构建独立可丢弃的 Web/API 开发环境，范围与延期项由
-[Proposed ADR-0004](adr/0004-local-web-development-platform.md) 单独定义；当前只有
-清单和本地验证，运行时部署仍须补齐新 Seed 交接检查并另行批准。
+[Proposed ADR-0004](adr/0004-local-web-development-platform.md) 单独定义；schema 2 实现 Cilium-first 启动与双 Seed 检查。
+用户已授权启动独立开发目标；其运行时结论单独记录。
 
 ## 实现边界
 
@@ -94,7 +94,8 @@ API 监听 loopback。Metadata-only 审计只记录写请求，不记录正文�
 ## 独立开发平台候选
 
 `gitops/{root,platform,workloads}/` 的 development overlays 实现网络、TLS、本地存储与 Web 示例。
-它们没有替换 `gitops/test`，也没有扩展现有 Go Bootstrap 的集群 mutation authority。
+它们没有替换 `gitops/test`。schema 2 在同一正常 Bootstrap engine 中把初始 Cilium Seed
+纳入既有 durable latch 边界；交接后没有新的持续 mutation authority。
 `cmd/atlas-platform` 只渲染和校验本地文件；它不是第二个 Bootstrap engine。
 完整控制图、当前验证边界和 Cilium-first 启动前置工作见
 [开发平台与部署审查](development-platform.md)。

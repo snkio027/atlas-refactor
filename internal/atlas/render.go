@@ -18,6 +18,7 @@ type App struct {
 	Lock           Lock
 	Runner         Runner
 	resolvedCommit string
+	development    *developmentBundle
 }
 type Object map[string]any
 
@@ -37,6 +38,9 @@ func (a *App) identity() map[string]string {
 	d := a.Config.Identity()
 	d["lockSHA256"] = digest(jsonBytes(a.Lock))
 	d["substrateProfile"] = "kind-ipv4-audit/v1"
+	if a.development != nil {
+		a.developmentIdentity(d)
+	}
 	return d
 }
 func (a *App) fingerprint() string { return digest(jsonBytes(a.identity())) }
@@ -60,11 +64,17 @@ func (a *App) application(name, project, path, wave string) Object {
 	return o
 }
 func (a *App) rootApplication() Object {
+	if a.development != nil {
+		return a.development.root
+	}
 	o := a.application("atlas-refactor-root", "atlas-bootstrap", a.Config.GitOpsPath+"/root", "0")
 	delete(o["metadata"].(Object), "annotations")
 	return o
 }
 func (a *App) project(name string, platform bool) Object {
+	if a.development != nil && name == "atlas-bootstrap" {
+		return a.development.project
+	}
 	o := object("AppProject", "argocd", name)
 	namespaced := []Object{{"group": "argoproj.io", "kind": "Application"}}
 	if !platform {
@@ -86,6 +96,11 @@ func (a *App) project(name string, platform bool) Object {
 }
 
 func (a *App) VerifyArtifacts() error {
+	if a.Config.developmentProfile() {
+		if e := a.prepareDevelopment(); e != nil {
+			return e
+		}
+	}
 	checks := map[string]string{a.Lock.Chart: a.Lock.ChartSHA256}
 	for p, h := range a.Lock.Assets {
 		checks[p] = h
@@ -105,6 +120,9 @@ func (a *App) VerifyArtifacts() error {
 func (a *App) Render(ctx context.Context) (map[string][]byte, error) {
 	if e := a.VerifyArtifacts(); e != nil {
 		return nil, e
+	}
+	if a.development != nil {
+		return a.developmentRender(), nil
 	}
 	if e := a.verifyTools(ctx, false); e != nil {
 		return nil, e
@@ -195,7 +213,7 @@ func (a *App) Doctor(ctx context.Context) error {
 	if e := a.verifyTools(ctx, true); e != nil {
 		return e
 	}
-	for _, img := range []string{a.Lock.NodeImage, a.Lock.ArgoImage, a.Lock.RedisImage} {
+	for _, img := range a.lockedImages() {
 		b, e := a.run(ctx, "docker", "image", "inspect", "--platform", "linux/arm64", img, "--format", "{{.Os}}/{{.Architecture}}")
 		if e != nil {
 			return fmt.Errorf("locked image unavailable locally: %s", img)

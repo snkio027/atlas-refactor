@@ -43,6 +43,7 @@ tasks:
     cmds:
       - task: toolchain
       - go run ./cmd/atlas-platform --helm '{{.PLATFORM_HELM | default "helm"}}' --kubectl '{{.PLATFORM_KUBECTL | default "kubectl"}}' --yq '{{.PLATFORM_YQ | default "yq"}}' render
+      - go run ./cmd/atlas render --config profiles/development.json --output .
   platform:check:
     desc: Check local renders, Kustomize, schemas and architecture boundaries
     cmds:

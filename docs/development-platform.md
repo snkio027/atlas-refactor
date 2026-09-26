@@ -1,14 +1,14 @@
 # Web/API 开发平台：实现与部署审查
 
-状态：**清单与本地验证完成；尚未部署；不是原 Atlas authority cutover。**
+状态：**清单和 Cilium-first 启动集成已实现；真实部署结果另行记录；不是原 Atlas authority cutover。**
 适用范围是新的、可丢弃的 OrbStack / 单节点 Kind / IPv4 开发集群。
 采用原 Atlas Architecture v1.0.2、GitOps v1.0.3、Network v1.0 的权责模型；
 参考源固定为原仓库 `aca4ff137a1d254cfeceaec24526e0699b585e92`。
 部署范围提案见 [ADR-0004](adr/0004-local-web-development-platform.md)，保持 Proposed。
 
-用户本轮选择先交付网络入口、TLS、本地持久存储和本地验证，再审查部署计划。
-因此 `cmd/atlas` 的既有行为、第四轮测试配置、历史报告和证据没有扩展或改写。
-开发候选的状态不能沿用旧实验的 `ADOPTED / 0` 结论。
+第一轮先完成清单与本地验证；用户随后授权提交审核，并在本机启动新的开发集群
+`atlas-refactor-test-dev01`。第四轮配置、报告和证据保持不变；开发环境的结论单独记录。
+ADR-0004 保持 Proposed，实验启动授权不等于生产替换或主分支合并批准。
 
 ## 实现内容与目的
 
@@ -80,7 +80,7 @@ Kind 的 local-path controller 在创建 substrate 时已经存在，之后由 G
 
 手写资源使用 JSON（合法 YAML）；`resources.json` 为 Kubernetes List，Kustomize 会展开。
 `rendered.yaml` 和两个 `*-seed.yaml` 由 Go 工具生成，不直接编辑。
-Cilium 与 Argo Seed 分别与对应 GitOps 叶子字节一致，后续启动集成必须继续维持这一契约。
+Cilium 与 Argo Seed 分别与对应 GitOps 叶子字节一致，启动集成会验证这一契约。
 `bootstrap/root.json` 和 `bootstrap/project.json` 是独立模板，不在任何 Kustomization 中。
 禁止对整个 `platform/development/bootstrap/` 执行递归 apply。
 
@@ -111,29 +111,31 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality \
 
 本次结果与候选文件 SHA-256 清单见 [本地验证记录](evidence/development-platform-local-20260927.json)。
 
-## 部署计划：审查后另行执行
+## 独立开发集群启动与验收
 
-此处是尚未执行的顺序和验收条件。**当前 `atlas apply` 不支持该开发 profile。**
-它仍要求 `gitops/test`、默认 Kind CNI、原四项 Application 与原 Seed inventory；
-把这些清单塞进既有配置会破坏其契约。`platform/development/config.json` 不是它的配置文件。
+`profiles/development.json` 使用 schema 2，仍由现有 `cmd/atlas` 执行；schema 1 历史实验不变。
+运行时读取已提交的渲染制品，验证 vendor 摘要、平台 bundle 指纹、双 Seed 字节一致性、
+锁定镜像和仅 loopback 的 Kind 配置。Kind 禁用默认 CNI，以 `--wait 0s` 创建；预载镜像、
+安装 Cilium、等待节点 Ready 后才启动 Argo。两个 Seed 共用同一个 durable latch。
+交接观察器要求全部 15 个 Application 对齐同一实际 SHA，并逐项检查两个 Seed 的 tracking/SSA，
+再创建 Receipt；latch 后只能观察或补 Receipt，不能重写 Cilium、Argo 或 Root。
 
-1. **审查并冻结候选。** 审查 ADR-0004、Root macro DAG、AppProject、制品与镜像锁。
-   批准后提交清单，把保留名 `development-platform-v1` 创建为指向已审查 commit 的不可移动 tag；
-   当前仅在清单中保留该名称，尚未创建或推送。所有 Application 使用同一 revision。
-   在预检查中解析并记录 tag 对应的精确 commit SHA，不能仅记录 tag 字符串。
-2. **先补齐有边界的启动集成。** 为 Go Bootstrap 增加独立 Cilium-first 开发 profile，
-   先创建 `disableDefaultCNI: true` 的 Kind substrate，预载锁定镜像，安装与 GitOps 字节一致的
-   Cilium Seed，再等待节点 Ready，随后安装 Argo Seed、创建 atlas-bootstrap 与一次性 Root。
-   Cilium 官方 [Kind 指南](https://docs.cilium.io/en/stable/installation/kind/) 明确此就绪顺序。
-   初始 Seed authority 应统一在现有 durable latch 前结束；latch 后不得重新安装 Cilium 或 Argo。
-   观察器需识别新控制图、双 Seed inventory、动态资源归属和同一 SHA，不能复用“39 个对象即通过”。
-   必须覆盖中断续跑和重复 apply 零写入；不引入第二个长期 mutation engine。
-3. **准备离线输入与精确目标。** 新集群建议名 `atlas-refactor-test-dev01`，实际名称需在执行前确定。
-   记录 OrbStack context、CPU/内存、API loopback、8080/8443 端口占用、工具版本、node digest、
-   所有镜像的 linux/arm64 本地可用性、渲染摘要和干净 checkout。包括动态创建的 Envoy、
-   cert-manager solver、local-path helper；预载时保留 digest 引用。不得依赖在线拉取补齐。
-4. **单独批准首次写入。** 审查已实现的启动命令、exact target、commit、Root 和故障测试范围，
-   再获得运行时批准。历史四轮批准不覆盖这个目标。不在保留集群上原地替换 Kindnet。
+1. **提交与审核。** 所有 Application 跟随 `codex/development-platform` 审核分支。
+   首次启动必须从干净 checkout 执行，远端分支 SHA 必须等于本地 HEAD；保存精确 SHA 和全部输入摘要。
+   首次运行 checkout 与其私有 `.state` 保留，不能通过改写旧证据“升级” Bootstrap 身份。
+2. **准备离线输入。** 在启动前独立下载并校验锁定镜像；运行时不自动下载缺失依赖。
+   预检查 OrbStack、8080/8443 空闲和 linux/arm64 镜像，保留全部旧集群。
+3. **精确目标。** 本次用户授权目标为 `atlas-refactor-test-dev01`，单节点 Kind / OrbStack。
+   8080/8443 和 Kubernetes API 仅监听本机 loopback；不修改主机 DNS 或信任库。
+4. **运行命令。** 在独立、固定 commit 的执行 checkout 中执行：
+
+   ```sh
+   atlas doctor --config profiles/development.json --tool-dir /absolute/path/to/locked-tools
+   atlas apply --config profiles/development.json --tool-dir /absolute/path/to/locked-tools \
+     --approve-cluster atlas-refactor-test-dev01 --approve-tier0
+   atlas status --config profiles/development.json --tool-dir /absolute/path/to/locked-tools --check
+   ```
+
 5. **在新集群启动并观察 GitOps。** Root → projects → platform → workload；TLS 各阶段依次就绪。
    记录每个 Application 的实际 SHA、Sync/Health；确认 Seed 被 GitOps 接管、Root UID 未变、
    Bootstrap 不再持续写入；controller 创建的代理 Service/EndpointSlice/helper Pod 归属正确。

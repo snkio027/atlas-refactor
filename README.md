@@ -10,8 +10,8 @@ Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 S
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
 近期开发优先级是独立的 **Web/API 开发平台**：Cilium、Gateway API / Envoy Gateway、
-cert-manager、本地存储和受限业务 namespace。清单与本地验证已完成，尚未部署；
-现有 `atlas apply` 尚不支持该开发 profile。见[开发平台与部署审查](docs/development-platform.md)。
+cert-manager、本地存储和受限业务 namespace。清单、本地验证和 Cilium-first 启动已实现；
+`atlas apply --config profiles/development.json` 使用独立的 schema 2 开发 profile。见[开发平台与部署审查](docs/development-platform.md)。
 
 当前定位仍是 **successor candidate**；原 Atlas 的 Decision / Cutover Gate 保留。
 已验证实现与报告按 SHA 冻结；下一 Gate 是外部契约与迁移过程，当前切换结果为 **NO_GO**。

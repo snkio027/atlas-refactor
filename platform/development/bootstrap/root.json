@@ -9,7 +9,7 @@
     "project": "atlas-bootstrap",
     "source": {
       "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-      "targetRevision": "development-platform-v1",
+      "targetRevision": "codex/development-platform",
       "path": "gitops/root/overlays/development"
     },
     "destination": {

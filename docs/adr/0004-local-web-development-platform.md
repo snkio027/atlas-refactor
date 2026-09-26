@@ -7,8 +7,8 @@
 ## 背景
 
 最小 Go Bootstrap 已完成第四轮可丢弃集群验证。用户把近期目标调整为开发其他项目所需的
-网络入口、TLS 与本地持久存储，稳定性体系后续补齐。本轮只实现 GitOps 清单并本地验证，
-之后审查部署计划。此前更广范围部署前完成全部恢复能力的约束，需要明确限定这个新实验范围。
+网络入口、TLS 与本地持久存储，稳定性体系后续补齐。首轮实现 GitOps 清单并本地验证，
+随后用户明确授权提交审核和启动本机独立开发集群。此前更广范围部署前完成全部恢复能力的约束，需要明确限定这个新实验范围。
 
 ## 提议
 
@@ -23,15 +23,17 @@ Root 只管理 project-bootstrap / platform-control / workload-control。
 Helm 是渲染器；Git 保存已渲染定义；组件/controller 拥有其运行时生成对象。
 证书 Secret 运行时生成，Git 不包含 Secret material。
 
-Cilium 是 Argo 启动前的 substrate 依赖。未来启动实现须把 Cilium 与 Argo 纳入同一
+Cilium 是 Argo 启动前的 substrate 依赖。启动实现把 Cilium 与 Argo 纳入同一
 有期限的 Seed authority，在 durable handoff latch 后统一撤销。两个 Seed 与 GitOps
 叶子字节一致，GitOps 完整 SSA 接管；Go 不成为持续网络控制器，也不添加 Shell 旁路 installer。
-当前只输出这些 Seed，不扩展原 `atlas apply`，不授权人工跳过现有安全检查。
+`profiles/development.json` 以 schema 2 选择这个边界，schema 1 继续用于历史最小实验。
+所有 Application 跟随审核分支；首次启动的精确 SHA、渲染指纹和私有状态独立保留。
+不授权人工跳过现有安全检查。
 
 允许推迟完整 HA、Recovery/Drill、备份和发布 provenance，前提是范围始终为独立可丢弃开发集群，
 不存放唯一业务数据，不继承原 Atlas live state，也不宣称生产就绪。
-首轮部署仍需先补齐 Cilium-first 启动与新 ownership 检查、审查固定 commit、确认 exact target，
-并单独批准 Tier-0 写入。不能沿用旧 39 项 Seed 的成功报告证明新平台交接。
+首轮部署以 Cilium-first 启动和双 Seed ownership 检查为前置条件，固定执行 commit，
+目标为用户已授权的 `atlas-refactor-test-dev01`。不能沿用旧 39 项 Seed 的成功报告证明新平台交接。
 
 ## 不变的架构约束
 

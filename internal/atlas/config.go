@@ -162,8 +162,8 @@ func Load(root, configFile string) (Config, Lock, error) {
 }
 
 func (c Config) Validate() error {
-	if c.Schema != 1 || !regexp.MustCompile(`^atlas-refactor-test(?:-[a-z0-9]{1,12})?$`).MatchString(c.Cluster) {
-		return errors.New("schema 1 and an atlas-refactor-test[-suffix] cluster are required")
+	if (c.Schema != 1 && c.Schema != 2) || !regexp.MustCompile(`^atlas-refactor-test(?:-[a-z0-9]{1,12})?$`).MatchString(c.Cluster) {
+		return errors.New("schema 1 or 2 and an atlas-refactor-test[-suffix] cluster are required")
 	}
 	u, e := url.Parse(c.RepositoryURL)
 	if e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || !strings.HasSuffix(u.Path, ".git") {
@@ -172,8 +172,15 @@ func (c Config) Validate() error {
 	if !regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/-]{0,150}$`).MatchString(c.Revision) || strings.Contains(c.Revision, "..") {
 		return errors.New("invalid revision")
 	}
-	if c.GitOpsPath != "gitops/test" || c.DockerContext != "orbstack" || c.TimeoutSeconds < 30 || c.TimeoutSeconds > 1800 {
-		return errors.New("first milestone requires gitops/test, orbstack and a 30..1800 second timeout")
+	if c.DockerContext != "orbstack" || c.TimeoutSeconds < 30 || c.TimeoutSeconds > 1800 {
+		return errors.New("orbstack and a 30..1800 second timeout are required")
+	}
+	if c.developmentProfile() {
+		if c.GitOpsPath != "gitops/root/overlays/development" || c.RepositoryURL != "https://github.com/snkio027/atlas-refactor.git" || c.Revision != "codex/development-platform" {
+			return errors.New("schema 2 requires the reviewed development source and root")
+		}
+	} else if c.GitOpsPath != "gitops/test" {
+		return errors.New("schema 1 requires gitops/test")
 	}
 	return nil
 }

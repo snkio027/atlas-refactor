@@ -219,7 +219,7 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 	if !specMatches(root, a.rootApplication()) || root.Metadata.Annotations["argocd.argoproj.io/tracking-id"] != "" {
 		return state(Drifted, "External Root drift; no overwrite permitted")
 	}
-	if self != nil && !specMatches(self, a.application("argocd-self", "platform-project", a.Config.GitOpsPath+"/platform/argocd", "0")) {
+	if self != nil && !specMatches(self, a.selfApplication()) {
 		return state(Drifted, "argocd-self spec drift")
 	}
 	if signal != nil && !a.validSignal(signal) {

@@ -12,7 +12,7 @@ import (
 
 func (a *App) verifyRepository(ctx context.Context, files map[string][]byte) error {
 	for p, want := range files {
-		actual, e := readFile(a.Root, filepath.Join(a.Config.GitOpsPath, p))
+		actual, e := readFile(a.Root, a.artifactPath(p))
 		if e != nil {
 			return fmt.Errorf("render into %s and commit it first: %w", a.Config.GitOpsPath, e)
 		}
@@ -150,7 +150,7 @@ func (a *App) createCluster(ctx context.Context) error {
 	if e = WriteFiles(a.Root, ".state", map[string][]byte{"kind.yaml": kindConfig, "audit-policy.yaml": auditPolicy}); e != nil {
 		return e
 	}
-	_, e = a.run(ctx, "kind", "create", "cluster", "--name", a.Config.Cluster, "--image", a.Lock.NodeImage, "--config", filepath.Join(a.Root, ".state/kind.yaml"), "--kubeconfig", p, "--wait", "120s")
+	_, e = a.run(ctx, "kind", "create", "cluster", "--name", a.Config.Cluster, "--image", a.Lock.NodeImage, "--config", filepath.Join(a.Root, ".state/kind.yaml"), "--kubeconfig", p, "--wait", a.initialWait())
 	if e != nil {
 		return e
 	}
@@ -168,12 +168,19 @@ func (a *App) createCluster(ctx context.Context) error {
 }
 
 func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error {
+	if a.development != nil {
+		if e := a.prepareCilium(ctx, files); e != nil {
+			return e
+		}
+	}
 	if e := a.verifyNodes(ctx); e != nil {
 		return e
 	}
-	for _, img := range []string{a.Lock.ArgoImage, a.Lock.RedisImage} {
-		if e := a.loadNodeImage(ctx, img); e != nil {
-			return e
+	if a.development == nil {
+		for _, img := range []string{a.Lock.ArgoImage, a.Lock.RedisImage} {
+			if e := a.loadNodeImage(ctx, img); e != nil {
+				return e
+			}
 		}
 	}
 	ns, e := a.get(ctx, "namespace", "", "argocd")
@@ -196,7 +203,7 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 			return e
 		}
 	}
-	if _, e = a.kube(ctx, files["bootstrap/seed.yaml"], "apply", "--server-side", "--field-manager=atlas-refactor-bootstrap", "-f", "-"); e != nil {
+	if _, e = a.kube(ctx, files[a.seedFile()], "apply", "--server-side", "--field-manager=atlas-refactor-bootstrap", "-f", "-"); e != nil {
 		return e
 	}
 	if _, e = a.kube(ctx, nil, "wait", "--for=condition=Established", "crd/applications.argoproj.io", "crd/appprojects.argoproj.io", "--timeout=120s"); e != nil {
@@ -230,7 +237,9 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 	return a.create(ctx, a.rootApplication())
 }
 
-func (a *App) verifyNodes(ctx context.Context) error {
+func (a *App) verifyNodes(ctx context.Context) error { return a.verifySubstrate(ctx, true) }
+
+func (a *App) verifySubstrate(ctx context.Context, requireReady bool) error {
 	b, e := a.run(ctx, "kind", "get", "nodes", "--name", a.Config.Cluster)
 	if e != nil {
 		return e
@@ -272,6 +281,9 @@ func (a *App) verifyNodes(ctx context.Context) error {
 	info := list.Items[0].Status.NodeInfo
 	if info.Architecture != "arm64" || info.OperatingSystem != "linux" || info.KubeletVersion != "v"+a.Lock.Kubernetes {
 		return errors.New("Kubernetes node platform or version drift")
+	}
+	if !requireReady {
+		return nil
 	}
 	for _, c := range list.Items[0].Status.Conditions {
 		if c.Type == "Ready" && c.Status == "True" {

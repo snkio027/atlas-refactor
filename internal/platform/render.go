@@ -77,7 +77,7 @@ func Load(root string, t Tools) (*Project, error) {
 	if p.Config.Schema != 1 || p.Lock.Schema != 1 {
 		return nil, errors.New("unsupported platform schema")
 	}
-	if p.Config.RootPath != "gitops/root/overlays/development" || p.Config.RepositoryURL != "https://github.com/snkio027/atlas-refactor.git" || p.Config.Revision != "development-platform-v1" {
+	if p.Config.RootPath != "gitops/root/overlays/development" || p.Config.RepositoryURL != "https://github.com/snkio027/atlas-refactor.git" || p.Config.Revision != "codex/development-platform" {
 		return nil, errors.New("unreviewed development target")
 	}
 	expected := map[string]string{"foundation": "foundation", "cilium": "networking/cilium", "argocd-self": "management/argocd-self", "cert-manager": "management/cert-manager", "gateway-api": "networking/gateway-api", "envoy-crds": "networking/envoy-crds", "envoy-gateway": "networking/envoy-gateway", "local-storage": "storage/local-path", "local-pki": "management/local-pki", "edge": "networking/edge"}

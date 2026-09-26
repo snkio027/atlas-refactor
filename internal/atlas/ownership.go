@@ -27,6 +27,9 @@ func (a *App) sourceCommit(ctx context.Context) (string, error) {
 }
 
 func (a *App) handoffComplete(ctx context.Context, root, self, signal *Live) (bool, error) {
+	if a.development != nil {
+		return a.developmentHandoffComplete(ctx, root, self, signal)
+	}
 	if signal == nil || !ready(root) || !ready(self) {
 		return false, nil
 	}
@@ -152,7 +155,11 @@ func (a *App) seedOwnedByArgo(ctx context.Context, self *Live, commit string) (b
 	if e != nil {
 		return false, e
 	}
-	seed := files["bootstrap/seed.yaml"]
+	seed := files[a.seedFile()]
+	return a.seedPayloadOwned(ctx, self, commit, seed)
+}
+
+func (a *App) seedPayloadOwned(ctx context.Context, self *Live, commit string, seed []byte) (bool, error) {
 	// This is local manifest decoding, not a create API request. It uses only
 	// discovery reads with the bound kubeconfig; server dry-run is not permitted.
 	b, e := a.kube(ctx, seed, "create", "--dry-run=client", "--validate=false", "-f", "-", "-o", "json")
@@ -199,9 +206,9 @@ func (a *App) seedOwnedByArgo(ctx context.Context, self *Live, commit string) (b
 			// Argo uses the destination namespace for cluster-scoped tracking IDs.
 			tracked := *want
 			if tracked.Metadata.Namespace == "" {
-				tracked.Metadata.Namespace = "argocd"
+				tracked.Metadata.Namespace = self.Spec["destination"].(map[string]any)["namespace"].(string)
 			}
-			if tracking != "argocd-self:"+seedKey(&tracked) {
+			if tracking != self.Metadata.Name+":"+seedKey(&tracked) {
 				return false, nil
 			}
 		}

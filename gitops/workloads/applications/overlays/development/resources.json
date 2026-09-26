@@ -17,7 +17,7 @@
         "project": "workload-project",
         "source": {
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "development-platform-v1",
+          "targetRevision": "codex/development-platform",
           "path": "gitops/workloads/web-smoke/overlays/development"
         },
         "destination": {
