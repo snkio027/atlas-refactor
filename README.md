@@ -9,6 +9,13 @@ Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 S
 此结论限于下述可丢弃环境；ADR 保持 Proposed，尚未进行原 Atlas 权威切换。
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
+当前定位是 **successor candidate**，进入 Decision / Cutover Readiness 阶段。
+已验证实现与报告按 SHA 冻结；下一 Gate 是外部契约与迁移过程，当前切换结果为 **NO_GO**。
+见 [Go Bootstrap Cutover Contract](docs/go-bootstrap-cutover-contract.md)、
+[静态 behavioral parity audit](docs/bootstrap-behavioral-parity-audit.md) 和
+[基线绑定清单](docs/evidence/bootstrap-baseline-20260927.json)。默认语言决定与实际替换
+分别提案、分别审批；此文档不授予原 Atlas 的 Tier-0 权限，也不启动新一轮集群测试。
+
 ## 构建与检查
 
 需要 Go **1.27.1**。运行时实现只使用标准库，没有第三方 Go 模块。
@@ -124,6 +131,8 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 ## 文档
 
 - [架构与生命周期](docs/architecture.md)
-- [新项目 ADR-0001](docs/adr/0001-go-bootstrap-foundation.md)
+- [新项目 ADR-0001：实验基础（Proposed）](docs/adr/0001-go-bootstrap-foundation.md)
+- [ADR-0002：默认 Go 语言提案（Proposed）](docs/adr/0002-go-default-control-plane-language.md)
+- [ADR-0003：独立切换 Gate 提案（Proposed）](docs/adr/0003-gated-bootstrap-successor-cutover.md)
 - [Atlas 经验采纳清单](docs/atlas-lessons.md)
 - [测试与验证记录](docs/verification.md)

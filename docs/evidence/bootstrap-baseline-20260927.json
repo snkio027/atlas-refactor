@@ -1,0 +1,311 @@
+{
+  "schema": "atlas-refactor.baseline-binding/v1",
+  "recordedDate": "2026-09-27",
+  "disposition": "FROZEN_HISTORICAL_REFERENCE",
+  "cutoverReadiness": "BLOCKED",
+  "runtimeAuthorization": "NONE",
+  "implementation": {
+    "repository": "https://github.com/snkio027/atlas-refactor.git",
+    "commit": "0ef918801dac84ac913416f4c1756bf08045a485",
+    "tag": "integration-20260927-04",
+    "binarySHA256": "5cdb0e380078528ba02a6d39504029ef8a1a24a9ec687a8849f2d37548e4c28f",
+    "runtimeScope": "darwin/arm64 CLI; one-node linux/arm64 Kind on owner-local OrbStack"
+  },
+  "report": {
+    "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+    "path": "docs/integration-20260927-04-result.md",
+    "sha256": "d135e21f37e884099a24954a224ad891459e4a8ba3e46e7e5c659b7a9d85fc2a",
+    "evidencePath": "docs/evidence/integration-20260927-04.json",
+    "evidenceSHA256": "4ea6daa54e08880cd60740736ed59a106dc527890ce3a4eaac9e99336e1cf3ee"
+  },
+  "shellComparison": {
+    "repository": "https://github.com/snkio027/atlas.git",
+    "commit": "aca4ff137a1d254cfeceaec24526e0699b585e92",
+    "method": "STATIC_PINNED_SOURCE_INSPECTION_ONLY",
+    "runtimeParityResult": "NOT_RUN"
+  },
+  "historicalArtifacts": [
+    {
+      "path": "docs/evidence/integration-20260927-01.json",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "9fc69444c0d42a65ca82826d6e90627080ddb642799fbb9c9497191cf7b00868",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/evidence/integration-20260927-01.json"
+    },
+    {
+      "path": "docs/evidence/integration-20260927-02.json",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "f262113bed61ed6de378cb89267648cb3d36f0ec1673b850feab0f185a4bebe5",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/evidence/integration-20260927-02.json"
+    },
+    {
+      "path": "docs/evidence/integration-20260927-03.json",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "7e25361e89b8c7406d868e81419aa66a5064c693bf34b725b56581479b014a46",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/evidence/integration-20260927-03.json"
+    },
+    {
+      "path": "docs/evidence/integration-20260927-04.json",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "4ea6daa54e08880cd60740736ed59a106dc527890ce3a4eaac9e99336e1cf3ee",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/evidence/integration-20260927-04.json"
+    },
+    {
+      "path": "docs/integration-20260927-01-result.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "c817b489f061af276a625e8e88b8255c5f22c6149dcde51cb8990df2b58c5d3f",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-20260927-01-result.md"
+    },
+    {
+      "path": "docs/integration-20260927-02-result.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "9ac3b61372853db031cd71733c754e8c3a094473e0e8440140f7f2a0696487a4",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-20260927-02-result.md"
+    },
+    {
+      "path": "docs/integration-20260927-03-result.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "067824c9e6736ed724f4b7b7b0935dbffe7ebbd66ec1d5b35880d2a9fc4d54dc",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-20260927-03-result.md"
+    },
+    {
+      "path": "docs/integration-20260927-04-result.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "d135e21f37e884099a24954a224ad891459e4a8ba3e46e7e5c659b7a9d85fc2a",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-20260927-04-result.md"
+    },
+    {
+      "path": "docs/integration-first-slice.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "b782b26b1b8ce6e31ff6375428ff42f82737737c1e28e18ff301f173f5072af1",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-first-slice.md"
+    },
+    {
+      "path": "docs/integration-fourth-slice.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "1f06dbc20b555ad6af290bb9189b9314121f4b4d10aa67691b21656944e5ebd2",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-fourth-slice.md"
+    },
+    {
+      "path": "docs/integration-second-slice.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "b85fdb5d34360c5476585f6be7b56590384b4792fe420394dca54887a7382d6d",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-second-slice.md"
+    },
+    {
+      "path": "docs/integration-third-slice.md",
+      "commit": "9df41568bafcaa98d6548d2089766d83081c3374",
+      "sha256": "208f822cf046e5685b6f9c4cd729efa4c917946c4344791293821a8d6859c501",
+      "url": "https://github.com/snkio027/atlas-refactor/blob/9df41568bafcaa98d6548d2089766d83081c3374/docs/integration-third-slice.md"
+    }
+  ],
+  "boundFourthRun": {
+    "profileSHA256": "f2d6907911909dab27a7bf5669ff935f690583ff008fa6f9c1dd1eea009b27cc",
+    "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+    "renderHashes": {
+      "bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+      "bootstrap/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+      "bootstrap/root.json": "32756e3eb0f8c83966ebc1790d95efd4cd6ca821ca151359f110fd7f51dcf4a8",
+      "projects/kustomization.yaml": "d1b9716f4f98258b88c42510fcc0b207d4747332fc2db5c11c886a2570df0eda",
+      "projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+      "platform/argocd/signal.json": "79e0b69449c32dc136c6aef50084424f0bfc91e7526df36d7fa91b4ca2dc9c5e",
+      "platform/argocd/kustomization.yaml": "e713e10b64861497aefdf9009e8cc72338d5023fc34fd0cb74a9420b4171e527",
+      "platform/argocd/seed.yaml": "6def4d88fb8d463d81c184d412e467144d9df87304e4badb416efb61b2c1adf9",
+      "platform/applications/kustomization.yaml": "655815ea0102c8d8053c345fde8d9f0caef2ce710ba20d50134b677ad6e3d57d",
+      "platform/applications/argocd-self.json": "7a950c9cff6963b451a87db3ccf2d27ab41f8e561a41e0a31333f033f439e18d",
+      "root/kustomization.yaml": "71cf56cc20209731b6be01fba7c831650db61e8e4f21d30f694db4833c9be046",
+      "root/platform.json": "7e8d6e3c9d3a22192b66ee154fa497f41867d4cb516edd54c131141577d66573",
+      "root/projects.json": "fc0cff7aec5e9b9b08e3cfc42600e3b09d063c338e831a9b9692fd33b1a825f1"
+    },
+    "tools": {
+      "go": {
+        "sha256": "548608a910c46de32c65a3934f461b1787acf6ddd371044826068d8503b8509b",
+        "version": "go version go1.27.1 darwin/arm64"
+      },
+      "helm": {
+        "sha256": "e8fe1a6caf4091026ad776eb2fe059a2d7a82fc69c22bd08cbcb3689d93e5c0d",
+        "version": "v4.2.3+g43e8b7f"
+      },
+      "kind": {
+        "sha256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb",
+        "version": "kind v0.32.0 go1.26.3 darwin/arm64"
+      },
+      "kubectl": {
+        "sha256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6",
+        "version": "{\n  \"clientVersion\": {\n    \"major\": \"1\",\n    \"minor\": \"36\",\n    \"gitVersion\": \"v1.36.3\",\n    \"gitCommit\": \"0f29094e5b73085e3802ecc1298ecae13866bfe6\",\n    \"gitTreeState\": \"clean\",\n    \"buildDate\": \"2026-07-22T18:10:35Z\",\n    \"goVersion\": \"go1.26.5\",\n    \"compiler\": \"gc\",\n    \"platform\": \"darwin/arm64\"\n  },\n  \"kustomizeVersion\": \"v5.8.1\"\n}"
+      },
+      "docker": {
+        "sha256": "70d5a06adf388bd09b652f47ddc9ca31663a3e5353d24188bdb0054b3014ab3e",
+        "version": "{\"Client\":{\"Version\":\"29.4.0\",\"ApiVersion\":\"1.54\",\"DefaultAPIVersion\":\"1.54\",\"GitCommit\":\"9d7ad9f\",\"GoVersion\":\"go1.26.4\",\"Os\":\"darwin\",\"Arch\":\"arm64\",\"BuildTime\":\"Fri Aug  7 04:38:56 2026\",\"Context\":\"orbstack\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Engine - Community\"},\"Version\":\"29.4.0\",\"ApiVersion\":\"1.54\",\"MinAPIVersion\":\"1.40\",\"Os\":\"linux\",\"Arch\":\"arm64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.4.0\",\"Details\":{\"ApiVersion\":\"1.54\",\"Arch\":\"arm64\",\"BuildTime\":\"Tue Apr  7 08:35:43 2026\",\"Experimental\":\"true\",\"GitCommit\":\"daa0cb7f\",\"GoVersion\":\"go1.26.1\",\"KernelVersion\":\"7.0.14-orbstack-00380-ga7e0a2dc9535\",\"MinAPIVersion\":\"1.40\",\"Module\":\"github.com/moby/moby/v2\",\"ModuleVersion\":\"v2.0.0+unknown\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.2.2\",\"Details\":{\"GitCommit\":\"301b2dac98f15c27117da5c8af12118a041a31d9\"}},{\"Name\":\"runc\",\"Version\":\"1.5.1\",\"Details\":{\"GitCommit\":\"bb14dabeb7185bb72c8c86735d090dcb20f36587\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"daa0cb7f\",\"GoVersion\":\"go1.26.1\",\"KernelVersion\":\"7.0.14-orbstack-00380-ga7e0a2dc9535\",\"Experimental\":true,\"BuildTime\":\"2026-04-07T08:35:43.000000000+00:00\"}}"
+      },
+      "git": {
+        "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a",
+        "version": "git version 2.54.0 (Apple Git-157)"
+      }
+    },
+    "cluster": "atlas-refactor-test-vs0927d",
+    "identity": {
+      "uid": "c47f4455-08ab-493c-898d-03fe56dee76c",
+      "data": {
+        "cluster": "atlas-refactor-test-vs0927d",
+        "dockerContext": "orbstack",
+        "gitopsPath": "gitops/test",
+        "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+        "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
+        "revision": "integration-20260927-04",
+        "schema": "atlas-refactor/identity/v1",
+        "substrateProfile": "kind-ipv4-audit/v1"
+      },
+      "immutable": true
+    },
+    "controlUIDs": {
+      "identity": "c47f4455-08ab-493c-898d-03fe56dee76c",
+      "handoff": "c1491f2e-7dbd-4b51-8612-f82a98c78ff9",
+      "receipt": "5b645f3f-2fb5-4a50-87f2-eb974b658e28",
+      "signal": "b4682aa8-dae4-42a1-b5a4-b8c87efa56aa",
+      "atlas-bootstrap": "a5d6dafe-69a3-416d-82e2-9ff2e2a65a49",
+      "platform-project": "3be555c4-bf47-4a81-8e39-be7b1f38395e",
+      "argocd-self": "24ab6d9e-2c1a-4049-a3f3-babe2e59be5c",
+      "atlas-refactor-root": "8784e5a9-7a04-42b9-b998-0a66f42ba313",
+      "platform-control": "f9cb8f5c-26e6-467f-ba34-28f76e915d27",
+      "project-bootstrap": "ed0255f5-51be-4521-9dd7-6511a61def4b"
+    },
+    "applications": {
+      "atlas-refactor-root": {
+        "uid": "8784e5a9-7a04-42b9-b998-0a66f42ba313",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "atlas-bootstrap",
+        "path": "gitops/test/root",
+        "tracking": null
+      },
+      "project-bootstrap": {
+        "uid": "ed0255f5-51be-4521-9dd7-6511a61def4b",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "atlas-bootstrap",
+        "path": "gitops/test/projects",
+        "tracking": "atlas-refactor-root:argoproj.io/Application:argocd/project-bootstrap"
+      },
+      "platform-control": {
+        "uid": "f9cb8f5c-26e6-467f-ba34-28f76e915d27",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "platform-project",
+        "path": "gitops/test/platform/applications",
+        "tracking": "atlas-refactor-root:argoproj.io/Application:argocd/platform-control"
+      },
+      "argocd-self": {
+        "uid": "24ab6d9e-2c1a-4049-a3f3-babe2e59be5c",
+        "sync": "Synced",
+        "health": "Healthy",
+        "revision": "0ef918801dac84ac913416f4c1756bf08045a485",
+        "project": "platform-project",
+        "path": "gitops/test/platform/argocd",
+        "tracking": "platform-control:argoproj.io/Application:argocd/argocd-self"
+      }
+    },
+    "result": {
+      "result": "PASS_BOUNDED_DISPOSABLE_BOOTSTRAP_GATE",
+      "baselineSHA": "0ef918801dac84ac913416f4c1756bf08045a485",
+      "cluster": "atlas-refactor-test-vs0927d",
+      "externalRootSuccessfulCreates": 1,
+      "handoffLatchCreates": 1,
+      "receiptCreates": 1,
+      "bootstrapMutationsOnResume": 1,
+      "bootstrapMutationsAfterReceipt": 0,
+      "repeatBootstrapMutations": 0,
+      "durableSeedObjects": 39,
+      "trackedWithArgoSSA": 36,
+      "CRDsWithSpecSSAAndExactSyncEvidence": 3,
+      "ephemeralHooksExcludedFromStableIdentity": 4,
+      "stableControlAndDurableContentAcrossRepeatAndRestoration": true,
+      "managerChangesFromFixture": {
+        "apps|StatefulSet|argocd|atlas-refactor-argocd-application-controller": {
+          "before": [
+            "argocd-controller",
+            "atlas-refactor-bootstrap",
+            "kube-controller-manager"
+          ],
+          "after": [
+            "argocd-controller",
+            "atlas-refactor-bootstrap",
+            "kube-controller-manager",
+            "kubectl-patch"
+          ]
+        }
+      },
+      "fixtureMutations": {
+        "unhealthy-pause-controller": {
+          "auditID": "15e4be47-7b73-4cd6-981f-a5c5749fae02",
+          "resource": "statefulsets",
+          "name": "atlas-refactor-argocd-application-controller",
+          "mutationCount": 1
+        },
+        "unhealthy-inject-status": {
+          "auditID": "5507ebf3-97d5-4f4a-b09a-453b226af052",
+          "resource": "applications",
+          "name": "argocd-self",
+          "mutationCount": 1
+        },
+        "unhealthy-restore-health": {
+          "auditID": "eac4b474-0284-472d-ba92-6f9391770c77",
+          "resource": "applications",
+          "name": "argocd-self",
+          "mutationCount": 1
+        },
+        "unhealthy-restore-controller": {
+          "auditID": "9c664a00-6b83-487e-92f2-31c2d7da1ba9",
+          "resource": "statefulsets",
+          "name": "atlas-refactor-argocd-application-controller",
+          "mutationCount": 1
+        }
+      },
+      "controllerReadyReplicas": 1,
+      "finalState": "ADOPTED",
+      "finalStatusExitCode": 0,
+      "originalAtlasMutations": 0,
+      "limitations": [
+        "single owner, local macOS ARM64 CLI, one-node Kind/OrbStack",
+        "health fault is controlled status injection while controller is paused",
+        "not full old Shell CLI parity, production readiness, admission enforcement or recovery cutover"
+      ]
+    },
+    "commandEvidence": {
+      "source": "docs/evidence/integration-20260927-04.json",
+      "jsonPointer": "/commands",
+      "binding": "The report evidenceSHA256 binds all command windows and raw exit codes in this array."
+    },
+    "fullOwnershipEvidence": {
+      "source": "docs/evidence/integration-20260927-04.json",
+      "jsonPointers": [
+        "/finalHandoffProof",
+        "/CRDReconciliationEvidence",
+        "/repeatStability"
+      ]
+    }
+  },
+  "localCustodyVerification": {
+    "date": "2026-09-27",
+    "mode": "LOCAL_HASH_VERIFICATION_ONLY",
+    "indexedPrivateFiles": 183,
+    "matchedPrivateFiles": 183,
+    "retainedBinaryMatches": true,
+    "privateIndexPointer": "/privateEvidenceSHA256",
+    "privateIndexBoundByEvidenceSHA256": "4ea6daa54e08880cd60740736ed59a106dc527890ce3a4eaac9e99336e1cf3ee",
+    "location": "atlas-refactor/.state/evidence/integration-20260927-04 (retained copy); execution state remains in /private/tmp/atlas-refactor-integration-04/.state",
+    "liveClusterRechecked": false,
+    "limitations": [
+      "Content identity is not a signature, release provenance, retention guarantee or current cluster attestation.",
+      "Private evidence requires owner-controlled backup and must not be published with credentials."
+    ]
+  },
+  "preservationPolicy": {
+    "moveImplementationTag": false,
+    "rewriteHistoricalArtifacts": false,
+    "corrections": "Append a new dated record linked to the original commit and hashes; never rewrite the fourth-run result.",
+    "futureCandidate": "UNSET; a new commit and independently scoped evidence are required."
+  }
+}
