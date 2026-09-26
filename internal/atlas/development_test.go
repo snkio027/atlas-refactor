@@ -41,6 +41,23 @@ func developmentFixture(t *testing.T) (*App, *simulator) {
 			t.Fatal(e)
 		}
 	}
+	// Bootstrap simulations start from the frozen core inventory, independent
+	// of the capabilities currently selected for the real development cluster.
+	selection := "platform/development/capabilities/enabled.json"
+	if e := os.WriteFile(filepath.Join(a.Root, selection), []byte(`{"schema":1,"capabilities":[]}`), 0600); e != nil {
+		t.Fatal(e)
+	}
+	p, e := platform.Load(a.Root, platform.Tools{Helm: "helm", Kubectl: "kubectl", YQ: "yq"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	core, e := p.CapabilityActivation(nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = p.Write(core); e != nil {
+		t.Fatal(e)
+	}
 	a.Config = Config{3, "atlas-refactor-test-dev02", "https://github.com/snkio027/atlas-refactor.git", "codex/development-platform", "gitops/root/overlays/development", "orbstack", 30}
 	prepareFixtureArchives(t, a)
 	files, e := a.Render(context.Background())
