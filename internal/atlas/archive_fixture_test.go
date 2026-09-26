@@ -26,6 +26,9 @@ func prepareFixtureArchives(t *testing.T, a *App) {
 	hash := index["digest"].(string)
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
+	indexBytes := jsonBytes(Object{"manifests": []Object{index}})
+	_ = tw.WriteHeader(&tar.Header{Name: "index.json", Mode: 0600, Size: int64(len(indexBytes))})
+	_, _ = tw.Write(indexBytes)
 	for h, b := range blobs {
 		_ = tw.WriteHeader(&tar.Header{Name: "blobs/sha256/" + h, Mode: 0600, Size: int64(len(b))})
 		_, _ = tw.Write(b)

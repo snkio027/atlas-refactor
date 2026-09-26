@@ -42,6 +42,15 @@ func archive(t *testing.T, damage string) (string, string) {
 	var out bytes.Buffer
 	tw := tar.NewWriter(&out)
 	_ = tw.WriteHeader(&tar.Header{Name: "blobs/sha256/", Typeflag: tar.TypeDir, Mode: 0755})
+	if damage != "missing-index" {
+		d := index
+		if damage == "wrong-index" {
+			d = manifest
+		}
+		b, _ := json.Marshal(document{Manifests: []descriptor{d}})
+		_ = tw.WriteHeader(&tar.Header{Name: "index.json", Mode: 0600, Size: int64(len(b))})
+		_, _ = tw.Write(b)
+	}
 	for h, b := range blobs {
 		_ = tw.WriteHeader(&tar.Header{Name: "blobs/sha256/" + h, Mode: 0600, Size: int64(len(b))})
 		_, _ = tw.Write(b)
@@ -54,7 +63,7 @@ func archive(t *testing.T, damage string) (string, string) {
 	return path, "test:v1@" + index.Digest
 }
 func TestClosure(t *testing.T) {
-	for _, damage := range []string{"", "missing-layer", "corrupt", "metadata-only"} {
+	for _, damage := range []string{"", "missing-layer", "corrupt", "metadata-only", "missing-index", "wrong-index"} {
 		t.Run(damage, func(t *testing.T) {
 			p, im := archive(t, damage)
 			e := Verify(p, im)

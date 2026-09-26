@@ -1,5 +1,15 @@
 # 四节点开发环境
 
+本轮全新创建及自动验收已通过，实例化提交为 `f6d35ec44dcd12b3812145a561590a94af558ce6`。
+实际执行 6 分 35 秒，最终四节点 Ready、26 个 Pod Ready、15 个 Application Synced/Healthy，
+52 项持久 Seed ownership 成立，External Root 只创建一次，重复 apply 零 Kubernetes 写入。
+HTTP 301 跳转 HTTPS，使用本地公有 CA 校验 HTTPS 200，PVC 为 Bound / Retain。
+完整摘要、SHA、工具链、UID 与审计见[运行时证据](evidence/development-four-node-20260927.json)。
+
+初次 `13ea2bb` 的 OCI 目录条目预检失败发生在创建集群之前；修复后才从零执行上述成功运行。
+创建后的 Gateway API 曾显示 Degraded，随后由 Argo 自行收敛；未手工 refresh/sync 或 patch。
+原来的 5 个 Kind 集群已按用户要求删除，本机仅保留这个四节点集群。旧 Git 证据未改写。
+
 目标为 `atlas-refactor-test-dev02`，配置见 `profiles/development.json`（schema 3）。
 固定角色：control-plane；worker=gateway；worker2=compute；worker3=data。
 API 与 Web 入口均只暴露到 loopback。原有 dev01/四轮测试记录保留历史含义。

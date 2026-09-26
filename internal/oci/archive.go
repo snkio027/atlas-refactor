@@ -45,6 +45,7 @@ func Verify(path, image string) error {
 	defer f.Close()
 	tr := tar.NewReader(f)
 	blobs := map[string]blob{}
+	var index *document
 	for {
 		h, e := tr.Next()
 		if e == io.EOF {
@@ -52,6 +53,20 @@ func Verify(path, image string) error {
 		}
 		if e != nil {
 			return e
+		}
+		if h.Name == "index.json" {
+			if index != nil || h.Typeflag != tar.TypeReg || h.Size > 8<<20 {
+				return errors.New("invalid OCI top-level index")
+			}
+			index = &document{}
+			b, e := io.ReadAll(tr)
+			if e != nil {
+				return e
+			}
+			if e = json.Unmarshal(b, index); e != nil {
+				return e
+			}
+			continue
 		}
 		if h.Typeflag == tar.TypeDir || !strings.HasPrefix(h.Name, "blobs/sha256/") {
 			continue
@@ -136,9 +151,13 @@ func Verify(path, image string) error {
 		}
 		return nil
 	}
-	top, ok := blobs[locked]
-	if !ok {
-		return errors.New("locked OCI digest missing from export")
+	if index == nil {
+		return errors.New("OCI top-level index missing")
 	}
-	return visit(descriptor{Digest: "sha256:" + locked, Size: top.size}, 0)
+	for _, d := range index.Manifests {
+		if d.Digest == "sha256:"+locked {
+			return visit(d, 0)
+		}
+	}
+	return errors.New("locked image absent from OCI top-level index")
 }

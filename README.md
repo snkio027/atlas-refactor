@@ -12,6 +12,7 @@ Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 S
 近期开发优先级是独立的 **Web/API 开发平台**：Cilium、Gateway API / Envoy Gateway、
 cert-manager、本地存储和受限业务 namespace。清单、本地验证和 Cilium-first 启动已实现；
 `profiles/development.json` 现采用独立的 schema 3 四节点开发 profile。
+四节点全新启动、15 个 App 接管、HTTPS/PVC 与重复 apply 零写入已真实通过。
 当前启动与日常命令见[四节点开发工作流](docs/development-four-node.md)。见[开发平台与部署审查](docs/development-platform.md)和[本机启动记录](docs/development-runtime-20260927.md)。
 
 当前定位仍是 **successor candidate**；原 Atlas 的 Decision / Cutover Gate 保留。
