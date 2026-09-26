@@ -42,6 +42,9 @@ func (r ExecRunner) Run(ctx context.Context, q Request) ([]byte, error) {
 		}
 	}
 	deadline := 2 * time.Minute
+	if q.Tool == "docker" && len(q.Args) > 0 && (q.Args[0] == "pull" || q.Args[0] == "build") {
+		deadline = 10 * time.Minute
+	}
 	if q.Tool == "kind" {
 		deadline = 10 * time.Minute
 	}

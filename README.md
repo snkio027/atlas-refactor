@@ -9,7 +9,13 @@ Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 S
 此结论限于下述可丢弃环境；ADR 保持 Proposed，尚未进行原 Atlas 权威切换。
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
-当前定位是 **successor candidate**，进入 Decision / Cutover Readiness 阶段。
+近期开发优先级是独立的 **Web/API 开发平台**：Cilium、Gateway API / Envoy Gateway、
+cert-manager、本地存储和受限业务 namespace。清单、本地验证和 Cilium-first 启动已实现；
+`profiles/development.json` 现采用独立的 schema 3 四节点开发 profile。
+四节点全新启动、15 个 App 接管、HTTPS/PVC 与重复 apply 零写入已真实通过。
+当前启动与日常命令见[四节点开发工作流](docs/development-four-node.md)。见[开发平台与部署审查](docs/development-platform.md)和[本机启动记录](docs/development-runtime-20260927.md)。
+
+当前定位仍是 **successor candidate**；原 Atlas 的 Decision / Cutover Gate 保留。
 已验证实现与报告按 SHA 冻结；下一 Gate 是外部契约与迁移过程，当前切换结果为 **NO_GO**。
 见 [Go Bootstrap Cutover Contract](docs/go-bootstrap-cutover-contract.md)、
 [静态 behavioral parity audit](docs/bootstrap-behavioral-parity-audit.md) 和
@@ -26,7 +32,9 @@ task build
 ./bin/atlas --help
 ```
 
-`task quality` 检查格式、运行 `go vet` 和 race-enabled 契约测试；不访问集群。
+`task quality` 检查格式、运行 `go vet`、race-enabled 契约测试、Lua 健康检查和开发清单校验；不访问集群。
+现在还需本地 Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1；
+工具路径参数与清单渲染命令见[开发平台说明](docs/development-platform.md#文件与复现)。
 Go 自动工具链获取与模块网络访问被关闭。若本机没有 Task，也可运行：
 
 ```sh
@@ -130,6 +138,8 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 
 ## 文档
 
+- [Web/API 开发平台与部署审查](docs/development-platform.md)
+- [ADR-0004：受限本地开发平台（Proposed）](docs/adr/0004-local-web-development-platform.md)
 - [架构与生命周期](docs/architecture.md)
 - [新项目 ADR-0001：实验基础（Proposed）](docs/adr/0001-go-bootstrap-foundation.md)
 - [ADR-0002：默认 Go 语言提案（Proposed）](docs/adr/0002-go-default-control-plane-language.md)

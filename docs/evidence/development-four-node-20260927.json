@@ -1,0 +1,1990 @@
+{
+  "schema": 1,
+  "scope": "Independent disposable four-node development cluster; no original Atlas authority cutover.",
+  "initialRun": {
+    "applications": [
+      {
+        "Metadata": {
+          "Name": "argocd-self",
+          "UID": "79b25cbc-d516-4598-a460-f4cceb9cd068"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-root",
+          "UID": "409bd580-a082-45fe-a685-fd94b2681e37"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cert-manager",
+          "UID": "8ec59c9a-222b-4b26-9db4-56458e4b61d6"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium",
+          "UID": "033ba74c-6070-4d4e-b789-7ca831d3d6df"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "edge",
+          "UID": "20b29620-513c-4e01-ab8f-53aed8c1153b"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "envoy-crds",
+          "UID": "e5e9a9f6-25a2-4568-b17e-64986642b155"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "envoy-gateway",
+          "UID": "94f0feae-da74-4b35-9f00-4fc1fa94b92d"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "foundation",
+          "UID": "2fbb2c89-a489-4839-8314-7ffb06f04f16"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "gateway-api",
+          "UID": "1be63a7a-e1fb-4a1c-8075-3675656871b3"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "local-pki",
+          "UID": "4aacd3d3-4cf1-4f14-8fb8-09e6d7f16e0f"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "local-storage",
+          "UID": "01b3fb0d-11e6-4c72-85e9-e5615facd950"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "platform-control",
+          "UID": "10d73e96-d4a5-4897-a7fe-d399da9f866f"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "project-bootstrap",
+          "UID": "4d28559b-80a4-4314-aca9-70905e30d844"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "web-smoke",
+          "UID": "615187cd-f1c1-4cdd-8a5a-896acf2cb6c5"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "workload-control",
+          "UID": "83b0ecf9-db5b-4ddc-9bbc-b529fa14f2cd"
+        },
+        "Status": {
+          "Sync": {
+            "Status": "Synced",
+            "Revision": "f6d35ec44dcd12b3812145a561590a94af558ce6"
+          },
+          "Health": {
+            "Status": "Healthy"
+          }
+        }
+      }
+    ],
+    "bootstrap": {
+      "state": "ADOPTED",
+      "detail": "GitOps owns reconciliation"
+    },
+    "cluster": "atlas-refactor-test-dev02",
+    "commit": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+    "defaultContext": "kind-atlas-refactor-test-dev02",
+    "finishedAt": "2026-09-26T21:12:34Z",
+    "firstApplyExitCode": 0,
+    "http": {
+      "body": "",
+      "location": "https://web.atlas.test:8443/",
+      "status": 301,
+      "tlsVerified": false
+    },
+    "https": {
+      "body": "Atlas development web: web-smoke-c6bbc69b8-n9csd\n",
+      "location": "",
+      "status": 200,
+      "tlsVerified": true
+    },
+    "identities": {
+      "argocd-self": "79b25cbc-d516-4598-a460-f4cceb9cd068",
+      "atlas-refactor-adoption-signal": "9f7365ae-02ac-4458-99da-0ff2dc1c64c9",
+      "atlas-refactor-handoff": "294ada5b-6443-4bd9-b51c-9888a74745f3",
+      "atlas-refactor-identity": "3e6e492f-4f22-42e6-b7c6-b68ce26ec1a3",
+      "atlas-refactor-receipt": "561dbada-7491-4ce7-a6f4-cb2be4359d3a",
+      "atlas-refactor-root": "409bd580-a082-45fe-a685-fd94b2681e37"
+    },
+    "nodes": [
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-test-dev02-control-plane",
+          "Labels": {
+            "beta.kubernetes.io/arch": "arm64",
+            "beta.kubernetes.io/os": "linux",
+            "kubernetes.io/arch": "arm64",
+            "kubernetes.io/hostname": "atlas-refactor-test-dev02-control-plane",
+            "kubernetes.io/os": "linux",
+            "node-role.kubernetes.io/control-plane": "",
+            "node.kubernetes.io/exclude-from-external-load-balancers": ""
+          }
+        },
+        "Status": {
+          "Conditions": [
+            {
+              "Type": "NetworkUnavailable",
+              "Status": "False"
+            },
+            {
+              "Type": "MemoryPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "DiskPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "PIDPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-test-dev02-worker",
+          "Labels": {
+            "beta.kubernetes.io/arch": "arm64",
+            "beta.kubernetes.io/os": "linux",
+            "kubernetes.io/arch": "arm64",
+            "kubernetes.io/hostname": "atlas-refactor-test-dev02-worker",
+            "kubernetes.io/os": "linux",
+            "node-role.local/gateway": "true"
+          }
+        },
+        "Status": {
+          "Conditions": [
+            {
+              "Type": "NetworkUnavailable",
+              "Status": "False"
+            },
+            {
+              "Type": "MemoryPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "DiskPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "PIDPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-test-dev02-worker2",
+          "Labels": {
+            "beta.kubernetes.io/arch": "arm64",
+            "beta.kubernetes.io/os": "linux",
+            "kubernetes.io/arch": "arm64",
+            "kubernetes.io/hostname": "atlas-refactor-test-dev02-worker2",
+            "kubernetes.io/os": "linux",
+            "node-role.local/compute": "true"
+          }
+        },
+        "Status": {
+          "Conditions": [
+            {
+              "Type": "NetworkUnavailable",
+              "Status": "False"
+            },
+            {
+              "Type": "MemoryPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "DiskPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "PIDPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-test-dev02-worker3",
+          "Labels": {
+            "beta.kubernetes.io/arch": "arm64",
+            "beta.kubernetes.io/os": "linux",
+            "kubernetes.io/arch": "arm64",
+            "kubernetes.io/hostname": "atlas-refactor-test-dev02-worker3",
+            "kubernetes.io/os": "linux",
+            "node-role.local/data": "true",
+            "topology.kubernetes.io/zone": "data-zone-1"
+          }
+        },
+        "Status": {
+          "Conditions": [
+            {
+              "Type": "NetworkUnavailable",
+              "Status": "False"
+            },
+            {
+              "Type": "MemoryPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "DiskPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "PIDPressure",
+              "Status": "False"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            }
+          ]
+        }
+      }
+    ],
+    "pods": [
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-argocd-application-controller-0",
+          "Namespace": "argocd"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-argocd-redis-6b74d89c6-n6g8q",
+          "Namespace": "argocd"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-argocd-repo-server-766f7745cb-4k8ls",
+          "Namespace": "argocd"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "atlas-refactor-argocd-server-7b8fd96bfc-h2bnm",
+          "Namespace": "argocd"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cert-manager-6f764f6c6-5gqj2",
+          "Namespace": "cert-manager"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cert-manager-cainjector-6fcf9d996c-jvhfb",
+          "Namespace": "cert-manager"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cert-manager-webhook-7d58d96b69-9dt6m",
+          "Namespace": "cert-manager"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "envoy-atlas-gateway-development-2bb11752-86b79b5c7d-pscl6",
+          "Namespace": "envoy-gateway-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "envoy-gateway-57d8f57bbb-2875s",
+          "Namespace": "envoy-gateway-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium-4j8hf",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium-9whjz",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker3"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium-operator-64f4b74564-clqwk",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium-qdgxz",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "cilium-tt2br",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "coredns-589f44dc88-8f6zl",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "coredns-589f44dc88-wxh57",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "etcd-atlas-refactor-test-dev02-control-plane",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-apiserver-atlas-refactor-test-dev02-control-plane",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-controller-manager-atlas-refactor-test-dev02-control-plane",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-proxy-k2xx8",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-proxy-pg7mt",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker3"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-proxy-vfpjz",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-proxy-wvndz",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "kube-scheduler-atlas-refactor-test-dev02-control-plane",
+          "Namespace": "kube-system"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-control-plane"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "local-path-provisioner-8448647ccb-4mjv2",
+          "Namespace": "local-path-storage"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker2"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      },
+      {
+        "Metadata": {
+          "Name": "web-smoke-c6bbc69b8-n9csd",
+          "Namespace": "workload-web"
+        },
+        "Spec": {
+          "NodeName": "atlas-refactor-test-dev02-worker3"
+        },
+        "Status": {
+          "Phase": "Running",
+          "Conditions": [
+            {
+              "Type": "PodReadyToStartContainers",
+              "Status": "True"
+            },
+            {
+              "Type": "Initialized",
+              "Status": "True"
+            },
+            {
+              "Type": "Ready",
+              "Status": "True"
+            },
+            {
+              "Type": "ContainersReady",
+              "Status": "True"
+            },
+            {
+              "Type": "PodScheduled",
+              "Status": "True"
+            }
+          ]
+        }
+      }
+    ],
+    "pv": {
+      "Metadata": {
+        "Name": "pvc-5a43f20b-8649-45bd-8972-7624a7a6e913",
+        "UID": "8eba0259-8e8d-4fb8-a6d2-8feac3f5dce1"
+      },
+      "Spec": {
+        "PersistentVolumeReclaimPolicy": "Retain",
+        "NodeAffinity": {
+          "required": {
+            "nodeSelectorTerms": [
+              {
+                "matchExpressions": [
+                  {
+                    "key": "kubernetes.io/hostname",
+                    "operator": "In",
+                    "values": [
+                      "atlas-refactor-test-dev02-worker3"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "pvc": {
+      "Metadata": {
+        "Name": "web-data",
+        "UID": "5a43f20b-8649-45bd-8972-7624a7a6e913"
+      },
+      "Spec": {
+        "VolumeName": "pvc-5a43f20b-8649-45bd-8972-7624a7a6e913",
+        "StorageClassName": "atlas-local-retain"
+      },
+      "Status": {
+        "Phase": "Bound"
+      }
+    },
+    "renderSHA256": {
+      "gitops/platform/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/platform/applications/overlays/development/resources.json": "f8d9966524b5f3ebe86158eb294eec685878e0fcd3e8bd5e49b7aa0ee1b06b48",
+      "gitops/platform/foundation/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/platform/foundation/overlays/development/resources.json": "8703d5e26d09080cf3764596208ee9220fed701b8fd6df7e18af1a743fa79cd7",
+      "gitops/platform/management/argocd-self/overlays/development/kustomization.yaml": "22850a28cad62bde1b8cd0cd23b1f33faadc843726c500e090bf1f8b9d31ce4b",
+      "gitops/platform/management/argocd-self/overlays/development/rendered.yaml": "4367cde564278398b4210e2826613fb94245286959dd79a90acb18a62d18deb8",
+      "gitops/platform/management/argocd-self/overlays/development/signal.json": "cab0a8fa11ccbaa86dfbaa1b0dc82575cb9f97f0a2a71cb8a57550049a6b1166",
+      "gitops/platform/management/cert-manager/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+      "gitops/platform/management/cert-manager/overlays/development/rendered.yaml": "dc91be25dea5ec6cd1979541bccf5374ad0df23865db73ce591c1b0b0dd974b1",
+      "gitops/platform/management/local-pki/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/platform/management/local-pki/overlays/development/resources.json": "7fed2598f0dc892b54940835164fa39956d60eecdd3cbc36dff81cadc2f3ca9b",
+      "gitops/platform/management/projects/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/platform/management/projects/overlays/development/resources.json": "37aa70e909765f7a83962be476f838cae0b20b9cc7fa24acbb5e4c7f5f5a3216",
+      "gitops/platform/networking/cilium/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+      "gitops/platform/networking/cilium/overlays/development/rendered.yaml": "bb9346ccabea9c365f0be6fc4a3283844167d0df70e5423157e5a6482d10f0ca",
+      "gitops/platform/networking/edge/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/platform/networking/edge/overlays/development/resources.json": "da6925185d5e8a1c02e9d98479b8d1c0157f85944c9d0461dacd82378f0efc94",
+      "gitops/platform/networking/envoy-crds/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+      "gitops/platform/networking/envoy-crds/overlays/development/rendered.yaml": "fdd8f0df14b04f3dd1de64b4dc3b0ce2430b808c4e107fa94586f82640f61dd9",
+      "gitops/platform/networking/envoy-gateway/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+      "gitops/platform/networking/envoy-gateway/overlays/development/rendered.yaml": "af061a8f7ca643fd5798feb34fe7d23c00de8667a0448d0266be93d3a9552431",
+      "gitops/platform/networking/gateway-api/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+      "gitops/platform/networking/gateway-api/overlays/development/rendered.yaml": "31bfd9f0f9e288cae14abd7018c6ebc3fd8cc0f847a020fc41e25ae6787a7570",
+      "gitops/platform/storage/local-path/overlays/development/kustomization.yaml": "c4432add7448e77326341c58edeb4d94723a47dfc00d390894240611dac6d1e7",
+      "gitops/platform/storage/local-path/overlays/development/rendered.yaml": "25140d7dd2ce97459e88254478ea7362af81fd74311dce4c933fe1b9eb659363",
+      "gitops/platform/storage/local-path/overlays/development/storage-class.json": "50ff48a0fba9764ef1c72c95a2d394b74455750b3d2a18e9f794e303cfd39612",
+      "gitops/root/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/root/overlays/development/resources.json": "618ab6882394d169908a620d89e87d10b6635529ce4173aa756e064ce80fa235",
+      "gitops/workloads/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/workloads/applications/overlays/development/resources.json": "5c31b2d24cc5e73470ea7e3f8e888649c81cc9bf096ec97de07319bcfaa4c695",
+      "gitops/workloads/web-smoke/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+      "gitops/workloads/web-smoke/overlays/development/resources.json": "503278ece25a00c158b9d7e726afdce97505c99803d6bf01e479fc258950ffb5",
+      "platform/development/bootstrap/argocd-self-seed.yaml": "4367cde564278398b4210e2826613fb94245286959dd79a90acb18a62d18deb8",
+      "platform/development/bootstrap/baseline.json": "21e580a8ad6a1cee8feaab4dee79b47c971b6c69e3bdd4513048455b49ac950e",
+      "platform/development/bootstrap/cilium-seed.yaml": "bb9346ccabea9c365f0be6fc4a3283844167d0df70e5423157e5a6482d10f0ca",
+      "platform/development/bootstrap/kind.json": "7538cf6a5617a6167aa2b99895b9c1fa7a68479bc087453eb42094994e952708",
+      "platform/development/bootstrap/project.json": "47cb4ca0175ab324d96e958b839ffe91d0592575742899fe9fd849bb2a0d1aed",
+      "platform/development/bootstrap/root.json": "a209d09d7b6aeab3b85adc40e7b9b61b9fd837d47681597e008a688213532e29",
+      "platform/development/config.json": "5e1649ed423211194ae12dde9e9816aebb5e597b58a11fa8ccd663d6acf262f6",
+      "platform/development/health/ready.lua": "af5e05e31791a1f5083b3b9e791dada87f7b198539edfabda9cd35028886c1d4",
+      "platform/development/values/cert-manager.json": "0f61e6deb18aa46430fe70878335925ecd0b495c90ea8a9e25ce94909463c3c9",
+      "platform/development/values/cilium.json": "a45facce11af10232ba7ac420bf6698843a7b54946e284f5b3c43729c09ac562",
+      "platform/development/values/envoy-gateway.json": "7fdf3debed2ea0c9805a370f55c5e11e291d7e7069e1e81d7f22bf54f062090a",
+      "platform/development/versions.lock.json": "3590d1e4c6ebaf6bbac3d84acc9b010a029262c82491f5f4deb927df5b10b790"
+    },
+    "repeatApply": {
+      "exitCode": 0,
+      "identitiesStable": true,
+      "kubectlMutationDelta": 0
+    },
+    "result": "PASS",
+    "startedAt": "2026-09-26T21:05:59Z"
+  },
+  "toolchain": {
+    "hostArchitecture": "arm64",
+    "go": "go version go1.27.1 darwin/arm64",
+    "helm": "v4.2.3+g43e8b7f",
+    "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+    "kubectl": "v1.36.3",
+    "docker": {
+      "client": "29.4.0",
+      "server": "29.4.0"
+    }
+  },
+  "cleanup": {
+    "startedAt": "2026-09-26T20:43:52.074796+00:00",
+    "targets": [
+      "atlas-refactor-test-dev01",
+      "atlas-refactor-test-vs0927",
+      "atlas-refactor-test-vs0927b",
+      "atlas-refactor-test-vs0927c",
+      "atlas-refactor-test-vs0927d"
+    ],
+    "authorization": "User requested deletion of all current local clusters and a fresh four-node rebuild.",
+    "deleted": [
+      "atlas-refactor-test-dev01",
+      "atlas-refactor-test-vs0927",
+      "atlas-refactor-test-vs0927b",
+      "atlas-refactor-test-vs0927c",
+      "atlas-refactor-test-vs0927d"
+    ],
+    "remaining": [],
+    "finishedAt": "2026-09-26T20:43:55.734406+00:00"
+  },
+  "ownership": {
+    "argocd-self": {
+      "persistentResources": 39,
+      "objects": [
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "1102808f-2668-4162-810a-58fcca419aa8",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "0248c8a8-4387-4fac-bd12-d8c95c9f1954",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "fd6defec-b5a2-4cbe-b90f-2849706cf39a",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "495e64e1-4ced-4541-ab89-114ed42394fe",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-application-controller",
+          "uid": "b15a6985-50cf-4b85-9c93-8cffa2570fbc",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-applicationset-controller",
+          "uid": "0d646a6c-4b54-44f3-9cfc-fd1145ce47b2",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "e0f085c4-dd5a-42e1-9f81-cfca0324489a",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-server",
+          "uid": "cc117357-b3f3-4f04-b94f-5bfb6bfff4fb",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-cmd-params-cm",
+          "uid": "45cd4894-556a-46e3-9a33-3a6b00c76f1d",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-cmd-params-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-gpg-keys-cm",
+          "uid": "d79c3bbf-467e-438b-93e3-6e3882129cd9",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-gpg-keys-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-rbac-cm",
+          "uid": "bd3c3dce-8823-4f84-bdbf-dc81fc8f8bb1",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-rbac-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-ssh-known-hosts-cm",
+          "uid": "ab0d9eff-5cdc-41b8-9c3e-34efd614b3b2",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-ssh-known-hosts-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-tls-certs-cm",
+          "uid": "c1770b4d-3d11-4762-8ce5-9385212c81c9",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-tls-certs-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis-health-configmap",
+          "uid": "fdcc6998-bff6-4839-a970-961a9f80ebd6",
+          "trackingID": "argocd-self:/ConfigMap:argocd/atlas-refactor-argocd-redis-health-configmap",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "applications.argoproj.io",
+          "uid": "5f70b889-cabe-456a-9b25-22bded2d93de",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "applicationsets.argoproj.io",
+          "uid": "970ef680-f49d-49e6-8f09-71efda43c936",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "appprojects.argoproj.io",
+          "uid": "1079f2d7-0653-4957-81a9-93b8ceb3515b",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "590683dc-043c-4a4a-a648-42d69d49cdd2",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "ed010cfa-751b-4598-88ae-011f94e703be",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "d56f1dc1-628f-4386-b8f3-a3b90f7576d8",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "391dfce2-c33a-41a3-8922-419ae07928b5",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "9b1da292-1033-482f-b4f4-db31a3cec2d2",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "e29626cf-41c9-4291-b0a7-588121a991f3",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "8fb6c2cf-b4df-4a43-b516-07bc218f13fa",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "4e0bbe92-9dbd-4066-afbc-db61f725085a",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "1c52568e-1ab1-4a30-a0c7-6d2a6bd02d3d",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "6d4838dd-6a5e-4549-adae-2d56126ab13c",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "bb2e5402-c54b-4430-a132-be6eef1cf393",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "97e03e3e-6cc5-4a70-b97f-f1de716266cd",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "a81dda70-8dc4-4d38-81ac-848c229a660d",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "0e6d0728-a277-4124-9cb3-94f6801949fb",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "eb5a54b6-d1dc-41c2-a266-d14c005c970d",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "02d2fe78-6666-4e44-ad50-b9bb12f16aa1",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "dfe057ce-cdd9-4bfa-b822-c4eabc02096c",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "8a1c02e5-3d76-41e5-a629-660ecb1dba1f",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "6f01cdcb-f7a5-45d4-9b28-8e045d1f6eb5",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "8a5e7851-76c8-4c4c-a714-3594b81b0ece",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "StatefulSet",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "92e7190a-2184-44ec-9964-284854d7b482",
+          "trackingID": "argocd-self:apps/StatefulSet:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-cm",
+          "uid": "2c7dadd3-4206-4ecd-8e96-5444f942fa48",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        }
+      ],
+      "actualRevision": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+      "lastSuccessfulSync": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+      "crdInventory": [
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applications.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applicationsets.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "appprojects.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        }
+      ],
+      "crdSyncResults": [
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io serverside-applied",
+          "name": "appprojects.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io serverside-applied",
+          "name": "applications.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io serverside-applied",
+          "name": "applicationsets.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        }
+      ]
+    },
+    "cilium": {
+      "persistentResources": 13,
+      "objects": [
+        {
+          "kind": "ServiceAccount",
+          "namespace": "kube-system",
+          "name": "cilium",
+          "uid": "b872a7c0-3d27-461a-b114-aef186927895",
+          "trackingID": "cilium:/ServiceAccount:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "kube-system",
+          "name": "cilium-operator",
+          "uid": "c7b41d1a-c5f8-4563-ab89-beb186b6cf6c",
+          "trackingID": "cilium:/ServiceAccount:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "kube-system",
+          "name": "cilium-config",
+          "uid": "0863a9d1-6b94-4c65-bd88-e9256546d610",
+          "trackingID": "cilium:/ConfigMap:kube-system/cilium-config",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "cilium",
+          "uid": "4eaa9dec-13e6-43d3-a2e1-7f8b1cdc06bf",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRole:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "cilium-operator",
+          "uid": "21aa28df-6550-4bca-80f4-94874089dcaa",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRole:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "cilium",
+          "uid": "dfec20d5-b4de-489f-9562-c99c8d27646f",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRoleBinding:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "cilium-operator",
+          "uid": "428fa596-983a-4da7-8f63-704649905b50",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRoleBinding:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "kube-system",
+          "name": "cilium-config-agent",
+          "uid": "7afcdbb1-0c69-4148-8a11-0b07c4897544",
+          "trackingID": "cilium:rbac.authorization.k8s.io/Role:kube-system/cilium-config-agent",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "kube-system",
+          "name": "cilium-operator-ztunnel",
+          "uid": "037bf4bf-4b2d-449e-90cd-ef6a0319b31f",
+          "trackingID": "cilium:rbac.authorization.k8s.io/Role:kube-system/cilium-operator-ztunnel",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "kube-system",
+          "name": "cilium-config-agent",
+          "uid": "13c0f2bf-746c-46b5-b3f5-4cd6c05c29aa",
+          "trackingID": "cilium:rbac.authorization.k8s.io/RoleBinding:kube-system/cilium-config-agent",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "kube-system",
+          "name": "cilium-operator-ztunnel",
+          "uid": "c93a9e7e-0b06-4420-ab13-84372e5ae06b",
+          "trackingID": "cilium:rbac.authorization.k8s.io/RoleBinding:kube-system/cilium-operator-ztunnel",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "DaemonSet",
+          "namespace": "kube-system",
+          "name": "cilium",
+          "uid": "f478b346-6fea-428c-aa0d-c5b1d6deb688",
+          "trackingID": "cilium:apps/DaemonSet:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "kube-system",
+          "name": "cilium-operator",
+          "uid": "3a755458-efe8-4176-88b7-3c2d4d0f52b1",
+          "trackingID": "cilium:apps/Deployment:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        }
+      ],
+      "actualRevision": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+      "lastSuccessfulSync": "f6d35ec44dcd12b3812145a561590a94af558ce6",
+      "crdInventory": [],
+      "crdSyncResults": []
+    }
+  },
+  "audit": {
+    "rootSuccessfulWrites": [
+      {
+        "verb": "create",
+        "timestamp": "2026-09-26T21:09:33.681207Z",
+        "code": 201
+      }
+    ],
+    "repeatApply": {
+      "exitCode": 0,
+      "identitiesStable": true,
+      "kubectlMutationDelta": 0
+    }
+  },
+  "interventions": {
+    "preCluster": "13ea2bb preflight rejected Docker directory entries; fixed at f6d35ec before any cluster was created.",
+    "afterClusterCreation": "No manual resource patch, Argo refresh, Argo sync, or second Bootstrap engine. Read-only kubectl/Argo API diagnostics only.",
+    "gatewayAPI": "Transient Degraded state converged through Argo reconciliation without manual refresh."
+  },
+  "limits": [
+    "Single control plane and local Retain PVC are not HA or backup.",
+    "No Pod/PVC replacement drill, negative network probe, certificate rotation or Recovery/Drill in this run."
+  ]
+}

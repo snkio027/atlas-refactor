@@ -84,10 +84,10 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 				return nil, nil
 			}
 			if strings.Contains(joined, "images list") {
-				for _, image := range []string{l.ArgoImage, l.RedisImage} {
+				for _, image := range a.lockedImages() {
 					_, digest, _ := strings.Cut(image, "@")
 					if strings.Contains(joined, "target.digest=="+digest) {
-						return []byte(image), nil
+						return []byte(strings.Join(a.lockedImages(), "\n")), nil
 					}
 				}
 			}
@@ -102,6 +102,9 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 					return []byte(c.Cluster), nil
 				}
 				return nil, nil
+			}
+			if c.Schema == 3 {
+				return []byte(c.Cluster + "-worker2\n" + c.Cluster + "-control-plane\n" + c.Cluster + "-worker3\n" + c.Cluster + "-worker"), nil
 			}
 			return []byte(c.Cluster + "-control-plane"), nil
 		case "create":
@@ -121,7 +124,7 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 		case "get":
 			if args[1] == "-f" {
 				items := []Object{}
-				for _, want := range s.seedObjects() {
+				for _, want := range s.requestSeed(q.Input) {
 					meta := want["metadata"].(Object)
 					ns, _ := meta["namespace"].(string)
 					if obj := s.objects[key(want["kind"].(string), ns, meta["name"].(string))]; obj != nil {
@@ -131,6 +134,12 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 				return jsonBytes(Object{"kind": "List", "items": items}), nil
 			}
 			if args[1] == "nodes" {
+				if c.Schema == 3 {
+					return s.fourNodes(), nil
+				}
+				if a.development != nil && s.objects[key("DaemonSet", "kube-system", "cilium")] == nil {
+					return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"nodeInfo":{"architecture":"arm64","operatingSystem":"linux","kubeletVersion":"v` + l.Kubernetes + `"},"conditions":[{"type":"Ready","status":"False"}]}}]}`), nil
+				}
 				return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"nodeInfo":{"architecture":"arm64","operatingSystem":"linux","kubeletVersion":"v` + l.Kubernetes + `"},"conditions":[{"type":"Ready","status":"True"}]}}]}`), nil
 			}
 			kind := args[1]
@@ -151,7 +160,7 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 			return jsonBytes(o), nil
 		case "create":
 			if args[1] == "--dry-run=client" {
-				return jsonBytes(Object{"kind": "List", "items": s.seedObjects()}), nil
+				return jsonBytes(Object{"kind": "List", "items": s.requestSeed(q.Input)}), nil
 			}
 			var o Object
 			if e := decode(q.Input, &o); e != nil {
@@ -178,6 +187,13 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 			}
 			return nil, nil
 		case "apply":
+			if a.development != nil && strings.Contains(string(q.Input), `"name": "cilium-config"`) {
+				s.effects = append(s.effects, "cilium:apply")
+				for _, o := range ciliumFixtureObjects() {
+					s.put(o)
+				}
+				return nil, nil
+			}
 			s.effects = append(s.effects, "seed:apply")
 			s.put(object("CustomResourceDefinition", "", "applications.argoproj.io"))
 			return nil, nil
@@ -188,6 +204,10 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 	return nil, fmt.Errorf("unmodeled command: %s %v", q.Tool, q.Args)
 }
 func (s *simulator) gitops() {
+	if s.app.development != nil {
+		s.developmentGitops()
+		return
+	}
 	a := s.app
 	root := s.objects[key("Application", "argocd", "atlas-refactor-root")]
 	root["status"] = Object{"sync": Object{"status": "Synced", "revision": strings.Repeat("a", 40)}, "health": Object{"status": "Healthy"}}
