@@ -3,9 +3,9 @@
 从 Atlas 的架构和失败经验出发，用 Go 独立实现 Bootstrap。
 
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
-模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第二次真实运行已到达绿色
-GitOps 状态，但发现 Seed ownership 未完成、Receipt 过早提交；完整交接仍未证明。
-见[第二轮失败记录](docs/integration-20260927-02-result.md)。
+模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第三次真实运行确认了
+Argo 对持久 Seed 的同步，但 observer 对 CRD / 集群级 tracking 的错误假设
+阻止了 Receipt 提交，完整交接仍未证明。见[第三轮失败记录](docs/integration-20260927-03-result.md)。
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
 ## 构建与检查
@@ -40,8 +40,9 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality
 ## 首次集成验证
 
 第一次固定配置见 `profiles/integration.json`，对应不可移动的第一次基线。
-第二次固定配置见 `profiles/integration-02.json`。ownership 修正后的候选配置为
-`profiles/integration-03.json`，目标与证据要求见[第三次集成 Gate](docs/integration-third-slice.md)。
+第二、三次固定配置分别为 `profiles/integration-02.json` 和 `profiles/integration-03.json`。
+资源作用域修正后的候选配置为 `profiles/integration-04.json`，目标与证据要求见
+[第四次集成 Gate](docs/integration-fourth-slice.md)。
 `status --check` 是严格退出码的显式写法。
 新建测试节点启用 Metadata-only API 写入审计，日志位于私有 `.state/audit/`；
 记录中不包含请求/响应正文。ADR 保持 Proposed。
@@ -104,7 +105,8 @@ cp config.example.json config.local.json
 一次性 Receipt 提交，不再安装 Seed、修复 Root 或修改 Bootstrap AppProject。
 Root 创建结果不确定或交接后 Root 丢失会拒绝正常重试。Receipt 存在时的健康
 退化也不会恢复 Bootstrap 权限。四个 Application 的精确 Git revision 和每个
-持久 Seed 对象的 Argo tracking/SSA ownership 都是持续检查条件；健康全绿和
+持久 Seed 对象的接管证据都是持续检查条件：普通对象检查 tracking/SSA，
+CRD 检查 SSA spec、当前资源清单和精确 revision 的成功同步结果。健康全绿和
 Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时返回非零。
 
 `.state/apply.lock` 防止同一工作树并发执行。进程被强制终止后可能保留该锁；
@@ -113,7 +115,7 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 
 这个版本不实现跨主机锁、独立恢复命令或对管理员删除证据的 Admission 防护。
 `immutable` 防止内容修改，不能防止删除重建。因此它是可丢弃环境中的验证实现，
-不能作为生产恢复或安全隔离保证。真实集群测试、私有 Git 支持、发布二进制的
+不能作为生产恢复或安全隔离保证。完整集成 Gate、私有 Git 支持、发布二进制的
 签名/SBOM/来源证明，以及工具分发摘要验证仍待后续工作。
 
 ## 文档

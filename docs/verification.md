@@ -60,7 +60,20 @@ API 写入，以及三类失败的拒绝和恢复，但发现 38 个普通 Seed 
 ownership 修正增加了持久清单逐对象检查与精确 Git revision 检查；新的单元
 回归及锁定 Helm 渲染检查通过。对第二轮真实集群执行的只读 probe 也确认新
 检查能拒绝“健康全绿但 Seed 未接管”的状态，API 审计为零写入。
-完整修正后的 Bootstrap 闭环仍须在第三基线实测。
+第三基线的实测结果见下文。
 
 模拟器验证 CLI 的状态和请求契约，不模拟 Kubernetes/Argo CD 的全部语义；
 这些结果不得用于声明生产就绪或完整恢复闭环已成立。
+
+## 第三次真实执行与资源作用域修正
+
+第三轮在 Root 创建中断后保留了 latch，并完成 Argo 自同步；但 observer 对
+集群级 tracking namespace 和 CRD 注解的假设不符合 Argo CD 3.5.1。续跑
+超时退出 1、零 API 写入、未提交 Receipt，整轮 Gate 失败。等待交接状态下
+的 artifact 缺失和配置漂移均拒绝写入且恢复；ADOPTED 重复执行和 unhealthy
+测试因前置状态未满足而未执行。详见[第三轮记录](integration-20260927-03-result.md)。
+
+修正保留全部 39 个持久资源的检查，使用 36 个 tracking/SSA 证据与 3 个 CRD
+的 spec SSA、当前清单和成功同步记录。包含真实 Helm 的 task quality、Kustomize
+和三平台构建通过；真实第三集群只读 probe 通过且审计零写入。此 probe 不执行
+apply、不提交 Receipt，也不证明新的完整 Bootstrap 闭环。

@@ -203,10 +203,28 @@ func (s *simulator) gitops() {
 		var projected Live
 		_ = decode(jsonBytes(obj), &projected)
 		meta := obj["metadata"].(Object)
+		if projected.Metadata.Namespace == "" {
+			projected.Metadata.Namespace = "argocd"
+		}
 		meta["annotations"] = map[string]string{"argocd.argoproj.io/tracking-id": "argocd-self:" + seedKey(&projected)}
-		meta["managedFields"] = []Object{{"manager": "argocd-controller", "operation": "Apply"}}
+		meta["managedFields"] = []Object{{"manager": "argocd-controller", "operation": "Apply", "fieldsV1": Object{"f:spec": Object{}}}}
+		if obj["kind"] == "CustomResourceDefinition" {
+			delete(meta, "annotations")
+		}
 		s.put(obj)
 	}
+	resources := []Object{{"group": "", "kind": "ConfigMap", "namespace": "argocd", "name": "atlas-refactor-adoption-signal"}}
+	results := []Object{}
+	for _, obj := range s.seedObjects() {
+		if obj["kind"] != "CustomResourceDefinition" {
+			continue
+		}
+		name := obj["metadata"].(Object)["name"]
+		resources = append(resources, Object{"group": "apiextensions.k8s.io", "version": "v1", "kind": "CustomResourceDefinition", "name": name, "status": "Synced"})
+		results = append(results, Object{"group": "apiextensions.k8s.io", "version": "v1", "kind": "CustomResourceDefinition", "name": name, "namespace": "argocd", "status": "Synced", "syncPhase": "Sync"})
+	}
+	self["status"].(Object)["resources"] = resources
+	self["status"].(Object)["operationState"] = Object{"phase": "Succeeded", "syncResult": Object{"revision": strings.Repeat("a", 40), "resources": results}}
 	signal := configMap("argocd", "atlas-refactor-adoption-signal", map[string]string{"fingerprint": a.fingerprint()})
 	signal["metadata"].(Object)["annotations"] = map[string]string{"argocd.argoproj.io/tracking-id": "argocd-self:/ConfigMap:argocd/atlas-refactor-adoption-signal"}
 	s.put(signal)
@@ -218,7 +236,12 @@ func (s *simulator) seedObjects() []Object {
 	deployment := object("Deployment", "argocd", "atlas-refactor-argocd-server")
 	deployment["apiVersion"] = "apps/v1"
 	deployment["spec"] = Object{"replicas": 1}
-	return []Object{cm, deployment}
+	crd := object("CustomResourceDefinition", "", "applications.argoproj.io")
+	crd["apiVersion"] = "apiextensions.k8s.io/v1"
+	crd["spec"] = Object{"group": "argoproj.io"}
+	role := object("ClusterRole", "", "atlas-refactor-argocd-application-controller")
+	role["apiVersion"] = "rbac.authorization.k8s.io/v1"
+	return []Object{cm, deployment, crd, role}
 }
 func fixture(t *testing.T) (*App, *simulator) {
 	t.Helper()

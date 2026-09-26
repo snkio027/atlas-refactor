@@ -3,6 +3,7 @@ package atlas
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -147,6 +148,94 @@ func TestClientProjectionSupportsJSONObjectStream(t *testing.T) {
 	for _, bad := range [][]byte{append(append([]byte{}, one...), one...), append(append([]byte{}, one...), []byte("garbage")...), append([]byte(`{"kind":"List","items":[]}`), one...)} {
 		if _, e := seedProjection(bad); e == nil {
 			t.Fatal("bad projection accepted")
+		}
+	}
+}
+
+func TestCRDReconciliationRequiresEvidenceBeforeAndAfterReceipt(t *testing.T) {
+	for _, adopted := range []bool{false, true} {
+		for _, damage := range []string{"absent", "foreign-tracking", "bootstrap-only", "metadata-only", "status-manager", "not-applied", "inventory-missing", "inventory-duplicate", "inventory-version", "inventory-outofsync", "sync-missing", "sync-stale", "sync-failed", "sync-resource-failed", "sync-resource-namespace"} {
+			t.Run(fmt.Sprintf("adopted=%t/%s", adopted, damage), func(t *testing.T) {
+				a, sim := fixture(t)
+				apply(t, a)
+				if !adopted {
+					delete(sim.objects, key("ConfigMap", "kube-system", "atlas-refactor-receipt"))
+				}
+				crd := sim.objects[key("CustomResourceDefinition", "", "applications.argoproj.io")]
+				meta := crd["metadata"].(Object)
+				fields := meta["managedFields"].([]Object)
+				status := sim.objects[key("Application", "argocd", "argocd-self")]["status"].(Object)
+				operation := status["operationState"].(Object)
+				result := operation["syncResult"].(Object)
+				inventory := status["resources"].([]Object)
+				switch damage {
+				case "absent":
+					delete(sim.objects, key("CustomResourceDefinition", "", "applications.argoproj.io"))
+				case "foreign-tracking":
+					meta["annotations"] = map[string]string{"argocd.argoproj.io/tracking-id": "other:apiextensions.k8s.io/CustomResourceDefinition:argocd/applications.argoproj.io"}
+				case "bootstrap-only":
+					fields[0]["manager"] = "atlas-refactor-bootstrap"
+				case "metadata-only":
+					fields[0]["fieldsV1"] = Object{"f:metadata": Object{}}
+				case "status-manager":
+					fields[0]["subresource"] = "status"
+				case "not-applied":
+					fields[0]["operation"] = "Update"
+				case "inventory-missing":
+					status["resources"] = inventory[:1]
+				case "inventory-duplicate":
+					status["resources"] = append(inventory, inventory[1])
+				case "inventory-version":
+					inventory[1]["version"] = "v1beta1"
+				case "inventory-outofsync":
+					inventory[1]["status"] = "OutOfSync"
+				case "sync-missing":
+					delete(operation, "syncResult")
+				case "sync-stale":
+					result["revision"] = strings.Repeat("b", 40)
+				case "sync-failed":
+					operation["phase"] = "Failed"
+				case "sync-resource-failed":
+					result["resources"].([]Object)[0]["status"] = "SyncFailed"
+				case "sync-resource-namespace":
+					result["resources"].([]Object)[0]["namespace"] = ""
+				}
+				n := len(sim.effects)
+				want := Handoff
+				if adopted {
+					want = Degraded
+				} else if damage == "absent" {
+					want = Drifted
+				}
+				if r := a.Status(context.Background()); r.State != want {
+					t.Fatalf("unproven CRD reconciliation accepted: %+v, want %s", r, want)
+				}
+				ctx, cancel := context.WithTimeout(context.Background(), 25*time.Millisecond)
+				defer cancel()
+				if e := a.Apply(ctx, a.Config.Cluster, true); e == nil {
+					t.Fatal("damaged CRD reconciliation accepted")
+				}
+				if len(sim.effects) != n {
+					t.Fatal("unproven ownership permitted a mutation")
+				}
+			})
+		}
+	}
+}
+
+func TestClusterScopedTrackingUsesApplicationDestination(t *testing.T) {
+	a, sim := fixture(t)
+	apply(t, a)
+	role := sim.objects[key("ClusterRole", "", "atlas-refactor-argocd-application-controller")]
+	annotations := role["metadata"].(Object)["annotations"].(map[string]string)
+	annotations["argocd.argoproj.io/tracking-id"] = "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-application-controller"
+	if r := a.Status(context.Background()); r.State != Adopted {
+		t.Fatalf("Argo's actual cluster-scoped tracking rejected: %+v", r)
+	}
+	for _, wrong := range []string{"", "argocd-self:rbac.authorization.k8s.io/ClusterRole:/atlas-refactor-argocd-application-controller", "argocd-self:rbac.authorization.k8s.io/ClusterRole:other/atlas-refactor-argocd-application-controller"} {
+		annotations["argocd.argoproj.io/tracking-id"] = wrong
+		if r := a.Status(context.Background()); r.State != Degraded {
+			t.Fatalf("wrong cluster tracking accepted: %+v", r)
 		}
 	}
 }

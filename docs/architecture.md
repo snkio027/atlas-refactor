@@ -47,10 +47,14 @@ latch 才是正常路径撤销 Seed 权限的边界；Receipt 记录观察到的
 
 第二轮真实测试表明，Synced/Healthy 与有效 Signal 仍不足以证明 Seed 接管。
 `argocd-self` 必须完整同步；观察器核对四个 Application 的实际 commit，并逐个
-读取锁定渲染中的持久 Seed 对象，检查 tracking ID 和 Argo SSA managed fields。
+读取锁定渲染中的全部 39 个持久 Seed 对象，检查与其资源类型相符的接管证据。
+36 个普通对象要求 tracking ID 与 Argo SSA；集群级对象的 tracking namespace
+使用 Application 的目标 namespace。Argo CD 3.5.1 不给 CRD 注入 tracking，
+因此 3 个 CRD 另需当前 Synced 清单、精确 commit 的成功同步结果，以及 Argo
+SSA 对 spec 的字段记录。CRD 仍在 Gate 内，不能仅凭对象存在或 Healthy 放行。
 这些条件在 Receipt 前后都必须成立。Helm hook 的短暂 Job 和辅助 RBAC/SA
 不承担持久接管证据。清单解码使用 client dry-run，集群访问只读；无法解析 Git
-revision 或读取 ownership 时失败关闭。详见第二轮失败记录。
+revision 或读取 ownership 时失败关闭。详见第二、三轮失败记录。
 
 管理员可删除这些记录，所以本实现不宣称具备服务端强制的永久降权。
 在扩大部署范围之前必须完成独立 Recovery、证据保护、跨执行器互斥以及

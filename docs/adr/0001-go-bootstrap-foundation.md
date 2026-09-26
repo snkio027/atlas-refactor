@@ -100,3 +100,24 @@ or an ADOPTED report. A Receipt cannot mask later ownership loss. Ephemeral
 hooks are not durable ownership evidence. This enforces the proposed one-way
 handoff; it does not restore Seed authority, accept the ADR or authorize a new
 runtime target. See the [second-run finding](../integration-20260927-02-result.md).
+
+## Correction after the third live gate
+
+The third observer assumed that every durable resource receives an annotation
+and that cluster-scoped tracking uses an empty namespace. Argo CD 3.5.1 uses
+the Application destination namespace for cluster-scoped tracking, and its
+manifest generator deliberately does not inject CRD tracking metadata.
+The run therefore stayed HANDOFF_PENDING despite a completed self-sync.
+
+All 39 durable resources remain subject to adoption verification. For the 36
+non-CRD objects require the exact Argo tracking ID and Argo SSA fields. For each
+of the three CRDs require no contradictory tracking, Argo SSA ownership of spec,
+a current Synced inventory entry with exact identity/version, and a successful
+self-sync result at the resolved commit containing that CRD. Neither existence,
+health alone nor a manager name alone satisfies the CRD gate. This demonstrates
+reconciliation evidence, not exclusive or admission-enforced CRD ownership.
+
+This corrects evidence interpretation; it does not change control ownership or
+restore Seed permissions. A read-only probe and regression tests do not replace
+a fresh full integration run. Status remains Proposed, pending owner review.
+See the [third-run finding](../integration-20260927-03-result.md).

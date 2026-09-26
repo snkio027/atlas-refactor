@@ -1,7 +1,7 @@
 {
   "apiVersion": "v1",
   "data": {
-    "fingerprint": "ee8d67052a136a6c452e601f1f40f29b224a056f02eb116d6b59c09fdb19d2d3"
+    "fingerprint": "e87684481def3471d40a9b3aca49bd37e6bc7bcd61a4cbe2e7df9bf7e21425f3"
   },
   "immutable": true,
   "kind": "ConfigMap",

@@ -49,7 +49,7 @@ func (a *App) handoffComplete(ctx context.Context, root, self, signal *Live) (bo
 			return false, nil
 		}
 	}
-	return a.seedOwnedByArgo(ctx)
+	return a.seedOwnedByArgo(ctx, self, commit)
 }
 
 func seedKey(o *Live) string {
@@ -117,7 +117,37 @@ func validateSeedObjects(objects []Live) ([]Live, error) {
 	return objects, nil
 }
 
-func (a *App) seedOwnedByArgo(ctx context.Context) (bool, error) {
+// Argo CD 3.5.1 deliberately omits tracking metadata on CRDs. Require both
+// current inventory and a successful exact-revision sync result instead.
+func crdReconciled(self, want *Live, commit string) bool {
+	if self == nil || self.Status.OperationState.Phase != "Succeeded" || self.Status.OperationState.SyncResult.Revision != commit {
+		return false
+	}
+	group, version, ok := strings.Cut(want.APIVersion, "/")
+	if !ok || group != "apiextensions.k8s.io" || want.Kind != "CustomResourceDefinition" || want.Metadata.Namespace != "" {
+		return false
+	}
+	inventory, synced := 0, 0
+	for _, r := range self.Status.Resources {
+		if r.Group == group && r.Kind == want.Kind && r.Name == want.Metadata.Name {
+			if r.Version != version || r.Namespace != "" || r.Status != "Synced" {
+				return false
+			}
+			inventory++
+		}
+	}
+	for _, r := range self.Status.OperationState.SyncResult.Resources {
+		if r.Group == group && r.Kind == want.Kind && r.Name == want.Metadata.Name {
+			if r.Version != version || r.Namespace != "argocd" || r.Status != "Synced" || r.SyncPhase != "Sync" {
+				return false
+			}
+			synced++
+		}
+	}
+	return inventory == 1 && synced == 1
+}
+
+func (a *App) seedOwnedByArgo(ctx context.Context, self *Live, commit string) (bool, error) {
 	files, e := a.Render(ctx)
 	if e != nil {
 		return false, e
@@ -156,12 +186,29 @@ func (a *App) seedOwnedByArgo(ctx context.Context) (bool, error) {
 		count++
 		key := seedKey(want)
 		actual := byKey[key]
-		if actual == nil || actual.Metadata.UID == "" || actual.Metadata.Annotations["argocd.argoproj.io/tracking-id"] != "argocd-self:"+key {
+		if actual == nil || actual.Metadata.UID == "" {
 			return false, nil
+		}
+		crd := want.APIVersion == "apiextensions.k8s.io/v1" && want.Kind == "CustomResourceDefinition"
+		tracking := actual.Metadata.Annotations["argocd.argoproj.io/tracking-id"]
+		if crd {
+			if tracking != "" || !crdReconciled(self, want, commit) {
+				return false, nil
+			}
+		} else {
+			// Argo uses the destination namespace for cluster-scoped tracking IDs.
+			tracked := *want
+			if tracked.Metadata.Namespace == "" {
+				tracked.Metadata.Namespace = "argocd"
+			}
+			if tracking != "argocd-self:"+seedKey(&tracked) {
+				return false, nil
+			}
 		}
 		owned := false
 		for _, field := range actual.Metadata.ManagedFields {
-			if field.Manager == "argocd-controller" && field.Operation == "Apply" {
+			_, ownsSpec := field.FieldsV1["f:spec"]
+			if field.Manager == "argocd-controller" && field.Operation == "Apply" && field.Subresource == "" && (!crd || ownsSpec) {
 				owned = true
 			}
 		}

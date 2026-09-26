@@ -1,6 +1,6 @@
 # Seed ownership integration gate
 
-Status: PREPARED, not executed. ADR-0001 remains Proposed.
+Status: FAILED at resource-scope observation. See [the result](integration-20260927-03-result.md). ADR-0001 remains Proposed.
 
 The [second run](integration-20260927-02-result.md) proved interruption handling,
 repeat-call zero writes and bounded failure refusal, but exposed premature

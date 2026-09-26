@@ -28,22 +28,31 @@ type Live struct {
 	APIVersion string `json:"apiVersion"`
 	Kind       string `json:"kind"`
 	Metadata   struct {
-		Name            string                                `json:"name"`
-		Namespace       string                                `json:"namespace"`
-		UID             string                                `json:"uid"`
-		Annotations     map[string]string                     `json:"annotations"`
-		Finalizers      []string                              `json:"finalizers"`
-		OwnerReferences []Object                              `json:"ownerReferences"`
-		ManagedFields   []struct{ Manager, Operation string } `json:"managedFields"`
+		Name            string            `json:"name"`
+		Namespace       string            `json:"namespace"`
+		UID             string            `json:"uid"`
+		Annotations     map[string]string `json:"annotations"`
+		Finalizers      []string          `json:"finalizers"`
+		OwnerReferences []Object          `json:"ownerReferences"`
+		ManagedFields   []struct {
+			Manager, Operation, Subresource string
+			FieldsV1                        map[string]any `json:"fieldsV1"`
+		} `json:"managedFields"`
 	} `json:"metadata"`
 	Immutable bool              `json:"immutable"`
 	Data      map[string]string `json:"data"`
 	Spec      Object            `json:"spec"`
 	Status    struct {
-		Sync           struct{ Status, Revision string }               `json:"sync"`
-		Health         struct{ Status string }                         `json:"health"`
-		OperationState struct{ Phase string }                          `json:"operationState"`
-		Resources      []struct{ Group, Kind, Namespace, Name string } `json:"resources"`
+		Sync           struct{ Status, Revision string } `json:"sync"`
+		Health         struct{ Status string }           `json:"health"`
+		OperationState struct {
+			Phase      string
+			SyncResult struct {
+				Revision  string
+				Resources []struct{ Group, Version, Kind, Namespace, Name, Status, SyncPhase string }
+			} `json:"syncResult"`
+		} `json:"operationState"`
+		Resources []struct{ Group, Version, Kind, Namespace, Name, Status string } `json:"resources"`
 	} `json:"status"`
 	Operation any `json:"operation"`
 }
