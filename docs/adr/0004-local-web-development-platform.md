@@ -28,6 +28,10 @@ Cilium 是 Argo 启动前的 substrate 依赖。启动实现把 Cilium 与 Argo 
 叶子字节一致，GitOps 完整 SSA 接管；Go 不成为持续网络控制器，也不添加 Shell 旁路 installer。
 `profiles/development.json` 以 schema 2 选择这个边界，schema 1 继续用于历史最小实验。
 所有 Application 跟随审核分支；首次启动的精确 SHA、渲染指纹和私有状态独立保留。
+首次部署输入摘要冻结在 `bootstrap/baseline.json`，其完整摘要必须对应已记录的初始 Identity。
+该文件不是把当前期望状态写回旧身份的入口：Root、AppProject、宏观 DAG、两个 Seed、镜像锁和 substrate
+必须仍与快照一致，变化时报错。普通平台/业务叶子由 GitOps 演进，其最新提交单独记录；
+不因此改写初始 Identity、latch 或 Signal。首次全 bundle 身份绑定过宽的问题由这一边界收窄解决。
 不授权人工跳过现有安全检查。
 
 允许推迟完整 HA、Recovery/Drill、备份和发布 provenance，前提是范围始终为独立可丢弃开发集群，

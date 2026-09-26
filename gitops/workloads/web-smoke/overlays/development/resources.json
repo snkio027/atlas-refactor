@@ -196,7 +196,9 @@
           {
             "name": "development",
             "namespace": "atlas-gateway",
-            "sectionName": "http"
+            "sectionName": "http",
+            "group": "gateway.networking.k8s.io",
+            "kind": "Gateway"
           }
         ],
         "hostnames": [
@@ -211,6 +213,14 @@
                   "scheme": "https",
                   "port": 8443,
                   "statusCode": 301
+                }
+              }
+            ],
+            "matches": [
+              {
+                "path": {
+                  "type": "PathPrefix",
+                  "value": "/"
                 }
               }
             ]
@@ -230,7 +240,9 @@
           {
             "name": "development",
             "namespace": "atlas-gateway",
-            "sectionName": "https"
+            "sectionName": "https",
+            "group": "gateway.networking.k8s.io",
+            "kind": "Gateway"
           }
         ],
         "hostnames": [
@@ -241,7 +253,18 @@
             "backendRefs": [
               {
                 "name": "web-smoke",
-                "port": 80
+                "port": 80,
+                "group": "",
+                "kind": "Service",
+                "weight": 1
+              }
+            ],
+            "matches": [
+              {
+                "path": {
+                  "type": "PathPrefix",
+                  "value": "/"
+                }
               }
             ]
           }

@@ -122,7 +122,10 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality \
 
 1. **提交与审核。** 所有 Application 跟随 `codex/development-platform` 审核分支。
    首次启动必须从干净 checkout 执行，远端分支 SHA 必须等于本地 HEAD；保存精确 SHA 和全部输入摘要。
-   首次运行 checkout 与其私有 `.state` 保留，不能通过改写旧证据“升级” Bootstrap 身份。
+   首次 commit 和输入摘要快照保留，私有 `.state` 沿用；修订 checkout 的执行 commit 单独记录。
+   `bootstrap/baseline.json` 固定初次完整 bundle 摘要；Root、项目、控制图、Kind、锁和两个 Seed
+   逐字节绑定初次快照，普通 GitOps 叶子可演进而不改写 Identity/latch/Signal。
+   HTTPRoute 显式声明默认 parent group/kind、PathPrefix 和 backend group/kind/weight，避免 API 默认值造成持续 diff。
 2. **准备离线输入。** 在启动前独立下载并校验锁定镜像；运行时不自动下载缺失依赖。
    预检查 OrbStack、8080/8443 空闲和 linux/arm64 镜像，保留全部旧集群。
 3. **精确目标。** 本次用户授权目标为 `atlas-refactor-test-dev01`，单节点 Kind / OrbStack。

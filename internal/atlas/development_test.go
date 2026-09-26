@@ -215,3 +215,42 @@ func TestDevelopmentKindExposureFailsClosed(t *testing.T) {
 		}
 	}
 }
+
+func TestDevelopmentGitOpsChangeKeepsBootstrapIdentity(t *testing.T) {
+	a, _ := developmentFixture(t)
+	before, err := a.Render(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(a.Root, "gitops/workloads/web-smoke/overlays/development/resources.json")
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b = bytes.Replace(b, []byte("Atlas development web:"), []byte("Updated development web:"), 1)
+	if err = os.WriteFile(path, b, 0600); err != nil {
+		t.Fatal(err)
+	}
+	next := &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner}
+	after, err := next.Render(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(before[developmentSignal], after[developmentSignal]) {
+		t.Fatal("GitOps leaf change rewrote the immutable Bootstrap signal")
+	}
+	b, err = os.ReadFile(filepath.Join(a.Root, ciliumSeed))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b = append(b, '\n')
+	for _, path := range []string{ciliumSeed, "gitops/platform/networking/cilium/overlays/development/rendered.yaml"} {
+		if err = os.WriteFile(filepath.Join(a.Root, path), b, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	next = &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner}
+	if _, err = next.Render(context.Background()); err == nil || !strings.Contains(err.Error(), "frozen baseline") {
+		t.Fatal("changed Seed contract was accepted", err)
+	}
+}

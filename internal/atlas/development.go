@@ -3,9 +3,11 @@ package atlas
 import (
 	"atlas-refactor/internal/platform"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -17,6 +19,7 @@ const developmentSignal = "gitops/platform/management/argocd-self/overlays/devel
 type developmentBundle struct {
 	files               map[string][]byte
 	fingerprint         string
+	baselineFingerprint string
 	images              []string
 	apps                map[string]Object
 	root, project, kind Object
@@ -62,6 +65,9 @@ func (a *App) prepareDevelopment() error {
 		}
 	}
 	d := &developmentBundle{files: files, fingerprint: platform.BundleDigest(files), images: platform.ImageList(p.Lock.Images), apps: map[string]Object{}}
+	if d.baselineFingerprint, e = validateDevelopmentBaseline(files); e != nil {
+		return e
+	}
 	for path, dst := range map[string]*Object{"platform/development/bootstrap/root.json": &d.root, "platform/development/bootstrap/project.json": &d.project, "platform/development/bootstrap/kind.json": &d.kind} {
 		if e = decode(files[path], dst); e != nil {
 			return e
@@ -187,7 +193,7 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 func (a *App) developmentIdentity(d map[string]string) {
 	d["schema"] = "atlas-refactor/identity/v2-development"
 	d["substrateProfile"] = "kind-cilium-ipv4-development/v1"
-	d["platformSHA256"] = a.development.fingerprint
+	d["platformSHA256"] = a.development.baselineFingerprint
 }
 func (a *App) initialWait() string {
 	if a.development != nil {
@@ -216,4 +222,48 @@ func validateDevelopmentKind(data []byte) error {
 		return errors.New("development Kind configuration exceeds the reviewed local profile")
 	}
 	return nil
+}
+
+// The snapshot preserves the first instantiation identity. Current GitOps leaf
+// payloads may evolve, but the authority-bearing Bootstrap contract must match.
+func validateDevelopmentBaseline(files map[string][]byte) (string, error) {
+	var baseline struct {
+		Schema       int               `json:"schema"`
+		Commit       string            `json:"commit"`
+		BundleHashes map[string]string `json:"bundleHashes"`
+	}
+	if err := strictJSON(files["platform/development/bootstrap/baseline.json"], &baseline); err != nil {
+		return "", err
+	}
+	if baseline.Schema != 1 || !regexp.MustCompile(`^[a-f0-9]{40}$`).MatchString(baseline.Commit) {
+		return "", errors.New("invalid development baseline")
+	}
+	for path, hash := range baseline.BundleHashes {
+		if path == "" || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(hash) {
+			return "", errors.New("invalid baseline input digest")
+		}
+	}
+	bound := []string{
+		"platform/development/config.json", "platform/development/versions.lock.json",
+		"platform/development/health/ready.lua", "platform/development/values/cilium.json",
+		"platform/development/bootstrap/kind.json", "platform/development/bootstrap/project.json",
+		"platform/development/bootstrap/root.json", developmentSeed, ciliumSeed,
+		"gitops/root/overlays/development/kustomization.yaml", "gitops/root/overlays/development/resources.json",
+		"gitops/platform/applications/overlays/development/kustomization.yaml", "gitops/platform/applications/overlays/development/resources.json",
+		"gitops/workloads/applications/overlays/development/kustomization.yaml", "gitops/workloads/applications/overlays/development/resources.json",
+		"gitops/platform/management/projects/overlays/development/kustomization.yaml", "gitops/platform/management/projects/overlays/development/resources.json",
+		"gitops/platform/management/argocd-self/overlays/development/kustomization.yaml",
+		"gitops/platform/networking/cilium/overlays/development/kustomization.yaml",
+	}
+	for _, path := range bound {
+		b, ok := files[path]
+		if !ok || digest(b) != baseline.BundleHashes[path] {
+			return "", fmt.Errorf("Bootstrap contract differs from frozen baseline: %s", path)
+		}
+	}
+	b, err := json.Marshal(baseline.BundleHashes)
+	if err != nil {
+		return "", err
+	}
+	return digest(b), nil
 }
