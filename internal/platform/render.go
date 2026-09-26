@@ -99,6 +99,9 @@ func Load(root string, t Tools) (*Project, error) {
 	if e := p.loadCapabilities(); e != nil {
 		return nil, e
 	}
+	if _, e := p.resourceModel(nil); e != nil {
+		return nil, e
+	}
 	return p, nil
 }
 func hash(b []byte) string { s := sha256.Sum256(b); return hex.EncodeToString(s[:]) }
@@ -213,6 +216,9 @@ func encoded(objects []Object) []byte {
 	return out.Bytes()
 }
 func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
+	if e := p.ValidateCapabilitySelection(p.Capabilities.Active); e != nil {
+		return nil, e
+	}
 	if e := p.VerifyArtifacts(); e != nil {
 		return nil, e
 	}

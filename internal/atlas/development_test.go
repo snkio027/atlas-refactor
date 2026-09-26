@@ -287,7 +287,7 @@ func TestDevelopmentCapabilityExtensionPreservesIdentityAndAuthority(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
-	names, err := p.ResolveCapabilities([]string{"capability-foundation"})
+	names, err := p.ResolveCapabilities([]string{"secrets-foundation"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -295,7 +295,7 @@ func TestDevelopmentCapabilityExtensionPreservesIdentityAndAuthority(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
-	projection["platform/development/capabilities/enabled.json"] = []byte(`{"schema":1,"capabilities":["capability-foundation"]}`)
+	projection["platform/development/capabilities/enabled.json"] = []byte(`{"schema":1,"capabilities":["secrets-foundation"]}`)
 	if err = p.Write(projection); err != nil {
 		t.Fatal(err)
 	}

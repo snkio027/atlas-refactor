@@ -24,7 +24,10 @@ func unsealedCandidate(t *testing.T) *Project {
 	p := candidate(t)
 	source := p.Root
 	p.Root = t.TempDir()
-	paths := []string{capabilityDir}
+	paths := []string{capabilityDir, scopeRegistryPath, platformApplications}
+	for _, path := range p.Config.Components {
+		paths = append(paths, path)
+	}
 	for _, c := range p.Capabilities.Catalog.Components {
 		paths = append(paths, c.Path)
 	}
@@ -57,6 +60,15 @@ func unsealedCandidate(t *testing.T) *Project {
 	if err := os.WriteFile(filepath.Join(p.Root, capabilityDir, "resources/platform-credentials.json"), []byte(`{"apiVersion":"v1","kind":"List","items":[]}`), 0600); err != nil {
 		t.Fatal(err)
 	}
+	p.Capabilities.Active = nil
+	p.Capabilities.Enabled.Capabilities = nil
+	core, e := p.CapabilityActivation(nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = p.Write(core); e != nil {
+		t.Fatal(e)
+	}
 	return p
 }
 func TestCapabilityClosureAndReadinessOrder(t *testing.T) {
@@ -65,7 +77,7 @@ func TestCapabilityClosureAndReadinessOrder(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(names) != 9 || names[0] != "capability-foundation" || names[len(names)-1] != "storage-monitoring" {
+	if len(names) != 11 || names[0] != "observability-foundation" || names[len(names)-1] != "storage-monitoring" {
 		t.Fatal(names)
 	}
 	if _, e = p.ResolveCapabilities([]string{"unknown"}); e == nil {
@@ -134,7 +146,7 @@ func TestUnrenderedOrForgedCatalogCannotActivate(t *testing.T) {
 	if e := p.ValidateCapabilityActivation(); e == nil {
 		t.Fatal("missing credentials accepted")
 	}
-	p.Capabilities.Active = []string{"capability-foundation"}
+	p.Capabilities.Active = []string{"secrets-foundation"}
 	if e := p.ValidateCapabilityActivation(); e == nil {
 		t.Fatal("enabled catalog without rendered control accepted")
 	}

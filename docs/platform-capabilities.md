@@ -5,6 +5,10 @@
 [dev02 启用记录](platform-dev02-activation.md)。
 规范提议见 [ADR-0006](adr/0006-declarative-platform-capabilities.md)。
 
+本分支另含 [AH-1～AH-4 候选](adr/0007-platform-contract-hardening.md)：catalog schema 2、单调启用、
+GVK scope 与三个 foundation。该布局尚未部署；dev02 仍运行上面的 24 个应用旧布局。
+不得直接推送此候选到运行分支，必须先完成 ADR-0007 的 owner 迁移审查。
+
 ## 日常入口
 
 ```sh
@@ -24,11 +28,16 @@ git diff --stat
 
 仓库已包含仅供当前 dev02 解密的 3 个 SealedSecret、共 5 个键。新集群必须先建立
 自己的 Trust Root，再按审核流程重新封装；不能把静态密文检查通过当作解密成功。
-`readyToEnable` 只表示静态凭据要求齐备；不能替代控制器实际解密与运行时健康检查。
-`select` 失败时不修改启用选择和两个控制清单。所有命令只操作本地文件。
+`readyToEnable` 表示静态凭据要求齐备且选择未缩减；不能替代控制器实际解密与运行时健康检查。
+`select` 比较依赖闭包，只允许保持或增加能力；退役在运行工具或写文件前拒绝。
+旧生成投影也参与比较，手改 enabled.json 后 render 不能隐式移除 Application。
+其他验证失败不会更新选择和控制投影，但可能已刷新候选渲染文件；文件写入不是跨文件事务。
+所有命令只操作本地文件，具体退役流程尚未实现。
 
 配置入口是 `platform/development/capabilities/catalog.json` 和 `enabled.json`。
-一个组件声明路径、目标 namespace、readiness wave、依赖和 Secret 引用；依赖自动展开。
+一个组件声明 permissionDomain、路径、目标 namespace、readiness wave、依赖和 Secret 引用；依赖自动展开。
+security / observability / storage 目前都映射到 platform-project，仅用于分类与审核，
+不构成域间强隔离。AppProject 的 destination × kind 仍是共享权限并集。
 Helm jobs 声明本地 chart、values 和资源分组，镜像在扩展锁文件中固定 digest。
 新普通叶子不用修改 Go Bootstrap，不用手工把数量从 15 改为另一个常数。
 手写资源放在同目录的 `resources/<name>.json`，Helm values 放在 `values/`。
@@ -84,7 +93,7 @@ bucket `uploads`，强制 path-style；凭据从本 namespace 的 `s3-client` Se
 预签名时必须使用客户端实际访问的 host/port，不能把集群内 DNS 签名 URL 原样交给宿主机浏览器。
 Grafana 密码和本地 S3 凭据位于私有 `.state/capabilities/credentials.json`，不通过 CLI stdout 输出。
 
-## 首次接入流程（dev02 已执行，例外与实测结果另行记录）
+## 历史首次接入流程（dev02 旧布局已执行，不适用于新布局 owner 迁移）
 
 1. 完成 ADR/代码审核，记录将部署的精确 commit SHA、目标 dev02 与权限 diff。
    Bootstrap 身份兼容修正必须先经过审核；不能仅 cherry-pick 控制清单。

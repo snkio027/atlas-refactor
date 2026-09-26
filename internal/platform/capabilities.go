@@ -26,29 +26,33 @@ type SecretRequirement struct {
 	Keys      []string `json:"keys"`
 }
 type Capability struct {
-	Path            string              `json:"path"`
-	Namespace       string              `json:"namespace"`
-	Wave            int                 `json:"wave"`
-	DependsOn       []string            `json:"dependsOn"`
-	RequiredSecrets []SecretRequirement `json:"requiredSecrets"`
+	PermissionDomain string              `json:"permissionDomain"`
+	Path             string              `json:"path"`
+	Namespace        string              `json:"namespace"`
+	Wave             int                 `json:"wave"`
+	DependsOn        []string            `json:"dependsOn"`
+	RequiredSecrets  []SecretRequirement `json:"requiredSecrets"`
 }
 type Partition struct {
-	Component string   `json:"component"`
-	Kinds     []string `json:"kinds"`
+	Component  string   `json:"component"`
+	Kinds      []string `json:"kinds"`
+	Namespaces []string `json:"namespaces,omitempty"`
 }
 type CapabilityJob struct {
-	ProjectedTokenMonitors []string    `json:"projectedTokenMonitors"`
-	Release                string      `json:"release"`
-	Chart                  string      `json:"chart"`
-	Namespace              string      `json:"namespace"`
-	Values                 []string    `json:"values"`
-	ExcludeComponents      []string    `json:"excludeComponents"`
-	Outputs                []Partition `json:"outputs"`
+	NamespaceCapabilities  map[string]string `json:"namespaceCapabilities,omitempty"`
+	ProjectedTokenMonitors []string          `json:"projectedTokenMonitors"`
+	Release                string            `json:"release"`
+	Chart                  string            `json:"chart"`
+	Namespace              string            `json:"namespace"`
+	Values                 []string          `json:"values"`
+	ExcludeComponents      []string          `json:"excludeComponents"`
+	Outputs                []Partition       `json:"outputs"`
 }
 type CapabilityCatalog struct {
-	Schema     int                   `json:"schema"`
-	Components map[string]Capability `json:"components"`
-	Jobs       []CapabilityJob       `json:"jobs"`
+	PermissionDomains map[string]string     `json:"permissionDomains"`
+	Schema            int                   `json:"schema"`
+	Components        map[string]Capability `json:"components"`
+	Jobs              []CapabilityJob       `json:"jobs"`
 }
 type EnabledCapabilities struct {
 	Schema       int      `json:"schema"`
@@ -73,12 +77,20 @@ func (p *Project) loadCapabilities() error {
 			return e
 		}
 	}
-	if c.Catalog.Schema != 1 || c.Enabled.Schema != 1 || c.Lock.Schema != 1 {
+	if c.Catalog.Schema != 2 || c.Enabled.Schema != 1 || c.Lock.Schema != 1 {
 		return errors.New("unsupported capability schema")
+	}
+	if len(c.Catalog.PermissionDomains) == 0 {
+		return errors.New("permission domains must be declared")
+	}
+	for domain, project := range c.Catalog.PermissionDomains {
+		if !capabilityName.MatchString(domain) || project != "platform-project" {
+			return errors.New("permission domains must map to canonical platform-project; isolation requires a separate ADR")
+		}
 	}
 	paths := map[string]bool{}
 	for name, x := range c.Catalog.Components {
-		if !capabilityName.MatchString(name) || p.Config.Components[name] != "" || !capabilityName.MatchString(x.Namespace) || !localPath(x.Path, "gitops/platform/") || !strings.HasSuffix(x.Path, "/overlays/development") || paths[x.Path] || x.Path == filepath.Dir(platformApplications) || x.Path == filepath.Dir(platformProjects) || x.Wave < -100 || x.Wave > 90 {
+		if c.Catalog.PermissionDomains[x.PermissionDomain] != "platform-project" || !capabilityName.MatchString(name) || p.Config.Components[name] != "" || !capabilityName.MatchString(x.Namespace) || !localPath(x.Path, "gitops/platform/") || !strings.HasSuffix(x.Path, "/overlays/development") || paths[x.Path] || x.Path == filepath.Dir(platformApplications) || x.Path == filepath.Dir(platformProjects) || x.Wave < -100 || x.Wave > 90 {
 			return fmt.Errorf("invalid Tier-1 capability: %s", name)
 		}
 		for _, core := range p.Config.Components {
@@ -119,7 +131,24 @@ func (p *Project) loadCapabilities() error {
 				return errors.New("render exclusion must refer to a previous output")
 			}
 		}
+		for ns, dep := range j.NamespaceCapabilities {
+			if !capabilityName.MatchString(ns) {
+				return errors.New("invalid watched namespace")
+			}
+			if strings.HasPrefix(dep, "core:") {
+				if p.Config.Components[strings.TrimPrefix(dep, "core:")] == "" {
+					return errors.New("unknown core namespace provider")
+				}
+			} else if x, ok := c.Catalog.Components[dep]; !ok || x.Namespace != ns || x.Wave != -100 {
+				return errors.New("watched namespace must have an explicit foundation provider")
+			}
+		}
 		for _, part := range j.Outputs {
+			for _, ns := range part.Namespaces {
+				if !capabilityName.MatchString(ns) {
+					return errors.New("invalid partition namespace")
+				}
+			}
 			if _, ok := c.Catalog.Components[part.Component]; !ok || produced[part.Component] {
 				return errors.New("invalid/duplicate render owner")
 			}
@@ -222,7 +251,7 @@ func (p *Project) CapabilityPlan(requested []string) (Object, error) {
 	steps := []any{}
 	for _, n := range names {
 		x := p.Capabilities.Catalog.Components[n]
-		steps = append(steps, Object{"name": n, "wave": x.Wave, "namespace": x.Namespace, "path": x.Path})
+		steps = append(steps, Object{"name": n, "wave": x.Wave, "namespace": x.Namespace, "path": x.Path, "permissionDomain": x.PermissionDomain, "appProject": p.Capabilities.Catalog.PermissionDomains[x.PermissionDomain]})
 	}
 	missing, e := p.missingCapabilitySecrets(names)
 	if e != nil {
@@ -250,7 +279,11 @@ func (p *Project) CapabilityPlan(requested []string) (Object, error) {
 		after := slice(field(projects[0], "spec", key))
 		changes[key] = after[len(before):]
 	}
-	return Object{"projectAdditions": changes, "requested": requested, "resolved": steps, "missingSealedSecrets": missing, "readyToEnable": len(missing) == 0, "mutationAuthority": "Argo CD / platform-project", "clusterOperations": 0}, nil
+	removed, e := p.removedCapabilities(names)
+	if e != nil {
+		return nil, e
+	}
+	return Object{"lifecycle": "enable-only", "retirementSupported": false, "removedCapabilities": removed, "permissionDomains": p.Capabilities.Catalog.PermissionDomains, "permissionBoundary": "AppProject destinations and kinds form a shared union; domains are metadata, not isolation", "projectAdditions": changes, "requested": requested, "resolved": steps, "missingSealedSecrets": missing, "readyToEnable": len(missing) == 0 && len(removed) == 0, "mutationAuthority": "Argo CD / platform-project", "clusterOperations": 0}, nil
 }
 
 func (p *Project) missingCapabilitySecrets(names []string) ([]string, error) {
@@ -340,7 +373,15 @@ func (p *Project) RenderCapabilities(ctx context.Context) (map[string][]byte, er
 		return v
 	}
 	for _, j := range c.Catalog.Jobs {
+		for _, part := range j.Outputs {
+			owners[part.Component] = []Object{}
+		}
 		args := []string{"template", j.Release, j.Chart, "--namespace", j.Namespace, "--include-crds", "--skip-tests", "--kube-version", p.Lock.Kubernetes}
+		if len(j.NamespaceCapabilities) > 0 {
+			namespaces := p.watchedNamespaces(j)
+			b, _ := json.Marshal(namespaces)
+			args = append(args, "--set-json", "additionalNamespaces="+string(b))
+		}
 		for _, v := range j.Values {
 			args = append(args, "--values", v)
 		}
@@ -398,6 +439,13 @@ func (p *Project) RenderCapabilities(ctx context.Context) (map[string][]byte, er
 				for _, k := range part.Kinds {
 					ok = ok || o["kind"] == k
 				}
+				if len(part.Namespaces) > 0 {
+					matchedNamespace := false
+					for _, ns := range part.Namespaces {
+						matchedNamespace = matchedNamespace || metadata(o)["namespace"] == ns
+					}
+					ok = ok && matchedNamespace
+				}
 				if ok {
 					owners[part.Component] = append(owners[part.Component], o)
 					matched = true
@@ -426,9 +474,12 @@ func (p *Project) RenderCapabilities(ctx context.Context) (map[string][]byte, er
 }
 
 func (p *Project) capabilityObjects(name string) ([]Object, error) {
-	x := p.Capabilities.Catalog.Components[name]
+	return p.componentObjects(p.Capabilities.Catalog.Components[name].Path)
+}
+
+func (p *Project) componentObjects(path string) ([]Object, error) {
 	var k Object
-	if e := readJSON(filepath.Join(p.Root, x.Path, "kustomization.yaml"), &k); e != nil {
+	if e := readJSON(filepath.Join(p.Root, path, "kustomization.yaml"), &k); e != nil {
 		return nil, e
 	}
 	if len(k) != 3 || k["kind"] != "Kustomization" {
@@ -436,11 +487,11 @@ func (p *Project) capabilityObjects(name string) ([]Object, error) {
 	}
 	objects := []Object{}
 	for _, v := range slice(k["resources"]) {
-		path := str(v)
-		if path == "" || filepath.Base(path) != path || strings.Contains(path, ":") {
+		file := str(v)
+		if file == "" || filepath.Base(file) != file || strings.Contains(file, ":") {
 			return nil, errors.New("nonlocal capability resource")
 		}
-		b, e := os.ReadFile(filepath.Join(p.Root, x.Path, path))
+		b, e := os.ReadFile(filepath.Join(p.Root, path, file))
 		if e != nil {
 			return nil, e
 		}
@@ -479,12 +530,26 @@ func (p *Project) CapabilityActivation(names []string) (map[string][]byte, error
 	if metadata(project)["name"] != "platform-project" {
 		return nil, errors.New("invalid core project")
 	}
+	model, e := p.capabilityResourceModel(names)
+	if e != nil {
+		return nil, e
+	}
 	spec := mapping(project["spec"])
 	for _, name := range names {
-		x := p.Capabilities.Catalog.Components[name]
+		x, ok := p.Capabilities.Catalog.Components[name]
+		if !ok || p.Capabilities.Catalog.PermissionDomains[x.PermissionDomain] != "platform-project" {
+			return nil, errors.New("unknown capability permission domain")
+		}
 		// Declare materialization authority from consumer contracts even before the
 		// first ciphertext is available, so the review plan shows the full delta.
 		for _, required := range x.RequiredSecrets {
+			sealed, e := model.Resolve(Object{"apiVersion": "bitnami.com/v1alpha1", "kind": "SealedSecret"})
+			if e != nil {
+				return nil, e
+			}
+			if sealed.Scope != NamespacedScope {
+				return nil, errors.New("credential contract requires namespaced SealedSecret")
+			}
 			if !allowed(spec["namespaceResourceWhitelist"], "bitnami.com", "SealedSecret") {
 				spec["namespaceResourceWhitelist"] = append(slice(spec["namespaceResourceWhitelist"]), Object{"group": "bitnami.com", "kind": "SealedSecret"})
 			}
@@ -496,7 +561,7 @@ func (p *Project) CapabilityActivation(names []string) (map[string][]byte, error
 				spec["destinations"] = append(slice(spec["destinations"]), Object{"namespace": required.Namespace, "server": "https://kubernetes.default.svc"})
 			}
 		}
-		app := Object{"apiVersion": "argoproj.io/v1alpha1", "kind": "Application", "metadata": Object{"name": name, "namespace": "argocd", "annotations": Object{"argocd.argoproj.io/sync-wave": strconv.Itoa(x.Wave), "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"}}, "spec": Object{"project": "platform-project", "source": Object{"repoURL": p.Config.RepositoryURL, "targetRevision": p.Config.Revision, "path": x.Path}, "destination": Object{"server": "https://kubernetes.default.svc", "namespace": x.Namespace}, "syncPolicy": Object{"automated": Object{"enabled": true, "prune": true, "selfHeal": true}, "syncOptions": []any{"ServerSideApply=true", "FailOnSharedResource=true"}}}}
+		app := Object{"apiVersion": "argoproj.io/v1alpha1", "kind": "Application", "metadata": Object{"name": name, "namespace": "argocd", "annotations": Object{"argocd.argoproj.io/sync-wave": strconv.Itoa(x.Wave), "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"}}, "spec": Object{"project": p.Capabilities.Catalog.PermissionDomains[x.PermissionDomain], "source": Object{"repoURL": p.Config.RepositoryURL, "targetRevision": p.Config.Revision, "path": x.Path}, "destination": Object{"server": "https://kubernetes.default.svc", "namespace": x.Namespace}, "syncPolicy": Object{"automated": Object{"enabled": true, "prune": true, "selfHeal": true}, "syncOptions": []any{"ServerSideApply=true", "FailOnSharedResource=true"}}}}
 		aa = append(aa, app)
 		objects, e := p.capabilityObjects(name)
 		if e != nil {
@@ -507,7 +572,14 @@ func (p *Project) CapabilityActivation(names []string) (map[string][]byte, error
 			if kind == "Secret" || kind == "Application" || kind == "ApplicationSet" || kind == "AppProject" {
 				return nil, fmt.Errorf("capability %s contains prohibited authority/material: %s", name, kind)
 			}
-			cluster := kind == "Namespace" || kind == "CustomResourceDefinition" || kind == "ClusterRole" || kind == "ClusterRoleBinding" || kind == "MutatingWebhookConfiguration" || kind == "ValidatingWebhookConfiguration"
+			resource, e := model.Resolve(o)
+			if e != nil {
+				return nil, e
+			}
+			if e = model.Validate(o, x.Namespace); e != nil {
+				return nil, e
+			}
+			cluster := resource.Scope == ClusterScope
 			key := "namespaceResourceWhitelist"
 			if cluster {
 				key = "clusterResourceWhitelist"
@@ -562,7 +634,7 @@ func (p *Project) ValidateCapabilityActivation() error {
 }
 
 func (p *Project) CapabilityInputs() ([]string, error) {
-	paths := []string{inputDir + "/bootstrap/baseline-v3.json", capabilityDir + "/catalog.json", capabilityDir + "/enabled.json", capabilityDir + "/versions.lock.json", capabilityDir + "/kubeseal.lock.json", capabilityDir + "/core-applications.json", capabilityDir + "/core-projects.json"}
+	paths := []string{scopeRegistryPath, inputDir + "/bootstrap/baseline-v3.json", capabilityDir + "/catalog.json", capabilityDir + "/enabled.json", capabilityDir + "/versions.lock.json", capabilityDir + "/kubeseal.lock.json", capabilityDir + "/core-applications.json", capabilityDir + "/core-projects.json"}
 	for _, j := range p.Capabilities.Catalog.Jobs {
 		paths = append(paths, j.Values...)
 	}
@@ -600,7 +672,6 @@ func (p *Project) CheckCapabilities(ctx context.Context) (int, error) {
 	cp := *p
 	cp.Lock = p.Capabilities.Lock
 	inv := map[string]Object{}
-	schemas := map[string]Object{}
 	names := []string{}
 	for n := range p.Capabilities.Catalog.Components {
 		names = append(names, n)
@@ -634,19 +705,24 @@ func (p *Project) CheckCapabilities(ctx context.Context) (int, error) {
 			if o["kind"] == "Application" || o["kind"] == "AppProject" || o["kind"] == "ApplicationSet" {
 				return 0, errors.New("capability cannot create an authority tree")
 			}
-			if o["kind"] == "CustomResourceDefinition" {
-				for _, v := range slice(field(o, "spec", "versions")) {
-					m := mapping(v)
-					schemas[str(field(o, "spec", "group"))+"/"+str(m["name"])+"/"+str(field(o, "spec", "names", "kind"))] = mapping(field(m, "schema", "openAPIV3Schema"))
+			if o["kind"] != "CustomResourceDefinition" {
+				if e := cp.images(o); e != nil {
+					return 0, fmt.Errorf("%s: %w", id, e)
 				}
-			} else if e := cp.images(o); e != nil {
-				return 0, fmt.Errorf("%s: %w", id, e)
 			}
 		}
 	}
-	for _, o := range inv {
-		if s := schemas[str(o["apiVersion"])+"/"+str(o["kind"])]; s != nil {
-			if e := validateSchema(o, s, "$"); e != nil {
+	model, e := p.capabilityResourceModel(names)
+	if e != nil {
+		return 0, e
+	}
+	for _, n := range names {
+		objects, e := p.capabilityObjects(n)
+		if e != nil {
+			return 0, e
+		}
+		for _, o := range objects {
+			if e := model.Validate(o, p.Capabilities.Catalog.Components[n].Namespace); e != nil {
 				return 0, fmt.Errorf("%s: %w", identity(o), e)
 			}
 		}
@@ -672,4 +748,37 @@ func (p *Project) CheckCapabilities(ctx context.Context) (int, error) {
 		}
 	}
 	return len(inv), nil
+}
+
+// These bindings only configure the existing chart. They create neither a new
+// controller nor a runtime watcher in Atlas. Changed namespaces change the Pod
+// template, allowing Argo/Kubernetes to roll the controller after publication.
+func (p *Project) watchedNamespaces(j CapabilityJob) []string {
+	active := map[string]bool{}
+	for _, name := range p.Capabilities.Active {
+		active[name] = true
+	}
+	// Render a full offline candidate when the controller is not selected.
+	candidate := true
+	for _, part := range j.Outputs {
+		if len(part.Kinds) == 0 && active[part.Component] {
+			candidate = false
+		}
+	}
+	out := []string{}
+	for ns, dep := range j.NamespaceCapabilities {
+		if candidate || active[dep] || strings.HasPrefix(dep, "core:") {
+			out = append(out, ns)
+		}
+	}
+	sort.Slice(out, func(i, jdx int) bool {
+		if out[i] == j.Namespace {
+			return out[jdx] != j.Namespace
+		}
+		if out[jdx] == j.Namespace {
+			return false
+		}
+		return out[i] < out[jdx]
+	})
+	return out
 }

@@ -245,11 +245,6 @@ func (p *Project) Check(ctx context.Context) (int, error) {
 	sort.Strings(dirs)
 	bundles := map[string][]Object{}
 	inventory := map[string]Object{}
-	schemas := map[string]Object{}
-	clusterKinds := map[string]bool{}
-	for _, k := range []string{"/Namespace", "/Node", "storage.k8s.io/StorageClass", "apiextensions.k8s.io/CustomResourceDefinition", "rbac.authorization.k8s.io/ClusterRole", "rbac.authorization.k8s.io/ClusterRoleBinding", "admissionregistration.k8s.io/MutatingWebhookConfiguration", "admissionregistration.k8s.io/ValidatingWebhookConfiguration", "admissionregistration.k8s.io/ValidatingAdmissionPolicy", "admissionregistration.k8s.io/ValidatingAdmissionPolicyBinding"} {
-		clusterKinds[k] = true
-	}
 	for _, dir := range dirs {
 		var k Object
 		if e := readJSON(filepath.Join(p.Root, dir, "kustomization.yaml"), &k); e != nil {
@@ -282,19 +277,20 @@ func (p *Project) Check(ctx context.Context) (int, error) {
 			if e := checkObject(o); e != nil {
 				return 0, fmt.Errorf("%s: %w", id, e)
 			}
-			if o["kind"] == "CustomResourceDefinition" {
-				s := mapping(o["spec"])
-				g := str(s["group"])
-				kind := str(field(s, "names", "kind"))
-				clusterKinds[g+"/"+kind] = s["scope"] == "Cluster"
-				for _, v := range slice(s["versions"]) {
-					m := mapping(v)
-					schemas[g+"/"+str(m["name"])+"/"+kind] = mapping(field(m, "schema", "openAPIV3Schema"))
+			if o["kind"] != "CustomResourceDefinition" {
+				if e := p.images(o); e != nil {
+					return 0, fmt.Errorf("%s: %w", id, e)
 				}
-			} else if e := p.images(o); e != nil {
-				return 0, fmt.Errorf("%s: %w", id, e)
 			}
 		}
+	}
+	all := []Object{}
+	for _, o := range inventory {
+		all = append(all, o)
+	}
+	model, e := p.resourceModel(all)
+	if e != nil {
+		return 0, e
 	}
 	projects := map[string]Object{}
 	for _, o := range inventory {
@@ -370,13 +366,8 @@ func (p *Project) Check(ctx context.Context) (int, error) {
 			return 0, errors.New("unknown AppProject")
 		}
 		for _, o := range resources {
-			if e := permitted(project, app, o, clusterKinds[group(o)+"/"+str(o["kind"])]); e != nil {
+			if e := permitted(project, app, o, model); e != nil {
 				return 0, e
-			}
-			if schema := schemas[str(o["apiVersion"])+"/"+str(o["kind"])]; schema != nil {
-				if e := validateSchema(o, schema, "$"); e != nil {
-					return 0, fmt.Errorf("%s: %w", identity(o), e)
-				}
 			}
 		}
 		// Only the Root and the two controls may contain child Applications.
@@ -417,7 +408,15 @@ func allApplications(inventory map[string]Object) []Object {
 	}
 	return out
 }
-func permitted(project, app, o Object, cluster bool) error {
+func permitted(project, app, o Object, model *ResourceModel) error {
+	if e := model.Validate(o, str(field(app, "spec", "destination", "namespace"))); e != nil {
+		return e
+	}
+	resource, e := model.Resolve(o)
+	if e != nil {
+		return e
+	}
+	cluster := resource.Scope == ClusterScope
 	s := mapping(project["spec"])
 	g, k := group(o), str(o["kind"])
 	if cluster {

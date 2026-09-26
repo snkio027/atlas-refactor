@@ -220,6 +220,16 @@ func (p *Project) SelectCapabilities(ctx context.Context, requested []string) er
 	if e != nil {
 		return e
 	}
+	if e = p.ValidateCapabilitySelection(names); e != nil {
+		return e
+	}
+	// Render against the proposed closure (not the previous selection), so watch
+	// namespaces and Role partitions agree on the same desired state.
+	cp := *p
+	caps := *p.Capabilities
+	caps.Active = names
+	cp.Capabilities = &caps
+	p = &cp
 	missing, e := p.missingCapabilitySecrets(names)
 	if e != nil {
 		return e

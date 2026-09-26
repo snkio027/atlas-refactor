@@ -40,21 +40,25 @@ func TestTenantBoundary(t *testing.T) {
 		}
 	}
 	app := resourceFile(t, "gitops/workloads/applications/overlays/development/resources.json")[0]
+	model, err := candidate(t).capabilityResourceModel(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, tc := range []struct {
 		name, api, kind, ns string
-		cluster, allowed    bool
+		allowed             bool
 	}{
-		{"own service", "v1", "Service", "workload-web", false, true},
-		{"platform service", "v1", "Service", "argocd", false, false},
-		{"root application", "argoproj.io/v1alpha1", "Application", "workload-web", false, false},
-		{"role escalation", "rbac.authorization.k8s.io/v1", "RoleBinding", "workload-web", false, false},
-		{"cluster role", "rbac.authorization.k8s.io/v1", "ClusterRole", "", true, false},
-		{"namespace", "v1", "Namespace", "", true, false},
-		{"network exception", "networking.k8s.io/v1", "NetworkPolicy", "workload-web", false, false},
+		{"own service", "v1", "Service", "workload-web", true},
+		{"platform service", "v1", "Service", "argocd", false},
+		{"root application", "argoproj.io/v1alpha1", "Application", "workload-web", false},
+		{"role escalation", "rbac.authorization.k8s.io/v1", "RoleBinding", "workload-web", false},
+		{"cluster role", "rbac.authorization.k8s.io/v1", "ClusterRole", "", false},
+		{"namespace", "v1", "Namespace", "", false},
+		{"network exception", "networking.k8s.io/v1", "NetworkPolicy", "workload-web", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			o := Object{"apiVersion": tc.api, "kind": tc.kind, "metadata": Object{"name": "test", "namespace": tc.ns}}
-			e := permitted(tenant, app, o, tc.cluster)
+			e := permitted(tenant, app, o, model)
 			if (e == nil) != tc.allowed {
 				t.Fatalf("permission = %v, expected allowed=%v", e, tc.allowed)
 			}

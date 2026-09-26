@@ -1,0 +1,450 @@
+{
+  "schema": 1,
+  "kubernetes": "1.36.1",
+  "source": {
+    "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.1/api/openapi-spec/swagger.json",
+    "sha256": "dcede2063da1d7ad62ecb5af8adb6d7fabd0b52385a7fa0048afb491dac90450"
+  },
+  "resources": [
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "MutatingAdmissionPolicy",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "MutatingAdmissionPolicyBinding",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "MutatingWebhookConfiguration",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingWebhookConfiguration",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1alpha1",
+      "kind": "MutatingAdmissionPolicy",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1alpha1",
+      "kind": "MutatingAdmissionPolicyBinding",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1beta1",
+      "kind": "MutatingAdmissionPolicy",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1beta1",
+      "kind": "MutatingAdmissionPolicyBinding",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "apiextensions.k8s.io/v1",
+      "kind": "CustomResourceDefinition",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "apiregistration.k8s.io/v1",
+      "kind": "APIService",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ControllerRevision",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "DaemonSet",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "autoscaling/v1",
+      "kind": "HorizontalPodAutoscaler",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "autoscaling/v2",
+      "kind": "HorizontalPodAutoscaler",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "Job",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "certificates.k8s.io/v1",
+      "kind": "CertificateSigningRequest",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "certificates.k8s.io/v1alpha1",
+      "kind": "ClusterTrustBundle",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "certificates.k8s.io/v1beta1",
+      "kind": "ClusterTrustBundle",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "certificates.k8s.io/v1beta1",
+      "kind": "PodCertificateRequest",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "coordination.k8s.io/v1",
+      "kind": "Lease",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "coordination.k8s.io/v1alpha2",
+      "kind": "LeaseCandidate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "coordination.k8s.io/v1beta1",
+      "kind": "LeaseCandidate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "discovery.k8s.io/v1",
+      "kind": "EndpointSlice",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "events.k8s.io/v1",
+      "kind": "Event",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "flowcontrol.apiserver.k8s.io/v1",
+      "kind": "FlowSchema",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "flowcontrol.apiserver.k8s.io/v1",
+      "kind": "PriorityLevelConfiguration",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "internal.apiserver.k8s.io/v1alpha1",
+      "kind": "StorageVersion",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "IPAddress",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "IngressClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "ServiceCIDR",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1beta1",
+      "kind": "IPAddress",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1beta1",
+      "kind": "ServiceCIDR",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "node.k8s.io/v1",
+      "kind": "RuntimeClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "policy/v1",
+      "kind": "PodDisruptionBudget",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRole",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRoleBinding",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1",
+      "kind": "DeviceClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1",
+      "kind": "ResourceClaim",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1",
+      "kind": "ResourceClaimTemplate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1",
+      "kind": "ResourceSlice",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1alpha3",
+      "kind": "DeviceTaintRule",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1alpha3",
+      "kind": "ResourcePoolStatusRequest",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta1",
+      "kind": "DeviceClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta1",
+      "kind": "ResourceClaim",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta1",
+      "kind": "ResourceClaimTemplate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta1",
+      "kind": "ResourceSlice",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta2",
+      "kind": "DeviceClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta2",
+      "kind": "DeviceTaintRule",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta2",
+      "kind": "ResourceClaim",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta2",
+      "kind": "ResourceClaimTemplate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1beta2",
+      "kind": "ResourceSlice",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1",
+      "kind": "PriorityClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1alpha2",
+      "kind": "PodGroup",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1alpha2",
+      "kind": "Workload",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "CSIDriver",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "CSINode",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "CSIStorageCapacity",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "StorageClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "VolumeAttachment",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1",
+      "kind": "VolumeAttributesClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storage.k8s.io/v1beta1",
+      "kind": "VolumeAttributesClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "storagemigration.k8s.io/v1beta1",
+      "kind": "StorageVersionMigration",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ComponentStatus",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Endpoints",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "LimitRange",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Node",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PodTemplate",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ReplicationController",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ResourceQuota",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Secret",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "scope": "Namespaced"
+    }
+  ]
+}
