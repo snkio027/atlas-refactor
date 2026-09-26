@@ -1,0 +1,94 @@
+{
+  "status": "FAIL",
+  "baselineSHA": "84ce710a22be2becb8d5a0f87ce3ba2e06dc055f",
+  "ref": "refs/tags/integration-20260927-01",
+  "cluster": "atlas-refactor-test-vs0927",
+  "binarySHA256": "bee34f423cec25df1dc80f477c10cca0d1a826544f735c209ea419c39563baa0",
+  "profileSHA256": "544d5f3eaf8df7fd9fc0679da9e3de66ceccff4d70bebb67fe258a07ac51ebf7",
+  "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+  "renderHashes": {
+    "bootstrap/project.json": "12c66bc813c6a4b9ae4d860f59093405b05da8b278526c2d81bb53b4f698819a",
+    "bootstrap/seed.yaml": "e217aefbe5e524671be8ddab0565d8b0bd8dfdf5d7d9d1c6a6bcb4d0215a359d",
+    "bootstrap/root.json": "96efac12a0854fb307c10d86a87dbefbeed4799ba5702f23763fa5f82989573d",
+    "projects/kustomization.yaml": "d1b9716f4f98258b88c42510fcc0b207d4747332fc2db5c11c886a2570df0eda",
+    "projects/platform.json": "1e00b60b51cbb9ce9e5ccc9b7eeb5112a3c9da110802871a4479439887370663",
+    "platform/argocd/signal.json": "e96a7fe6cb8af4c1589edd84001190ce7205cc51f7efece3da3a16acd552a5de",
+    "platform/argocd/kustomization.yaml": "e713e10b64861497aefdf9009e8cc72338d5023fc34fd0cb74a9420b4171e527",
+    "platform/argocd/seed.yaml": "e217aefbe5e524671be8ddab0565d8b0bd8dfdf5d7d9d1c6a6bcb4d0215a359d",
+    "platform/applications/kustomization.yaml": "655815ea0102c8d8053c345fde8d9f0caef2ce710ba20d50134b677ad6e3d57d",
+    "platform/applications/argocd-self.json": "e71ad15c996e9c3b4efd66daf38d4951c42d57be53d00339c325afbad7006651",
+    "root/kustomization.yaml": "71cf56cc20209731b6be01fba7c831650db61e8e4f21d30f694db4833c9be046",
+    "root/platform.json": "3a03f5aaa61820447d16cd55198fc4bfbb13cca00f835290c037c33068a0dccd",
+    "root/projects.json": "fd3af83eb7ad1c56652a0d7eae9f2d112acd65a4e80ca80c552aac6a8ccc864f"
+  },
+  "tools": {
+    "go": {
+      "version": "go version go1.27.1 darwin/arm64",
+      "sha256": "548608a910c46de32c65a3934f461b1787acf6ddd371044826068d8503b8509b"
+    },
+    "helm": {
+      "version": "v4.2.3+g43e8b7f",
+      "sha256": "e8fe1a6caf4091026ad776eb2fe059a2d7a82fc69c22bd08cbcb3689d93e5c0d"
+    },
+    "kind": {
+      "version": "kind v0.32.0 go1.26.3 darwin/arm64",
+      "sha256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb"
+    },
+    "kubectl": {
+      "version": "{\n  \"clientVersion\": {\n    \"major\": \"1\",\n    \"minor\": \"36\",\n    \"gitVersion\": \"v1.36.3\",\n    \"gitCommit\": \"0f29094e5b73085e3802ecc1298ecae13866bfe6\",\n    \"gitTreeState\": \"clean\",\n    \"buildDate\": \"2026-07-22T18:10:35Z\",\n    \"goVersion\": \"go1.26.5\",\n    \"compiler\": \"gc\",\n    \"platform\": \"darwin/arm64\"\n  },\n  \"kustomizeVersion\": \"v5.8.1\"\n}",
+      "sha256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6"
+    },
+    "git": {
+      "version": "git version 2.54.0 (Apple Git-157)",
+      "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a"
+    }
+  },
+  "dockerServer": {
+    "version": "29.4.0",
+    "architecture": "aarch64",
+    "context": "orbstack"
+  },
+  "failedPhase": "Seed image preload before Tier-0 handoff",
+  "cliExitCode": 1,
+  "reason": "kind load docker-image uses --all-platforms; ctr reported missing digest sha256:b38d7a16bee1e757d96a99fa44168c4f260b98ca200948cdafa8e2b822995224",
+  "observedState": "FRESH",
+  "latchCreated": false,
+  "rootCreated": false,
+  "receiptCreated": false,
+  "missingArtifactAndConfigDrift": "PASS only in FRESH; not the requested post-adoption gate",
+  "handoffInterruptionIdempotencyUnhealthy": "NOT REACHED",
+  "ADR": "Proposed",
+  "applicationSyncHealth": "not available: Seed and Application CRD were never created",
+  "identityUID": "a3e2bba4-c081-4fe5-ae35-1af69337f212",
+  "firstApplyWindowUTC": {
+    "start": "2026-09-26T16:37:14.470545+00:00",
+    "end": "2026-09-26T16:37:47.562223+00:00",
+    "exitCode": 1
+  },
+  "freshNegativeCases": {
+    "fresh-missing-doctor": {
+      "start": "2026-09-26T16:41:43.061881+00:00",
+      "end": "2026-09-26T16:41:43.069968+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "fresh-missing-apply": {
+      "start": "2026-09-26T16:41:43.070492+00:00",
+      "end": "2026-09-26T16:41:43.078143+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    },
+    "fresh-drift-status": {
+      "start": "2026-09-26T16:41:43.100359+00:00",
+      "end": "2026-09-26T16:41:43.493766+00:00",
+      "exitCode": 2,
+      "bootstrapAPIMutations": 0
+    },
+    "fresh-drift-apply": {
+      "start": "2026-09-26T16:41:43.494360+00:00",
+      "end": "2026-09-26T16:41:44.223755+00:00",
+      "exitCode": 1,
+      "bootstrapAPIMutations": 0
+    }
+  }
+}

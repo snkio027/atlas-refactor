@@ -173,7 +173,7 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 		return e
 	}
 	for _, img := range []string{a.Lock.ArgoImage, a.Lock.RedisImage} {
-		if _, e := a.run(ctx, "kind", "load", "docker-image", img, "--name", a.Config.Cluster); e != nil {
+		if e := a.loadNodeImage(ctx, img); e != nil {
 			return e
 		}
 	}
@@ -260,6 +260,7 @@ func (a *App) verifyNodes(ctx context.Context) error {
 			Metadata struct{ Name string }
 			Status   struct {
 				Conditions []struct{ Type, Status string }
+				NodeInfo   struct{ Architecture, OperatingSystem, KubeletVersion string }
 			}
 		}
 	}
@@ -268,6 +269,10 @@ func (a *App) verifyNodes(ctx context.Context) error {
 	}
 	if len(list.Items) != 1 || list.Items[0].Metadata.Name != expected {
 		return errors.New("Kubernetes node inventory drift")
+	}
+	info := list.Items[0].Status.NodeInfo
+	if info.Architecture != "arm64" || info.OperatingSystem != "linux" || info.KubeletVersion != "v"+a.Lock.Kubernetes {
+		return errors.New("Kubernetes node platform or version drift")
 	}
 	for _, c := range list.Items[0].Status.Conditions {
 		if c.Type == "Ready" && c.Status == "True" {

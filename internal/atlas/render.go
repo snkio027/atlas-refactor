@@ -122,7 +122,11 @@ func (a *App) Render(ctx context.Context) (map[string][]byte, error) {
 	if e != nil {
 		return nil, e
 	}
-	cm = []byte(strings.Replace(string(cm), "data:\n", "data:\n  application.resourceTrackingMethod: annotation\n", 1))
+	// Anchor the complete top-level key: "data:" is also a suffix of "metadata:".
+	if strings.Count(string(cm), "\ndata:\n") != 1 {
+		return nil, errors.New("shared Argo ConfigMap must have one top-level data mapping")
+	}
+	cm = []byte(strings.Replace(string(cm), "\ndata:\n", "\ndata:\n  application.resourceTrackingMethod: annotation\n", 1))
 	seed = append(seed, []byte("\n---\n")...)
 	seed = append(seed, cm...)
 	files := map[string][]byte{"platform/argocd/seed.yaml": seed, "bootstrap/seed.yaml": seed, "bootstrap/root.json": jsonBytes(a.rootApplication()), "bootstrap/project.json": jsonBytes(a.project("atlas-bootstrap", false))}
@@ -185,8 +189,12 @@ func (a *App) Doctor(ctx context.Context) error {
 		return e
 	}
 	for _, img := range []string{a.Lock.NodeImage, a.Lock.ArgoImage, a.Lock.RedisImage} {
-		if _, e := a.run(ctx, "docker", "image", "inspect", img); e != nil {
+		b, e := a.run(ctx, "docker", "image", "inspect", "--platform", "linux/arm64", img, "--format", "{{.Os}}/{{.Architecture}}")
+		if e != nil {
 			return fmt.Errorf("locked image unavailable locally: %s", img)
+		}
+		if strings.TrimSpace(string(b)) != "linux/arm64" {
+			return fmt.Errorf("locked image must provide the supported linux/arm64 platform: %s", img)
 		}
 	}
 	return nil

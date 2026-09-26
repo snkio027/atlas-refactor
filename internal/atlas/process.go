@@ -13,9 +13,10 @@ import (
 )
 
 type Request struct {
-	Tool  string
-	Args  []string
-	Input []byte
+	Tool      string
+	Args      []string
+	Input     []byte
+	InputPath string // Repository-relative private file; streamed instead of buffered.
 }
 type Runner interface {
 	Run(context.Context, Request) ([]byte, error)
@@ -58,6 +59,25 @@ func (r ExecRunner) Run(ctx context.Context, q Request) ([]byte, error) {
 	}
 	cmd.Env = append(cmd.Env, "LC_ALL=C", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=/dev/null", "GIT_TERMINAL_PROMPT=0", "DOCKER_CONTEXT="+r.DockerContext, "KIND_EXPERIMENTAL_PROVIDER=docker")
 	cmd.Stdin = bytes.NewReader(q.Input)
+	if q.InputPath != "" {
+		if len(q.Input) != 0 || !strings.HasPrefix(filepath.Clean(q.InputPath), ".state"+string(filepath.Separator)) {
+			return nil, errors.New("file input must use a private state path without byte input")
+		}
+		path, e := safePath(r.Root, q.InputPath)
+		if e != nil {
+			return nil, e
+		}
+		file, e := os.Open(path)
+		if e != nil {
+			return nil, e
+		}
+		defer file.Close()
+		info, e := file.Stat()
+		if e != nil || !info.Mode().IsRegular() {
+			return nil, errors.New("file input must be a regular file")
+		}
+		cmd.Stdin = file
+	}
 	var out, stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr

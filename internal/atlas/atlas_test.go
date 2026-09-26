@@ -65,12 +65,32 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 			home, _ := os.UserHomeDir()
 			return []byte("unix://" + filepath.Join(home, ".orbstack/run/docker.sock")), nil
 		case "image":
+			if q.Args[1] == "save" {
+				return nil, os.WriteFile(argValue(q.Args, "--output"), []byte("archive"), 0600)
+			}
 			if argValue(q.Args, "--format") == "{{.Id}}" {
 				return []byte("sha256:fixture-node"), nil
+			}
+			if argValue(q.Args, "--format") == "{{.Os}}/{{.Architecture}}" {
+				return []byte("linux/arm64"), nil
 			}
 			return []byte("[]"), nil
 		case "inspect":
 			return []byte("sha256:fixture-node true"), nil
+		case "exec":
+			joined := strings.Join(q.Args, " ")
+			if strings.Contains(joined, "images import") {
+				s.effects = append(s.effects, "image:load")
+				return nil, nil
+			}
+			if strings.Contains(joined, "images list") {
+				for _, image := range []string{l.ArgoImage, l.RedisImage} {
+					_, digest, _ := strings.Cut(image, "@")
+					if strings.Contains(joined, "target.digest=="+digest) {
+						return []byte(image), nil
+					}
+				}
+			}
 		}
 	case "kind":
 		switch q.Args[0] {
@@ -88,9 +108,6 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 			s.effects = append(s.effects, "cluster:create")
 			s.exists = true
 			return nil, os.WriteFile(argValue(q.Args, "--kubeconfig"), []byte("fixture-kubeconfig"), 0600)
-		case "load":
-			s.effects = append(s.effects, "image:load")
-			return nil, nil
 		}
 	case "kubectl":
 		if q.Args[0] == "version" {
@@ -103,7 +120,7 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 		switch args[0] {
 		case "get":
 			if args[1] == "nodes" {
-				return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"conditions":[{"type":"Ready","status":"True"}]}}]}`), nil
+				return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"nodeInfo":{"architecture":"arm64","operatingSystem":"linux","kubeletVersion":"v` + l.Kubernetes + `"},"conditions":[{"type":"Ready","status":"True"}]}}]}`), nil
 			}
 			kind := args[1]
 			if kind == "crd" {

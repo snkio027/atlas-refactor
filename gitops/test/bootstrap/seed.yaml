@@ -33675,13 +33675,13 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  application.resourceTrackingMethod: annotation
   name: argocd-cm
   namespace: argocd
   labels:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
+  application.resourceTrackingMethod: annotation
   resource.customizations.health.argoproj.io_Application: |
     local health = {
       status = "Progressing",

@@ -3,7 +3,8 @@
 从 Atlas 的架构和失败经验出发，用 Go 独立实现 Bootstrap。
 
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
-模拟契约测试。公开远端为 `snkio027/atlas-refactor`；实际集群创建和 GitOps 交接尚未执行。
+模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第一次真实运行已创建独立
+测试集群，但在 Seed 镜像预载失败，尚未完成 GitOps 交接；见[失败记录](docs/integration-20260927-01-result.md)。
 第一阶段只支持独立的、可丢弃的 OrbStack / 单节点 Kind 测试集群。
 
 ## 构建与检查
@@ -37,8 +38,9 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality
 
 ## 首次集成验证
 
-固定测试配置见 `profiles/integration.json`，完整目标、故障注入和证据要求见
-[首次集成 Gate](docs/integration-first-slice.md)。`status --check` 是严格退出码的显式写法。
+第一次固定配置见 `profiles/integration.json`，对应不可移动的第一次基线。
+修正后的配置见 `profiles/integration-02.json`，目标、故障注入和证据要求见
+[第二次集成 Gate](docs/integration-second-slice.md)。`status --check` 是严格退出码的显式写法。
 新建测试节点启用 Metadata-only API 写入审计，日志位于私有 `.state/audit/`；
 记录中不包含请求/响应正文。ADR 保持 Proposed。
 
@@ -59,7 +61,8 @@ cp config.example.json config.local.json
 
 `--tool-dir` 可指向预装的 Helm、Kind、kubectl 所在目录；未指定时从 PATH 查找。
 工具版本必须与 `versions.lock.json` 一致。Docker 与 Git 从 PATH 查找。
-编译和运行不自动安装工具，也不拉取镜像。
+编译和运行不自动安装工具，也不拉取镜像。当前节点平台限定 `linux/arm64`；
+预载通过本地 Docker archive 流式导入 containerd，并保留锁定的镜像 digest。
 
 `doctor` 检查制品摘要、工具版本、OrbStack 上下文绑定和本地镜像存在性。
 它不证明远端 Git、真实集群或接管已准备好。

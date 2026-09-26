@@ -1,6 +1,8 @@
 # First disposable integration gate
 
-Status: PREPARED, not runtime evidence. ADR-0001 remains Proposed.
+Status: FAIL at baseline `84ce710a22be2becb8d5a0f87ce3ba2e06dc055f`.
+See the [first-run result](integration-20260927-01-result.md). The following is
+the retained execution plan for that baseline. ADR-0001 remains Proposed.
 
 ## Exact scope
 

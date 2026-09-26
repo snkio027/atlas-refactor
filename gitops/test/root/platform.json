@@ -18,7 +18,7 @@
     "source": {
       "path": "gitops/test/platform/applications",
       "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-      "targetRevision": "integration-20260927-01"
+      "targetRevision": "integration-20260927-02"
     },
     "syncPolicy": {
       "automated": {

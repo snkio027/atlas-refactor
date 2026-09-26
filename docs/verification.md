@@ -21,7 +21,7 @@
 编译和测试期间使用 `GOTOOLCHAIN=local`、`GOPROXY=off`、`GOSUMDB=off`，
 没有获取 Go 工具链或模块。
 
-## 尚未验证
+## 第一轮本地交付时尚未验证
 
 - 真实 Docker/Kind 集群创建、镜像预载、Argo CD 安装和 GitOps 接管。
 - Argo CD 从集群内读取远端 Git、精确 revision 和匿名运行时认证。
@@ -42,7 +42,15 @@
   release asset digest 及随附校验文件核对 SHA-256：
   `dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb`。
 - 测试目标及完整验收步骤见 [首次集成 Gate](integration-first-slice.md)。
-  尚未创建该集群，也没有执行 Tier-0 写入；ADR 保持 Proposed。
+  准备阶段尚未创建该集群，也没有执行 Tier-0 写入；ADR 保持 Proposed。
+
+## 首次真实执行与修正
+
+第一次运行在镜像预载失败，未到达 GitOps 交接，详见
+[失败记录](integration-20260927-01-result.md)。修正显式平台导入和 ConfigMap
+data 字段后，含真实 Helm 渲染的 `task quality` 再次通过。新增回归检查覆盖
+离线导入失败时不得安装 Seed、输入文件流、临时归档清理及锁定引用验证。
+真实中断续跑、重复 apply 和交接后负向用例仍须在新基线上运行。
 
 模拟器验证 CLI 的状态和请求契约，不模拟 Kubernetes/Argo CD 的全部语义；
 这些结果不得用于声明生产就绪或完整恢复闭环已成立。
