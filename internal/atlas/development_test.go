@@ -40,7 +40,8 @@ func developmentFixture(t *testing.T) (*App, *simulator) {
 			t.Fatal(e)
 		}
 	}
-	a.Config = Config{2, "atlas-refactor-test-dev01", "https://github.com/snkio027/atlas-refactor.git", "codex/development-platform", "gitops/root/overlays/development", "orbstack", 30}
+	a.Config = Config{3, "atlas-refactor-test-dev02", "https://github.com/snkio027/atlas-refactor.git", "codex/development-platform", "gitops/root/overlays/development", "orbstack", 30}
+	prepareFixtureArchives(t, a)
 	files, e := a.Render(context.Background())
 	if e != nil {
 		t.Fatal(e)
@@ -250,7 +251,11 @@ func TestDevelopmentGitOpsChangeKeepsBootstrapIdentity(t *testing.T) {
 		}
 	}
 	next = &App{Root: a.Root, Config: a.Config, Lock: a.Lock, Runner: a.Runner}
-	if _, err = next.Render(context.Background()); err == nil || !strings.Contains(err.Error(), "frozen baseline") {
-		t.Fatal("changed Seed contract was accepted", err)
+	changed, err := next.Render(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(before[developmentSignal], changed[developmentSignal]) {
+		t.Fatal("changed Seed contract reused old identity")
 	}
 }

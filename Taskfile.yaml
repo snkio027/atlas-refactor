@@ -31,6 +31,8 @@ tasks:
       - task: toolchain
       - mkdir -p bin
       - env CGO_ENABLED=0 go build -trimpath -o bin/atlas ./cmd/atlas
+      - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-dev ./cmd/atlas-dev
+      - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-artifacts ./cmd/atlas-artifacts
   build:matrix:
     cmds:
       - task: toolchain

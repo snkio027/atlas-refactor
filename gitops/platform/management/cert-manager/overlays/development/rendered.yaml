@@ -12627,7 +12627,8 @@
         ],
         "enableServiceLinks": false,
         "nodeSelector": {
-          "kubernetes.io/os": "linux"
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
         },
         "securityContext": {
           "runAsNonRoot": true,
@@ -12743,7 +12744,8 @@
         ],
         "enableServiceLinks": false,
         "nodeSelector": {
-          "kubernetes.io/os": "linux"
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
         },
         "securityContext": {
           "runAsNonRoot": true,
@@ -12878,7 +12880,8 @@
         ],
         "enableServiceLinks": false,
         "nodeSelector": {
-          "kubernetes.io/os": "linux"
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
         },
         "securityContext": {
           "runAsNonRoot": true,

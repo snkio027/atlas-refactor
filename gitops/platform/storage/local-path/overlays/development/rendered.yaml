@@ -203,7 +203,8 @@
           }
         ],
         "nodeSelector": {
-          "kubernetes.io/os": "linux"
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
         },
         "serviceAccountName": "local-path-provisioner-service-account",
         "tolerations": [
@@ -235,7 +236,7 @@
   "apiVersion": "v1",
   "data": {
     "config.json": "{\n        \"nodePathMap\":[\n        {\n                \"node\":\"DEFAULT_PATH_FOR_NON_LISTED_NODES\",\n                \"paths\":[\"/var/local-path-provisioner\"]\n        }\n        ]\n}",
-    "helperPod.yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: helper-pod\nspec:\n  priorityClassName: system-node-critical\n  tolerations:\n    - key: node.kubernetes.io/disk-pressure\n      operator: Exists\n      effect: NoSchedule\n  containers:\n  - name: helper-pod\n    image: docker.io/kindest/local-path-helper:v20260131-7181c60a@sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06\n    imagePullPolicy: IfNotPresent",
+    "helperPod.yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: helper-pod\nspec:\n  priorityClassName: system-node-critical\n  tolerations:\n    - key: node-role.local/data\n      operator: Equal\n      value: \"true\"\n      effect: NoSchedule\n    - key: node.kubernetes.io/disk-pressure\n      operator: Exists\n      effect: NoSchedule\n  containers:\n  - name: helper-pod\n    image: docker.io/kindest/local-path-helper:v20260131-7181c60a@sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06\n    imagePullPolicy: IfNotPresent",
     "setup": "#!/bin/sh\nset -eu\nmkdir -m 0777 -p \"$VOL_DIR\"",
     "teardown": "#!/bin/sh\nset -eu\nrm -rf \"$VOL_DIR\""
   },

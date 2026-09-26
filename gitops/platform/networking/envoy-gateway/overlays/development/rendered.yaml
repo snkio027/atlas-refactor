@@ -671,6 +671,10 @@
           }
         ],
         "imagePullSecrets": [],
+        "nodeSelector": {
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
+        },
         "securityContext": {
           "fsGroup": 65532,
           "runAsGroup": 65532,
@@ -869,6 +873,10 @@
           }
         ],
         "imagePullSecrets": [],
+        "nodeSelector": {
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
+        },
         "restartPolicy": "Never",
         "securityContext": {
           "fsGroup": 65532,

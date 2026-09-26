@@ -25,7 +25,7 @@ type developmentBundle struct {
 	root, project, kind Object
 }
 
-func (c Config) developmentProfile() bool { return c.Schema == 2 }
+func (c Config) developmentProfile() bool { return c.Schema == 2 || c.Schema == 3 }
 
 func (a *App) prepareDevelopment() error {
 	p, e := platform.Load(a.Root, platform.Tools{Helm: "helm", Kubectl: "kubectl", YQ: "yq"})
@@ -65,7 +65,7 @@ func (a *App) prepareDevelopment() error {
 		}
 	}
 	d := &developmentBundle{files: files, fingerprint: platform.BundleDigest(files), images: platform.ImageList(p.Lock.Images), apps: map[string]Object{}}
-	if d.baselineFingerprint, e = validateDevelopmentBaseline(files); e != nil {
+	if d.baselineFingerprint, e = validateDevelopmentBaseline(files, a.Config.Schema); e != nil {
 		return e
 	}
 	for path, dst := range map[string]*Object{"platform/development/bootstrap/root.json": &d.root, "platform/development/bootstrap/project.json": &d.project, "platform/development/bootstrap/kind.json": &d.kind} {
@@ -147,12 +147,12 @@ func (a *App) prepareCilium(ctx context.Context, files map[string][]byte) error 
 			return e
 		}
 	}
-	if _, e := a.kube(ctx, nil, "wait", "--for=condition=Ready", "node/"+a.Config.Cluster+"-control-plane", "--timeout=120s"); e != nil {
+	if _, e := a.kube(ctx, nil, "wait", "--for=condition=Ready", "nodes", "--all", "--timeout=180s"); e != nil {
 		return e
 	}
 	return a.verifyNodes(ctx)
 }
-func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal *Live) (bool, error) {
+func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
 	if signal == nil || !ready(root) || !ready(self) {
 		return false, nil
 	}
@@ -183,7 +183,16 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 		liveApps[name] = live
 	}
 	for name, path := range map[string]string{"argocd-self": developmentSeed, "cilium": ciliumSeed} {
-		owned, e := a.seedPayloadOwned(ctx, liveApps[name], commit, a.development.files[path])
+		proofCommit := commit
+		if adopted && a.Config.Schema == 3 {
+			// Receipt already proves first adoption. Argo may mark unchanged Git
+			// content Synced at a new commit without starting a new operation.
+			proofCommit = liveApps[name].Status.OperationState.SyncResult.Revision
+			if !regexp.MustCompile(`^[a-f0-9]{40}$`).MatchString(proofCommit) {
+				return false, nil
+			}
+		}
+		owned, e := a.seedPayloadOwned(ctx, liveApps[name], proofCommit, a.development.files[path])
 		if e != nil || !owned {
 			return false, e
 		}
@@ -193,6 +202,10 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 func (a *App) developmentIdentity(d map[string]string) {
 	d["schema"] = "atlas-refactor/identity/v2-development"
 	d["substrateProfile"] = "kind-cilium-ipv4-development/v1"
+	if a.Config.Schema == 3 {
+		d["schema"] = "atlas-refactor/identity/v3-development"
+		d["substrateProfile"] = "kind-cilium-ipv4-four-node/v1"
+	}
 	d["platformSHA256"] = a.development.baselineFingerprint
 }
 func (a *App) initialWait() string {
@@ -208,9 +221,9 @@ func (a *App) artifactPath(path string) string {
 	return strings.TrimSuffix(a.Config.GitOpsPath, "/") + "/" + path
 }
 
-// Keep runtime substrate exposure within the reviewed single-node local profile.
+// Keep runtime substrate exposure within the reviewed four-node local profile.
 func validateDevelopmentKind(data []byte) error {
-	const expected = `{"apiVersion":"kind.x-k8s.io/v1alpha4","kind":"Cluster","networking":{"ipFamily":"ipv4","apiServerAddress":"127.0.0.1","disableDefaultCNI":true,"kubeProxyMode":"iptables"},"nodes":[{"role":"control-plane","extraPortMappings":[{"containerPort":30080,"hostPort":8080,"listenAddress":"127.0.0.1","protocol":"TCP"},{"containerPort":30443,"hostPort":8443,"listenAddress":"127.0.0.1","protocol":"TCP"}]}]}`
+	const expected = `{"apiVersion":"kind.x-k8s.io/v1alpha4","kind":"Cluster","networking":{"ipFamily":"ipv4","apiServerAddress":"127.0.0.1","disableDefaultCNI":true,"kubeProxyMode":"iptables"},"nodes":[{"role":"control-plane"},{"role":"worker","labels":{"node-role.local/gateway":"true"},"extraPortMappings":[{"containerPort":30080,"hostPort":8080,"listenAddress":"127.0.0.1","protocol":"TCP"},{"containerPort":30443,"hostPort":8443,"listenAddress":"127.0.0.1","protocol":"TCP"}]},{"role":"worker","labels":{"node-role.local/compute":"true"}},{"role":"worker","labels":{"node-role.local/data":"true","topology.kubernetes.io/zone":"data-zone-1"},"kubeadmConfigPatches":["apiVersion: kubeadm.k8s.io/v1beta4\nkind: JoinConfiguration\nnodeRegistration:\n  taints:\n    - key: node-role.local/data\n      value: \"true\"\n      effect: NoSchedule\n"]}]}`
 	var got, want Object
 	if err := strictJSON(data, &got); err != nil {
 		return err
@@ -226,7 +239,7 @@ func validateDevelopmentKind(data []byte) error {
 
 // The snapshot preserves the first instantiation identity. Current GitOps leaf
 // payloads may evolve, but the authority-bearing Bootstrap contract must match.
-func validateDevelopmentBaseline(files map[string][]byte) (string, error) {
+func validateDevelopmentBaseline(files map[string][]byte, schema int) (string, error) {
 	var baseline struct {
 		Schema       int               `json:"schema"`
 		Commit       string            `json:"commit"`
@@ -254,6 +267,17 @@ func validateDevelopmentBaseline(files map[string][]byte) (string, error) {
 		"gitops/platform/management/projects/overlays/development/kustomization.yaml", "gitops/platform/management/projects/overlays/development/resources.json",
 		"gitops/platform/management/argocd-self/overlays/development/kustomization.yaml",
 		"gitops/platform/networking/cilium/overlays/development/kustomization.yaml",
+	}
+	if schema == 3 {
+		contract := map[string][]byte{}
+		for _, path := range bound {
+			b, ok := files[path]
+			if !ok {
+				return "", fmt.Errorf("missing Bootstrap contract input: %s", path)
+			}
+			contract[path] = b
+		}
+		return platform.BundleDigest(contract), nil
 	}
 	for _, path := range bound {
 		b, ok := files[path]

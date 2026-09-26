@@ -87,7 +87,7 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 				for _, image := range a.lockedImages() {
 					_, digest, _ := strings.Cut(image, "@")
 					if strings.Contains(joined, "target.digest=="+digest) {
-						return []byte(image), nil
+						return []byte(strings.Join(a.lockedImages(), "\n")), nil
 					}
 				}
 			}
@@ -102,6 +102,9 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 					return []byte(c.Cluster), nil
 				}
 				return nil, nil
+			}
+			if c.Schema == 3 {
+				return []byte(c.Cluster + "-worker2\n" + c.Cluster + "-control-plane\n" + c.Cluster + "-worker3\n" + c.Cluster + "-worker"), nil
 			}
 			return []byte(c.Cluster + "-control-plane"), nil
 		case "create":
@@ -131,6 +134,9 @@ func (s *simulator) Run(ctx context.Context, q Request) ([]byte, error) {
 				return jsonBytes(Object{"kind": "List", "items": items}), nil
 			}
 			if args[1] == "nodes" {
+				if c.Schema == 3 {
+					return s.fourNodes(), nil
+				}
 				if a.development != nil && s.objects[key("DaemonSet", "kube-system", "cilium")] == nil {
 					return []byte(`{"items":[{"metadata":{"name":"` + c.Cluster + `-control-plane"},"status":{"nodeInfo":{"architecture":"arm64","operatingSystem":"linux","kubeletVersion":"v` + l.Kubernetes + `"},"conditions":[{"type":"Ready","status":"False"}]}}]}`), nil
 				}

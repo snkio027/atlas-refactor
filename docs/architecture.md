@@ -99,3 +99,10 @@ API 监听 loopback。Metadata-only 审计只记录写请求，不记录正文�
 `cmd/atlas-platform` 只渲染和校验本地文件；它不是第二个 Bootstrap engine。
 完整控制图、当前验证边界和 Cilium-first 启动前置工作见
 [开发平台与部署审查](development-platform.md)。
+
+## 四节点开发 profile 的增量边界
+
+schema 3 的配置、离线制品准备、首次接管与持续观察的区别见
+[Proposed ADR-0005](adr/0005-four-node-development-workflow.md)。上述 schema 1/2 历史 Gate
+保持原含义；schema 3 在有效 Receipt 后允许 CRD 最近成功同步 SHA 早于当前无资源差异的
+Git SHA，但仍检查当前 Sync/Health、资源清单与 SSA ownership，首次接管要求不变。

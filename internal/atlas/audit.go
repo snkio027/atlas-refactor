@@ -61,7 +61,19 @@ apiServer:
 	if a.development != nil {
 		config["networking"] = a.development.kind["networking"]
 		nodes := a.development.kind["nodes"].([]any)
-		config["nodes"].([]Object)[0]["extraPortMappings"] = nodes[0].(map[string]any)["extraPortMappings"]
+		// Copy the approved node topology; attach audit mounts only to the API node.
+		var copied []Object
+		for _, node := range nodes {
+			copy := Object{}
+			for k, v := range node.(map[string]any) {
+				copy[k] = v
+			}
+			copied = append(copied, copy)
+		}
+		audit := config["nodes"].([]Object)[0]
+		copied[0]["kubeadmConfigPatches"] = audit["kubeadmConfigPatches"]
+		copied[0]["extraMounts"] = audit["extraMounts"]
+		config["nodes"] = copied
 	}
 	return json.MarshalIndent(config, "", "  ")
 }

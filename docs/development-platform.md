@@ -1,3 +1,6 @@
+> 本文包含 dev01 单节点首轮设计与历史操作。当前 schema 3 四节点目标和命令见
+> [四节点开发工作流](development-four-node.md)，不能用旧启动命令运行当前清单。
+
 # Web/API 开发平台：实现与部署审查
 
 状态：**独立开发集群已启动；经人工介入完成 GitOps 交接与本机 HTTPS 验证；不是原 Atlas authority cutover。**

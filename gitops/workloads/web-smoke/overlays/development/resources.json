@@ -159,6 +159,17 @@
                   "claimName": "web-data"
                 }
               }
+            ],
+            "nodeSelector": {
+              "node-role.local/data": "true"
+            },
+            "tolerations": [
+              {
+                "key": "node-role.local/data",
+                "operator": "Equal",
+                "value": "true",
+                "effect": "NoSchedule"
+              }
             ]
           }
         }

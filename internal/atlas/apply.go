@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"slices"
+	"sort"
 	"strings"
 	"time"
 )
@@ -239,25 +242,39 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 
 func (a *App) verifyNodes(ctx context.Context) error { return a.verifySubstrate(ctx, true) }
 
+func (a *App) nodeNames() []string {
+	names := []string{a.Config.Cluster + "-control-plane"}
+	if a.Config.Schema == 3 {
+		for _, suffix := range []string{"-worker", "-worker2", "-worker3"} {
+			names = append(names, a.Config.Cluster+suffix)
+		}
+	}
+	return names
+}
+
 func (a *App) verifySubstrate(ctx context.Context, requireReady bool) error {
 	b, e := a.run(ctx, "kind", "get", "nodes", "--name", a.Config.Cluster)
 	if e != nil {
 		return e
 	}
-	expected := a.Config.Cluster + "-control-plane"
-	if strings.TrimSpace(string(b)) != expected {
-		return errors.New("only the owned single-control-plane topology is permitted")
+	expected := a.nodeNames()
+	actual := strings.Fields(string(b))
+	sort.Strings(actual)
+	if !reflect.DeepEqual(actual, expected) {
+		return errors.New("Kind node inventory differs from approved topology")
 	}
 	imageID, e := a.run(ctx, "docker", "image", "inspect", a.Lock.NodeImage, "--format", "{{.Id}}")
 	if e != nil {
 		return e
 	}
-	b, e = a.run(ctx, "docker", "inspect", expected, "--format", "{{.Image}} {{.State.Running}}")
-	if e != nil {
-		return e
-	}
-	if strings.TrimSpace(string(imageID)) == "" || strings.TrimSpace(string(b)) != strings.TrimSpace(string(imageID))+" true" {
-		return errors.New("Kind node image or runtime drift")
+	for _, name := range expected {
+		b, e = a.run(ctx, "docker", "inspect", name, "--format", "{{.Image}} {{.State.Running}}")
+		if e != nil {
+			return e
+		}
+		if strings.TrimSpace(string(imageID)) == "" || strings.TrimSpace(string(b)) != strings.TrimSpace(string(imageID))+" true" {
+			return errors.New("Kind node image or runtime drift: " + name)
+		}
 	}
 	b, e = a.kube(ctx, nil, "get", "nodes", "-o", "json")
 	if e != nil {
@@ -265,8 +282,14 @@ func (a *App) verifySubstrate(ctx context.Context, requireReady bool) error {
 	}
 	var list struct {
 		Items []struct {
-			Metadata struct{ Name string }
-			Status   struct {
+			Metadata struct {
+				Name   string
+				Labels map[string]string
+			}
+			Spec struct {
+				Taints []struct{ Key, Value, Effect string }
+			}
+			Status struct {
 				Conditions []struct{ Type, Status string }
 				NodeInfo   struct{ Architecture, OperatingSystem, KubeletVersion string }
 			}
@@ -275,20 +298,49 @@ func (a *App) verifySubstrate(ctx context.Context, requireReady bool) error {
 	if e = decode(b, &list); e != nil {
 		return e
 	}
-	if len(list.Items) != 1 || list.Items[0].Metadata.Name != expected {
+	if len(list.Items) != len(expected) {
 		return errors.New("Kubernetes node inventory drift")
 	}
-	info := list.Items[0].Status.NodeInfo
-	if info.Architecture != "arm64" || info.OperatingSystem != "linux" || info.KubeletVersion != "v"+a.Lock.Kubernetes {
-		return errors.New("Kubernetes node platform or version drift")
-	}
-	if !requireReady {
-		return nil
-	}
-	for _, c := range list.Items[0].Status.Conditions {
-		if c.Type == "Ready" && c.Status == "True" {
-			return nil
+	seen := map[string]bool{}
+	roles := map[string]string{a.Config.Cluster + "-worker": "gateway", a.Config.Cluster + "-worker2": "compute", a.Config.Cluster + "-worker3": "data"}
+	for _, node := range list.Items {
+		name := node.Metadata.Name
+		if !slices.Contains(expected, name) || seen[name] {
+			return errors.New("Kubernetes node inventory drift")
+		}
+		seen[name] = true
+		info := node.Status.NodeInfo
+		if info.Architecture != "arm64" || info.OperatingSystem != "linux" || info.KubeletVersion != "v"+a.Lock.Kubernetes {
+			return errors.New("Kubernetes node platform or version drift: " + name)
+		}
+		if a.Config.Schema == 3 {
+			for _, role := range []string{"gateway", "compute", "data"} {
+				value, present := node.Metadata.Labels["node-role.local/"+role]
+				if (roles[name] == role && value != "true") || (roles[name] != role && present) {
+					return errors.New("node role drift: " + name)
+				}
+			}
+			if roles[name] == "data" {
+				taint := false
+				for _, t := range node.Spec.Taints {
+					if t.Key == "node-role.local/data" && t.Value == "true" && t.Effect == "NoSchedule" {
+						taint = true
+					}
+				}
+				if !taint || node.Metadata.Labels["topology.kubernetes.io/zone"] != "data-zone-1" {
+					return errors.New("data node isolation drift")
+				}
+			}
+		}
+		ready := false
+		for _, c := range node.Status.Conditions {
+			if c.Type == "Ready" && c.Status == "True" {
+				ready = true
+			}
+		}
+		if requireReady && !ready {
+			return errors.New("node is not Ready: " + name)
 		}
 	}
-	return errors.New("control-plane node is not Ready")
+	return nil
 }

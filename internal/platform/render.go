@@ -247,10 +247,17 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 			}
 			data := mapping(cms[0]["data"])
 			data["application.resourceTrackingMethod"] = "annotation"
+			data["resource.ignoreResourceUpdatesEnabled"] = "false"
 			for _, k := range []string{"cert-manager.io_Issuer", "cert-manager.io_Certificate", "gateway.networking.k8s.io_GatewayClass", "gateway.networking.k8s.io_Gateway", "gateway.networking.k8s.io_HTTPRoute", "gateway.envoyproxy.io_BackendTrafficPolicy"} {
 				data["resource.customizations.health."+k] = string(health)
 			}
 			objs = append(objs, cms[0])
+		}
+		for _, o := range objs {
+			if o["kind"] == "Deployment" || o["kind"] == "StatefulSet" || o["kind"] == "Job" {
+				pod := mapping(mapping(o["spec"])["template"])["spec"].(map[string]any)
+				pod["nodeSelector"] = Object{"kubernetes.io/os": "linux", "node-role.local/compute": "true"}
+			}
 		}
 		files[p.Config.Components[job.name]+"/rendered.yaml"] = encoded(objs)
 		if job.name == "cilium" || job.name == "argocd-self" {
@@ -278,6 +285,12 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 		if len(objs) == 0 {
 			return nil, fmt.Errorf("empty %s artifact", job.name)
 		}
+		for _, o := range objs {
+			if o["kind"] == "Deployment" || o["kind"] == "StatefulSet" || o["kind"] == "Job" {
+				pod := mapping(mapping(o["spec"])["template"])["spec"].(map[string]any)
+				pod["nodeSelector"] = Object{"kubernetes.io/os": "linux", "node-role.local/compute": "true"}
+			}
+		}
 		files[p.Config.Components[job.name]+"/rendered.yaml"] = encoded(objs)
 	}
 	b, e := os.ReadFile(filepath.Join(p.Root, "vendor/platform/kind-storage.go"))
@@ -301,6 +314,14 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 	}
 	var storage []Object
 	for _, o := range objs {
+		if o["kind"] == "Deployment" {
+			mapping(mapping(mapping(o["spec"])["template"])["spec"])["nodeSelector"] = Object{"kubernetes.io/os": "linux", "node-role.local/compute": "true"}
+		}
+		if o["kind"] == "ConfigMap" {
+			d := mapping(o["data"])
+			helper := d["helperPod.yaml"].(string)
+			d["helperPod.yaml"] = strings.Replace(helper, "tolerations:", "tolerations:\n    - key: node-role.local/data\n      operator: Equal\n      value: \"true\"\n      effect: NoSchedule", 1)
+		}
 		if o["kind"] != "Namespace" && o["kind"] != "StorageClass" {
 			storage = append(storage, o)
 		}

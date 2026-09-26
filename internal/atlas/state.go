@@ -233,10 +233,13 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		return state(Drifted, "bootstrap project drift; no repair permitted")
 	}
 	if receipt != nil {
+		if e := a.verifyNodes(ctx); e != nil {
+			return state(Degraded, "adopted; node inventory or readiness invalid: "+e.Error())
+		}
 		if root.Metadata.UID != receipt.Data["rootUID"] || (self != nil && self.Metadata.UID != receipt.Data["selfUID"]) || (signal != nil && signal.Metadata.UID != receipt.Data["signalUID"]) {
 			return state(Drifted, "adoption UID contradiction")
 		}
-		complete, e := a.handoffComplete(ctx, root, self, signal)
+		complete, e := a.handoffComplete(ctx, root, self, signal, true)
 		if e != nil {
 			return observation{}, e
 		}
@@ -254,7 +257,7 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		}
 	}
 	if inventory {
-		complete, e := a.handoffComplete(ctx, root, self, signal)
+		complete, e := a.handoffComplete(ctx, root, self, signal, false)
 		if e != nil {
 			return observation{}, e
 		}

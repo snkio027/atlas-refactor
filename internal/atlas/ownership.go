@@ -26,9 +26,9 @@ func (a *App) sourceCommit(ctx context.Context) (string, error) {
 	return a.resolvedCommit, nil
 }
 
-func (a *App) handoffComplete(ctx context.Context, root, self, signal *Live) (bool, error) {
+func (a *App) handoffComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
 	if a.development != nil {
-		return a.developmentHandoffComplete(ctx, root, self, signal)
+		return a.developmentHandoffComplete(ctx, root, self, signal, adopted)
 	}
 	if signal == nil || !ready(root) || !ready(self) {
 		return false, nil

@@ -1582,7 +1582,8 @@
         "hostNetwork": true,
         "hostUsers": true,
         "nodeSelector": {
-          "kubernetes.io/os": "linux"
+          "kubernetes.io/os": "linux",
+          "node-role.local/compute": "true"
         },
         "priorityClassName": "system-cluster-critical",
         "restartPolicy": "Always",

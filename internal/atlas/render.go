@@ -213,6 +213,11 @@ func (a *App) Doctor(ctx context.Context) error {
 	if e := a.verifyTools(ctx, true); e != nil {
 		return e
 	}
+	if a.Config.Schema == 3 {
+		if e := a.verifyImageArchives(); e != nil {
+			return e
+		}
+	}
 	for _, img := range a.lockedImages() {
 		b, e := a.run(ctx, "docker", "image", "inspect", "--platform", "linux/arm64", img, "--format", "{{.Os}}/{{.Architecture}}")
 		if e != nil {

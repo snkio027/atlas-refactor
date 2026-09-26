@@ -1,6 +1,7 @@
 package atlas
 
 import (
+	"atlas-refactor/internal/oci"
 	"context"
 	"errors"
 	"os"
@@ -13,6 +14,21 @@ import (
 // kind load docker-image imports --all-platforms and fails on those entries.
 // The archive is streamed from a private temporary file, never held in memory.
 func (a *App) loadNodeImage(ctx context.Context, image string) error {
+	if a.Config.Schema == 3 {
+		path, e := a.imageArchive(image)
+		if e != nil {
+			return e
+		}
+		if e = oci.Verify(path, image); e != nil {
+			return e
+		}
+		for _, node := range a.nodeNames() {
+			if e = a.importNodeImage(ctx, image, path, node); e != nil {
+				return e
+			}
+		}
+		return nil
+	}
 	dir, e := safePath(a.Root, ".state")
 	if e != nil {
 		return e
@@ -29,7 +45,15 @@ func (a *App) loadNodeImage(ctx context.Context, image string) error {
 	if _, e = a.run(ctx, "docker", "image", "save", "--output", path, image); e != nil {
 		return e
 	}
-	node := a.Config.Cluster + "-control-plane"
+	for _, node := range a.nodeNames() {
+		if e := a.importNodeImage(ctx, image, path, node); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+func (a *App) importNodeImage(ctx context.Context, image, path, node string) error {
 	args := []string{"exec", "--privileged", "--interactive", node, "ctr", "--namespace", "k8s.io", "images", "import", "--platform", "linux/arm64", "--digests", "--snapshotter", "overlayfs", "-"}
 	input, e := filepath.Rel(a.Root, path)
 	if e != nil {
