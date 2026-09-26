@@ -1,0 +1,1651 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-09-26T20:27:22.924138+00:00",
+  "implementationCommit": "83b997bc5a8b603f751c068851360532149edd80",
+  "cluster": "atlas-refactor-test-dev01",
+  "context": "kind-atlas-refactor-test-dev01",
+  "applications": [
+    {
+      "name": "argocd-self",
+      "uid": "3c4def64-eeba-4be7-af14-0a8153f95b92",
+      "source": {
+        "path": "gitops/platform/management/argocd-self/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/management/argocd-self/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:13:17Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "atlas-refactor-root",
+      "uid": "4fb43d3a-9cf3-42ea-83dd-3e06736a5779",
+      "source": {
+        "path": "gitops/root/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "atlas-bootstrap",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/root/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:26:30Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "cert-manager",
+      "uid": "61afbaba-12af-4511-a694-b300e4e84e28",
+      "source": {
+        "path": "gitops/platform/management/cert-manager/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "cert-manager",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/management/cert-manager/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:13:08Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "cilium",
+      "uid": "a25b0e3a-a5fc-476d-8aa9-5b3dd3eb588f",
+      "source": {
+        "path": "gitops/platform/networking/cilium/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "kube-system",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/networking/cilium/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:12:55Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "edge",
+      "uid": "2d40484e-792c-4769-b1f7-07f4abd9269c",
+      "source": {
+        "path": "gitops/platform/networking/edge/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "atlas-gateway",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/networking/edge/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:17:26Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "envoy-crds",
+      "uid": "43840535-300e-4cfe-a17d-7e185c618d3b",
+      "source": {
+        "path": "gitops/platform/networking/envoy-crds/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "envoy-gateway-system",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/networking/envoy-crds/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:13:41Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "envoy-gateway",
+      "uid": "e32b33ee-50bc-4862-b295-3095cfb91be7",
+      "source": {
+        "path": "gitops/platform/networking/envoy-gateway/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "envoy-gateway-system",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/networking/envoy-gateway/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:17:03Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "foundation",
+      "uid": "50ed138b-6b95-4470-9a4a-ea5c2324e57d",
+      "source": {
+        "path": "gitops/platform/foundation/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/foundation/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:12:53Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "gateway-api",
+      "uid": "56a0f5b1-7d76-4768-8e83-36e4d923cb06",
+      "source": {
+        "path": "gitops/platform/networking/gateway-api/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "envoy-gateway-system",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/networking/gateway-api/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:16:51Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "local-pki",
+      "uid": "74cd7bb4-5fd1-47cb-a3c9-4fcbc8bcd555",
+      "source": {
+        "path": "gitops/platform/management/local-pki/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "atlas-gateway",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/management/local-pki/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:17:06Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "local-storage",
+      "uid": "bed54c92-9721-4611-8460-064a77ed0ae6",
+      "source": {
+        "path": "gitops/platform/storage/local-path/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "local-path-storage",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/storage/local-path/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:16:57Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "platform-control",
+      "uid": "34ca6d7e-7dc3-4021-99c2-88184fed766c",
+      "source": {
+        "path": "gitops/platform/applications/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/applications/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:26:29Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "project-bootstrap",
+      "uid": "c37adca5-0920-4efd-9168-dd80a7c458d2",
+      "source": {
+        "path": "gitops/platform/management/projects/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "atlas-bootstrap",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/platform/management/projects/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:12:50Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "web-smoke",
+      "uid": "177b9801-30f0-4861-8f97-cff8377d0b46",
+      "source": {
+        "path": "gitops/workloads/web-smoke/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "workload-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "workload-web",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/workloads/web-smoke/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:17:38Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    },
+    {
+      "name": "workload-control",
+      "uid": "9128ccf7-a85e-4bcd-b435-9001ba980906",
+      "source": {
+        "path": "gitops/workloads/applications/overlays/development",
+        "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+        "targetRevision": "codex/development-platform"
+      },
+      "project": "platform-project",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "argocd",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "path": "gitops/workloads/applications/overlays/development",
+            "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+            "targetRevision": "codex/development-platform"
+          }
+        },
+        "revision": "83b997bc5a8b603f751c068851360532149edd80",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-09-26T20:25:06Z",
+        "status": "Healthy"
+      },
+      "operationPhase": "Succeeded"
+    }
+  ],
+  "identity": {
+    "atlas-refactor-identity": {
+      "uid": "6cddad95-305f-422e-a4da-bc9b14717c1d",
+      "immutable": true,
+      "data": {
+        "cluster": "atlas-refactor-test-dev01",
+        "dockerContext": "orbstack",
+        "gitopsPath": "gitops/root/overlays/development",
+        "lockSHA256": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467",
+        "platformSHA256": "2925a2b2e40f2726b5700cf7ab5862e5145891f11d86cde4731ff7b53e2dec91",
+        "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
+        "revision": "codex/development-platform",
+        "schema": "atlas-refactor/identity/v2-development",
+        "substrateProfile": "kind-cilium-ipv4-development/v1"
+      },
+      "trackingID": null
+    },
+    "atlas-refactor-handoff": {
+      "uid": "be0c91e9-7536-4891-ae35-c899534df145",
+      "immutable": true,
+      "data": {
+        "fingerprint": "4b2f4f334d7c80ae68471058b1dd3c0f19d7ba57527d0ba717eca6efcd055b48",
+        "identityUID": "6cddad95-305f-422e-a4da-bc9b14717c1d"
+      },
+      "trackingID": null
+    },
+    "atlas-refactor-receipt": {
+      "uid": "ea357d89-a59d-443c-844f-080ee447a8ef",
+      "immutable": true,
+      "data": {
+        "fingerprint": "4b2f4f334d7c80ae68471058b1dd3c0f19d7ba57527d0ba717eca6efcd055b48",
+        "identityUID": "6cddad95-305f-422e-a4da-bc9b14717c1d",
+        "rootUID": "4fb43d3a-9cf3-42ea-83dd-3e06736a5779",
+        "selfUID": "3c4def64-eeba-4be7-af14-0a8153f95b92",
+        "signalUID": "1566e373-5729-4a28-b206-5d67d612bf43"
+      },
+      "trackingID": null
+    },
+    "atlas-refactor-adoption-signal": {
+      "uid": "1566e373-5729-4a28-b206-5d67d612bf43",
+      "immutable": true,
+      "data": {
+        "fingerprint": "4b2f4f334d7c80ae68471058b1dd3c0f19d7ba57527d0ba717eca6efcd055b48"
+      },
+      "trackingID": "argocd-self:/ConfigMap:argocd/atlas-refactor-adoption-signal"
+    }
+  },
+  "nodes": [
+    {
+      "name": "atlas-refactor-test-dev01-control-plane",
+      "uid": "2a4f84c1-d207-4275-8054-b57712dca652",
+      "nodeInfo": {
+        "architecture": "arm64",
+        "containerRuntimeVersion": "containerd://2.3.1",
+        "kernelVersion": "7.0.14-orbstack-00380-ga7e0a2dc9535",
+        "kubeletVersion": "v1.36.1",
+        "operatingSystem": "linux",
+        "osImage": "Debian GNU/Linux 13 (trixie)"
+      },
+      "conditions": [
+        {
+          "lastHeartbeatTime": "2026-09-26T20:12:09Z",
+          "lastTransitionTime": "2026-09-26T20:12:09Z",
+          "message": "Cilium is running on this node",
+          "reason": "CiliumIsUp",
+          "status": "False",
+          "type": "NetworkUnavailable"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T20:23:34Z",
+          "lastTransitionTime": "2026-09-26T20:06:40Z",
+          "message": "kubelet has sufficient memory available",
+          "reason": "KubeletHasSufficientMemory",
+          "status": "False",
+          "type": "MemoryPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T20:23:34Z",
+          "lastTransitionTime": "2026-09-26T20:06:40Z",
+          "message": "kubelet has no disk pressure",
+          "reason": "KubeletHasNoDiskPressure",
+          "status": "False",
+          "type": "DiskPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T20:23:34Z",
+          "lastTransitionTime": "2026-09-26T20:06:40Z",
+          "message": "kubelet has sufficient PID available",
+          "reason": "KubeletHasSufficientPID",
+          "status": "False",
+          "type": "PIDPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-09-26T20:23:34Z",
+          "lastTransitionTime": "2026-09-26T20:12:19Z",
+          "message": "kubelet is posting ready status",
+          "reason": "KubeletReady",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    }
+  ],
+  "storage": {
+    "pvc": [
+      {
+        "name": "web-data",
+        "uid": "e06b3e49-8c9b-4888-8149-1578d3d8f008",
+        "storageClass": "atlas-local-retain",
+        "volumeName": "pvc-e06b3e49-8c9b-4888-8149-1578d3d8f008",
+        "claimRef": null,
+        "status": {
+          "accessModes": [
+            "ReadWriteOnce"
+          ],
+          "capacity": {
+            "storage": "1Gi"
+          },
+          "phase": "Bound"
+        }
+      }
+    ],
+    "pv": [
+      {
+        "name": "pvc-e06b3e49-8c9b-4888-8149-1578d3d8f008",
+        "uid": "564bfddf-4959-4b90-a127-8bd2d2c3b438",
+        "storageClass": "atlas-local-retain",
+        "volumeName": null,
+        "claimRef": {
+          "apiVersion": "v1",
+          "kind": "PersistentVolumeClaim",
+          "name": "web-data",
+          "namespace": "workload-web",
+          "resourceVersion": "2947",
+          "uid": "e06b3e49-8c9b-4888-8149-1578d3d8f008"
+        },
+        "status": {
+          "lastPhaseTransitionTime": "2026-09-26T20:17:34Z",
+          "phase": "Bound"
+        }
+      }
+    ]
+  },
+  "gatewayResources": [
+    {
+      "kind": "GatewayClass",
+      "name": "atlas-envoy",
+      "namespace": null,
+      "generation": 1,
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:13Z",
+            "message": "Valid GatewayClass",
+            "observedGeneration": 1,
+            "reason": "Accepted",
+            "status": "True",
+            "type": "Accepted"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Gateway",
+      "name": "development",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "addresses": [
+          {
+            "type": "IPAddress",
+            "value": "192.168.97.6"
+          }
+        ],
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:30Z",
+            "message": "The Gateway has been scheduled by Envoy Gateway",
+            "observedGeneration": 1,
+            "reason": "Accepted",
+            "status": "True",
+            "type": "Accepted"
+          },
+          {
+            "lastTransitionTime": "2026-09-26T20:17:30Z",
+            "message": "Address assigned to the Gateway, 1/1 envoy replicas available",
+            "observedGeneration": 1,
+            "reason": "Programmed",
+            "status": "True",
+            "type": "Programmed"
+          }
+        ],
+        "listeners": [
+          {
+            "attachedRoutes": 1,
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Sending translated listener configuration to the data plane",
+                "observedGeneration": 1,
+                "reason": "Programmed",
+                "status": "True",
+                "type": "Programmed"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Listener has been successfully translated",
+                "observedGeneration": 1,
+                "reason": "Accepted",
+                "status": "True",
+                "type": "Accepted"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Listener references have been resolved",
+                "observedGeneration": 1,
+                "reason": "ResolvedRefs",
+                "status": "True",
+                "type": "ResolvedRefs"
+              }
+            ],
+            "name": "http",
+            "supportedKinds": [
+              {
+                "group": "gateway.networking.k8s.io",
+                "kind": "HTTPRoute"
+              }
+            ]
+          },
+          {
+            "attachedRoutes": 1,
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Sending translated listener configuration to the data plane",
+                "observedGeneration": 1,
+                "reason": "Programmed",
+                "status": "True",
+                "type": "Programmed"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Listener has been successfully translated",
+                "observedGeneration": 1,
+                "reason": "Accepted",
+                "status": "True",
+                "type": "Accepted"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Listener references have been resolved",
+                "observedGeneration": 1,
+                "reason": "ResolvedRefs",
+                "status": "True",
+                "type": "ResolvedRefs"
+              }
+            ],
+            "name": "https",
+            "supportedKinds": [
+              {
+                "group": "gateway.networking.k8s.io",
+                "kind": "HTTPRoute"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "HTTPRoute",
+      "name": "web-http",
+      "namespace": "workload-web",
+      "generation": 1,
+      "status": {
+        "parents": [
+          {
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Route is accepted",
+                "observedGeneration": 1,
+                "reason": "Accepted",
+                "status": "True",
+                "type": "Accepted"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:30Z",
+                "message": "Resolved all the Object references for the Route",
+                "observedGeneration": 1,
+                "reason": "ResolvedRefs",
+                "status": "True",
+                "type": "ResolvedRefs"
+              }
+            ],
+            "controllerName": "gateway.envoyproxy.io/gatewayclass-controller",
+            "parentRef": {
+              "group": "gateway.networking.k8s.io",
+              "kind": "Gateway",
+              "name": "development",
+              "namespace": "atlas-gateway",
+              "sectionName": "http"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "HTTPRoute",
+      "name": "web-https",
+      "namespace": "workload-web",
+      "generation": 1,
+      "status": {
+        "parents": [
+          {
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-09-26T20:17:37Z",
+                "message": "Route is accepted",
+                "observedGeneration": 1,
+                "reason": "Accepted",
+                "status": "True",
+                "type": "Accepted"
+              },
+              {
+                "lastTransitionTime": "2026-09-26T20:17:37Z",
+                "message": "Resolved all the Object references for the Route",
+                "observedGeneration": 1,
+                "reason": "ResolvedRefs",
+                "status": "True",
+                "type": "ResolvedRefs"
+              }
+            ],
+            "controllerName": "gateway.envoyproxy.io/gatewayclass-controller",
+            "parentRef": {
+              "group": "gateway.networking.k8s.io",
+              "kind": "Gateway",
+              "name": "development",
+              "namespace": "atlas-gateway",
+              "sectionName": "https"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "BackendTrafficPolicy",
+      "name": "ipv4-dns",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "ancestors": [
+          {
+            "ancestorRef": {
+              "group": "gateway.networking.k8s.io",
+              "kind": "Gateway",
+              "name": "development",
+              "namespace": "atlas-gateway"
+            },
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-09-26T20:17:15Z",
+                "message": "Policy has been accepted.",
+                "observedGeneration": 1,
+                "reason": "Accepted",
+                "status": "True",
+                "type": "Accepted"
+              }
+            ],
+            "controllerName": "gateway.envoyproxy.io/gatewayclass-controller"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Certificate",
+      "name": "development-ca",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:06Z",
+            "message": "Certificate is up to date and has not expired",
+            "observedGeneration": 1,
+            "reason": "Ready",
+            "status": "True",
+            "type": "Ready"
+          }
+        ],
+        "notAfter": "2027-09-26T20:17:06Z",
+        "notBefore": "2026-09-26T20:17:06Z",
+        "renewalTime": "2027-08-27T20:17:06Z",
+        "revision": 1
+      }
+    },
+    {
+      "kind": "Certificate",
+      "name": "web-tls",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:10Z",
+            "message": "Certificate is up to date and has not expired",
+            "observedGeneration": 1,
+            "reason": "Ready",
+            "status": "True",
+            "type": "Ready"
+          }
+        ],
+        "notAfter": "2026-10-26T20:17:10Z",
+        "notBefore": "2026-09-26T20:17:10Z",
+        "renewalTime": "2026-10-19T20:17:10Z",
+        "revision": 1
+      }
+    },
+    {
+      "kind": "Issuer",
+      "name": "development-ca",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:08Z",
+            "message": "Signing CA verified",
+            "observedGeneration": 1,
+            "reason": "KeyPairVerified",
+            "status": "True",
+            "type": "Ready"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Issuer",
+      "name": "local-selfsigned",
+      "namespace": "atlas-gateway",
+      "generation": 1,
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-26T20:17:04Z",
+            "observedGeneration": 1,
+            "reason": "IsReady",
+            "status": "True",
+            "type": "Ready"
+          }
+        ]
+      }
+    }
+  ],
+  "inputs": {
+    "gitops/platform/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/applications/overlays/development/resources.json": "f8d9966524b5f3ebe86158eb294eec685878e0fcd3e8bd5e49b7aa0ee1b06b48",
+    "gitops/platform/foundation/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/foundation/overlays/development/resources.json": "8703d5e26d09080cf3764596208ee9220fed701b8fd6df7e18af1a743fa79cd7",
+    "gitops/platform/management/argocd-self/overlays/development/kustomization.yaml": "22850a28cad62bde1b8cd0cd23b1f33faadc843726c500e090bf1f8b9d31ce4b",
+    "gitops/platform/management/argocd-self/overlays/development/rendered.yaml": "ab131063e656afab918d61a4950bff974d504cc7e322004d6db2e875546efebb",
+    "gitops/platform/management/argocd-self/overlays/development/signal.json": "51e4379d3f677ec7b399602534d4b19f086a9056db0e9fea20a31c59875ec5cf",
+    "gitops/platform/management/cert-manager/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+    "gitops/platform/management/cert-manager/overlays/development/rendered.yaml": "e248519d2261b7ff32415ca47799a561c5965ea8538e62a8469f2210d38f107d",
+    "gitops/platform/management/local-pki/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/management/local-pki/overlays/development/resources.json": "7fed2598f0dc892b54940835164fa39956d60eecdd3cbc36dff81cadc2f3ca9b",
+    "gitops/platform/management/projects/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/management/projects/overlays/development/resources.json": "37aa70e909765f7a83962be476f838cae0b20b9cc7fa24acbb5e4c7f5f5a3216",
+    "gitops/platform/networking/cilium/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+    "gitops/platform/networking/cilium/overlays/development/rendered.yaml": "c9267ba568f5fc8ee9f11b6ae2f7b546e1b9676fb67034e9f0e74c3080128b63",
+    "gitops/platform/networking/edge/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/networking/edge/overlays/development/resources.json": "fa6147ea66a005ef86dfda09e5b7df6fc4560f449e8a2b8273c53426cf5823b5",
+    "gitops/platform/networking/envoy-crds/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+    "gitops/platform/networking/envoy-crds/overlays/development/rendered.yaml": "fdd8f0df14b04f3dd1de64b4dc3b0ce2430b808c4e107fa94586f82640f61dd9",
+    "gitops/platform/networking/envoy-gateway/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+    "gitops/platform/networking/envoy-gateway/overlays/development/rendered.yaml": "fc91230062fdc2217c4dba869d1803cddb86fadbbe313d6647b4acf34223540a",
+    "gitops/platform/networking/gateway-api/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b",
+    "gitops/platform/networking/gateway-api/overlays/development/rendered.yaml": "31bfd9f0f9e288cae14abd7018c6ebc3fd8cc0f847a020fc41e25ae6787a7570",
+    "gitops/platform/storage/local-path/overlays/development/kustomization.yaml": "c4432add7448e77326341c58edeb4d94723a47dfc00d390894240611dac6d1e7",
+    "gitops/platform/storage/local-path/overlays/development/rendered.yaml": "1233fa7acd87a842c13aaa7cce258a36e9af849c8d24edbe0a2dc6104dbf3ab6",
+    "gitops/platform/storage/local-path/overlays/development/storage-class.json": "50ff48a0fba9764ef1c72c95a2d394b74455750b3d2a18e9f794e303cfd39612",
+    "gitops/root/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/root/overlays/development/resources.json": "618ab6882394d169908a620d89e87d10b6635529ce4173aa756e064ce80fa235",
+    "gitops/workloads/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/workloads/applications/overlays/development/resources.json": "5c31b2d24cc5e73470ea7e3f8e888649c81cc9bf096ec97de07319bcfaa4c695",
+    "gitops/workloads/web-smoke/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/workloads/web-smoke/overlays/development/resources.json": "97c7355805efbfbeb6989fd504573a9102e9cafa58fc0b1d79f27690daf52f0d",
+    "platform/development/bootstrap/argocd-self-seed.yaml": "ab131063e656afab918d61a4950bff974d504cc7e322004d6db2e875546efebb",
+    "platform/development/bootstrap/baseline.json": "21e580a8ad6a1cee8feaab4dee79b47c971b6c69e3bdd4513048455b49ac950e",
+    "platform/development/bootstrap/cilium-seed.yaml": "c9267ba568f5fc8ee9f11b6ae2f7b546e1b9676fb67034e9f0e74c3080128b63",
+    "platform/development/bootstrap/kind.json": "5adef3d22bef752cd101fc0bc594de4dcb2f271ce079eb030ef035a99d583ab1",
+    "platform/development/bootstrap/project.json": "47cb4ca0175ab324d96e958b839ffe91d0592575742899fe9fd849bb2a0d1aed",
+    "platform/development/bootstrap/root.json": "a209d09d7b6aeab3b85adc40e7b9b61b9fd837d47681597e008a688213532e29",
+    "platform/development/config.json": "5e1649ed423211194ae12dde9e9816aebb5e597b58a11fa8ccd663d6acf262f6",
+    "platform/development/health/ready.lua": "af5e05e31791a1f5083b3b9e791dada87f7b198539edfabda9cd35028886c1d4",
+    "platform/development/values/cert-manager.json": "0f61e6deb18aa46430fe70878335925ecd0b495c90ea8a9e25ce94909463c3c9",
+    "platform/development/values/cilium.json": "a45facce11af10232ba7ac420bf6698843a7b54946e284f5b3c43729c09ac562",
+    "platform/development/values/envoy-gateway.json": "7fdf3debed2ea0c9805a370f55c5e11e291d7e7069e1e81d7f22bf54f062090a",
+    "platform/development/verification-tools.json": "7f71638540e759f6e6bc2d2e9e1e377d64d399058fc1a5d5523c557d952924e2",
+    "platform/development/versions.lock.json": "3590d1e4c6ebaf6bbac3d84acc9b010a029262c82491f5f4deb927df5b10b790",
+    "profiles/development.json": "746d1543cdbc57fd2bcd096ef816c118a18c61ec39c0df08f2fdfa3d2bff42ed",
+    "versions.lock.json": "398ca2ed777fd73eed9b6dc1df610f4ced537d818447fbcdf9057ff636f2e467"
+  },
+  "instantiationCommit": "9557cca9c95a1aafcc9b7d476a018fcc6d5967e4",
+  "attempts": [
+    {
+      "commit": "9557cca9c95a1aafcc9b7d476a018fcc6d5967e4",
+      "cluster": "atlas-refactor-test-dev01",
+      "startedAt": "2026-09-26T20:06:30.383909+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-09-26T20:07:22.388432+00:00"
+    },
+    {
+      "commit": "9557cca9c95a1aafcc9b7d476a018fcc6d5967e4",
+      "cluster": "atlas-refactor-test-dev01",
+      "attempt": 2,
+      "startedAt": "2026-09-26T20:11:39.553894+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-09-26T20:20:57.346178+00:00"
+    },
+    {
+      "implementationCommit": "83b997bc5a8b603f751c068851360532149edd80",
+      "instantiationCommit": "9557cca9c95a1aafcc9b7d476a018fcc6d5967e4",
+      "cluster": "atlas-refactor-test-dev01",
+      "attempt": 3,
+      "entryState": "HANDOFF_PENDING",
+      "startedAt": "2026-09-26T20:24:38.227518+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-09-26T20:27:02.935778+00:00"
+    }
+  ],
+  "repeatApply": {
+    "implementationCommit": "83b997bc5a8b603f751c068851360532149edd80",
+    "cluster": "atlas-refactor-test-dev01",
+    "startedAt": "2026-09-26T20:27:59.531513+00:00",
+    "exitCode": 0,
+    "finishedAt": "2026-09-26T20:28:02.414590+00:00"
+  },
+  "audit": {
+    "rootSuccessfulWrites": [
+      {
+        "verb": "create",
+        "timestamp": "2026-09-26T20:12:46.649347Z",
+        "user": "kubernetes-admin",
+        "userAgent": "kubectl/v1.36.3 (darwin/arm64) kubernetes/0f29094",
+        "code": 201
+      }
+    ],
+    "resume": {
+      "startedAt": "2026-09-26T20:24:38.227518+00:00",
+      "finishedAt": "2026-09-26T20:27:02.935778+00:00",
+      "exitCode": 0,
+      "bootstrapWriteRequests": [
+        {
+          "verb": "create",
+          "object": {
+            "resource": "configmaps",
+            "namespace": "kube-system",
+            "name": "atlas-refactor-receipt",
+            "apiVersion": "v1"
+          },
+          "code": 201
+        }
+      ],
+      "allWriteActors": {
+        "envoy-gateway/v0.0.0 (linux/arm64) kubernetes/$Format/leader-election": 72,
+        "cilium-operator-generic/v0.0.0 (linux/arm64) kubernetes/$Format/leader-election": 72,
+        "argocd-application-controller/v3.5.1 (linux/arm64)": 37,
+        "kube-controller-manager/v1.36.1 (linux/arm64) kubernetes/7569396/leader-election": 72,
+        "kube-scheduler/v1.36.1 (linux/arm64) kubernetes/7569396/leader-election": 72,
+        "kube-apiserver/v1.36.1 (linux/arm64) kubernetes/7569396": 14,
+        "kubelet/v1.36.1 (linux/arm64) kubernetes/7569396": 24,
+        "cainjector/v0.0.0 (linux/arm64) kubernetes/$Format/leader-election": 9,
+        "cert-manager-leader-election/v1.21.2 (linux/arm64) cert-manager/922a06aa49ee4bb802db268ef72a174af70edd32": 9,
+        "argocd-server/v0.0.0 (linux/arm64) kubernetes/$Format": 2,
+        "argocd-application-controller/v0.0.0 (linux/arm64) kubernetes/$Format": 51,
+        "kube-controller-manager/v1.36.1 (linux/arm64) kubernetes/7569396/system:serviceaccount:kube-system:generic-garbage-collector": 3,
+        "kube-controller-manager/v1.36.1 (linux/arm64) kubernetes/7569396/system:serviceaccount:kube-system:job-controller": 7,
+        "kube-scheduler/v1.36.1 (linux/arm64) kubernetes/7569396/scheduler": 2,
+        "cilium-agent/1.20.2 e0dc92bd 2026-09-15T15:51:54Z go version go1.26.8 linux/arm64": 2,
+        "argocd/v0.0.0 (linux/arm64) kubernetes/$Format": 1,
+        "kubectl/v1.36.3 (darwin/arm64) kubernetes/0f29094": 1
+      }
+    },
+    "repeat": {
+      "startedAt": "2026-09-26T20:27:59.531513+00:00",
+      "finishedAt": "2026-09-26T20:28:02.414590+00:00",
+      "exitCode": 0,
+      "bootstrapWriteRequests": [],
+      "allWriteActors": {
+        "envoy-gateway/v0.0.0 (linux/arm64) kubernetes/$Format/leader-election": 2,
+        "kubelet/v1.36.1 (linux/arm64) kubernetes/7569396": 1,
+        "cilium-operator-generic/v0.0.0 (linux/arm64) kubernetes/$Format/leader-election": 2,
+        "kube-controller-manager/v1.36.1 (linux/arm64) kubernetes/7569396/leader-election": 1,
+        "kube-scheduler/v1.36.1 (linux/arm64) kubernetes/7569396/leader-election": 1
+      }
+    }
+  },
+  "seedOwnership": {
+    "argocd-self": {
+      "persistentResources": 39,
+      "objects": [
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "13507e2e-43bd-45ed-b583-ba08d7bab8db",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "e1a01e6f-f11f-44ed-bc84-a3b4ea242684",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "6e14877d-61df-4fe1-8451-0f784efcfa5c",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "NetworkPolicy",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "6d527517-94fc-457f-941a-55a29d993ee2",
+          "trackingID": "argocd-self:networking.k8s.io/NetworkPolicy:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-application-controller",
+          "uid": "8f34faf5-be3c-496f-b098-2341360f94fd",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-applicationset-controller",
+          "uid": "0936a41c-f029-4b16-84dd-a5b5731d34c4",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "09126827-3260-491e-b745-fc3942b0b568",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "argocd",
+          "name": "argocd-server",
+          "uid": "5336ddae-c63f-4031-8e6d-c379ab4dbe24",
+          "trackingID": "argocd-self:/ServiceAccount:argocd/argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-cmd-params-cm",
+          "uid": "68dfdda3-3f02-4c6d-b5bb-6186e775162d",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-cmd-params-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-gpg-keys-cm",
+          "uid": "dbeb214e-2ea5-47fc-a7ba-6f303b654c9e",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-gpg-keys-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-rbac-cm",
+          "uid": "22f03d49-9e7f-460f-a8fa-18a90134f04e",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-rbac-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-ssh-known-hosts-cm",
+          "uid": "f7c5d02e-6144-46cb-90c4-4f984c11bc67",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-ssh-known-hosts-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-tls-certs-cm",
+          "uid": "19236af4-c93b-4553-b0e4-6fb3c0cd716d",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-tls-certs-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis-health-configmap",
+          "uid": "7583072d-c5bb-4509-8642-fbca90e80a7e",
+          "trackingID": "argocd-self:/ConfigMap:argocd/atlas-refactor-argocd-redis-health-configmap",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "applications.argoproj.io",
+          "uid": "0afdd562-671c-469a-86b4-9118329b453a",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "applicationsets.argoproj.io",
+          "uid": "87727211-c2da-455e-929c-fcbe75fc4faf",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "CustomResourceDefinition",
+          "namespace": "",
+          "name": "appprojects.argoproj.io",
+          "uid": "8e4647e5-b389-4f2b-a627-a8de0c48214b",
+          "trackingID": "",
+          "argoSSA": true,
+          "crdSpecSSA": true
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "7a09b259-341b-4449-99b7-ea12762ca39e",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "4eb035dc-cead-446a-b395-1fed41e113ce",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRole:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "15d100ea-2f63-4f39-8527-ca9e4f25aebe",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "87a1ab03-f45e-4136-a9c9-e56c56c9daa0",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/ClusterRoleBinding:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "77c9d4f2-ec2c-4dd9-b759-87ce04181106",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "58520293-8976-475c-9f06-fe47b3e21b1b",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "229435bb-68b5-4f5a-86bc-7fed7d8c3f5a",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "12b5a368-25cc-47d0-9315-d2dd71e35477",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/Role:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "b8f196b5-11fd-4f9c-8e08-d63561c40470",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "da3e4185-1697-4296-b0f4-676d8bd06545",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "6241acbc-4483-4bad-814f-2291b469674e",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "ff8dfedf-b8f5-4416-a802-dec8f3078250",
+          "trackingID": "argocd-self:rbac.authorization.k8s.io/RoleBinding:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "b4fd02cc-e4d1-445b-9051-9095d3d826ff",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "f8f084a1-af48-4dd8-84b8-5a3726ecb3fa",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "62f3eab5-f51b-4144-9c17-158149de5ccf",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Service",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "883dbb60-94f3-4037-b498-36b45601a1c0",
+          "trackingID": "argocd-self:/Service:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-applicationset-controller",
+          "uid": "3414c9da-00a0-4d9a-9f9b-e70aade9bde8",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-applicationset-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-repo-server",
+          "uid": "b4f32db2-0787-4076-9ba9-2c30d5aca7a7",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-repo-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-server",
+          "uid": "1b3149b0-7d65-41c5-945e-812f5e297652",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-server",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-redis",
+          "uid": "4abccdad-91f9-467e-9362-0f843f428cc0",
+          "trackingID": "argocd-self:apps/Deployment:argocd/atlas-refactor-argocd-redis",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "StatefulSet",
+          "namespace": "argocd",
+          "name": "atlas-refactor-argocd-application-controller",
+          "uid": "b5d72057-091b-47c6-a38a-068959845cdb",
+          "trackingID": "argocd-self:apps/StatefulSet:argocd/atlas-refactor-argocd-application-controller",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "argocd",
+          "name": "argocd-cm",
+          "uid": "fb41f811-f4db-462b-bb75-5e8937c71ad6",
+          "trackingID": "argocd-self:/ConfigMap:argocd/argocd-cm",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        }
+      ],
+      "actualRevision": "83b997bc5a8b603f751c068851360532149edd80",
+      "lastSuccessfulSync": "83b997bc5a8b603f751c068851360532149edd80",
+      "crdInventory": [
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applications.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "applicationsets.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "kind": "CustomResourceDefinition",
+          "name": "appprojects.argoproj.io",
+          "status": "Synced",
+          "version": "v1"
+        }
+      ],
+      "crdSyncResults": [
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io serverside-applied",
+          "name": "appprojects.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io serverside-applied",
+          "name": "applications.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        },
+        {
+          "group": "apiextensions.k8s.io",
+          "hookPhase": "Running",
+          "kind": "CustomResourceDefinition",
+          "message": "customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io serverside-applied",
+          "name": "applicationsets.argoproj.io",
+          "namespace": "argocd",
+          "status": "Synced",
+          "syncPhase": "Sync",
+          "version": "v1"
+        }
+      ]
+    },
+    "cilium": {
+      "persistentResources": 13,
+      "objects": [
+        {
+          "kind": "ServiceAccount",
+          "namespace": "kube-system",
+          "name": "cilium",
+          "uid": "f3974f5d-a31e-4462-a2a3-7c23d3a64ac4",
+          "trackingID": "cilium:/ServiceAccount:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ServiceAccount",
+          "namespace": "kube-system",
+          "name": "cilium-operator",
+          "uid": "b29c34a4-9980-4e82-bc82-5c494db11bb3",
+          "trackingID": "cilium:/ServiceAccount:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ConfigMap",
+          "namespace": "kube-system",
+          "name": "cilium-config",
+          "uid": "17fbbb64-6608-4e28-8155-6b55638af604",
+          "trackingID": "cilium:/ConfigMap:kube-system/cilium-config",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "cilium",
+          "uid": "b5526392-c0ba-4c06-bbcf-ccb7b66e2be3",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRole:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRole",
+          "namespace": "",
+          "name": "cilium-operator",
+          "uid": "c5874ebd-f4bd-44d9-856b-969c18b10565",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRole:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "cilium",
+          "uid": "a5e9a506-166e-40fb-91c8-4033332ce8c1",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRoleBinding:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "ClusterRoleBinding",
+          "namespace": "",
+          "name": "cilium-operator",
+          "uid": "ef1075e6-e0f3-4e4e-bc51-6883ab12955c",
+          "trackingID": "cilium:rbac.authorization.k8s.io/ClusterRoleBinding:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "kube-system",
+          "name": "cilium-config-agent",
+          "uid": "83e24538-0c46-47a9-b58a-960f71c36110",
+          "trackingID": "cilium:rbac.authorization.k8s.io/Role:kube-system/cilium-config-agent",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Role",
+          "namespace": "kube-system",
+          "name": "cilium-operator-ztunnel",
+          "uid": "e72fb525-9337-45bd-a8cb-460111583eb8",
+          "trackingID": "cilium:rbac.authorization.k8s.io/Role:kube-system/cilium-operator-ztunnel",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "kube-system",
+          "name": "cilium-config-agent",
+          "uid": "6ad2926f-75f2-457d-95b7-c002c7f94435",
+          "trackingID": "cilium:rbac.authorization.k8s.io/RoleBinding:kube-system/cilium-config-agent",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "RoleBinding",
+          "namespace": "kube-system",
+          "name": "cilium-operator-ztunnel",
+          "uid": "81c859a5-05b5-456c-81a9-aad6ecee5bd6",
+          "trackingID": "cilium:rbac.authorization.k8s.io/RoleBinding:kube-system/cilium-operator-ztunnel",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "DaemonSet",
+          "namespace": "kube-system",
+          "name": "cilium",
+          "uid": "dba98a46-233e-4aee-a2cb-3394cd12f2fc",
+          "trackingID": "cilium:apps/DaemonSet:kube-system/cilium",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        },
+        {
+          "kind": "Deployment",
+          "namespace": "kube-system",
+          "name": "cilium-operator",
+          "uid": "f3d02be0-fbe8-4c20-ba06-15192cef8b81",
+          "trackingID": "cilium:apps/Deployment:kube-system/cilium-operator",
+          "argoSSA": true,
+          "crdSpecSSA": null
+        }
+      ],
+      "actualRevision": "83b997bc5a8b603f751c068851360532149edd80",
+      "lastSuccessfulSync": "9557cca9c95a1aafcc9b7d476a018fcc6d5967e4",
+      "crdInventory": [],
+      "crdSyncResults": []
+    }
+  },
+  "toolchain": {
+    "go": "go version go1.27.1 darwin/arm64",
+    "helm": "v4.2.3+g43e8b7f",
+    "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+    "kubectl": "{\n  \"clientVersion\": {\n    \"major\": \"1\",\n    \"minor\": \"36\",\n    \"gitVersion\": \"v1.36.3\",\n    \"gitCommit\": \"0f29094e5b73085e3802ecc1298ecae13866bfe6\",\n    \"gitTreeState\": \"clean\",\n    \"buildDate\": \"2026-07-22T18:10:35Z\",\n    \"goVersion\": \"go1.26.5\",\n    \"compiler\": \"gc\",\n    \"platform\": \"darwin/arm64\"\n  },\n  \"kustomizeVersion\": \"v5.8.1\"\n}",
+    "yq": "yq (https://github.com/mikefarah/yq/) version v4.53.6",
+    "lua": "Lua 5.5.1  Copyright (C) 1994-2026 Lua.org, PUC-Rio",
+    "docker": "29.4.0 / 29.4.0",
+    "binaries": {
+      "atlas": "68c0cd95257942b14afafa7885080facf29fb2e9839e7230ccca8ce3dbefd9bd",
+      "atlas-resume": "7d230d795f5b0ada9ce4f81824b19da99bee31d34089ef783ce82ced66597887"
+    }
+  },
+  "web": {
+    "capturedAt": "2026-09-26T20:18:12.632041+00:00",
+    "results": [
+      {
+        "scheme": "http",
+        "port": 8080,
+        "exitCode": 0,
+        "httpStatus": "301",
+        "error": ""
+      },
+      {
+        "scheme": "https",
+        "port": 8443,
+        "exitCode": 0,
+        "httpStatus": "200",
+        "error": ""
+      }
+    ]
+  },
+  "statusCheck": {
+    "state": "ADOPTED",
+    "exitCode": 0
+  },
+  "publicCASHA256": "b33180cc72bd09d77559166694d25a2ae9713a2b6455599bbd6bea3d05783a87",
+  "envoyBootstrapDNS": "V4_ONLY",
+  "interventions": [
+    "Materialized missing Docker/containerd cert-manager blobs outside Bootstrap; verified original index and all arm64 blob digests, without changing image locks.",
+    "Argo hard-refresh of gateway-api cleared stale CRD health from initial establishment.",
+    "Gracefully interrupted HANDOFF_PENDING, committed explicit HTTPRoute defaults and immutable initial Bootstrap snapshot in 83b997b, then resumed observation/Receipt only.",
+    "Requested normal Argo argocd-self SSA sync using its configured branch; verified successful CRD sync at 83b997b."
+  ],
+  "notExercised": [
+    "Pod recreation/PVC rebind persistence",
+    "Unauthorized Pod/HTTPRoute negative probes",
+    "Certificate rotation",
+    "Recovery/Drill and production readiness",
+    "Unattended fresh bootstrap from final implementation"
+  ]
+}

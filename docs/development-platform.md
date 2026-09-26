@@ -1,6 +1,7 @@
 # Web/API 开发平台：实现与部署审查
 
-状态：**清单和 Cilium-first 启动集成已实现；真实部署结果另行记录；不是原 Atlas authority cutover。**
+状态：**独立开发集群已启动；经人工介入完成 GitOps 交接与本机 HTTPS 验证；不是原 Atlas authority cutover。**
+实际过程、限制和命令见[本机启动记录](development-runtime-20260927.md)。
 适用范围是新的、可丢弃的 OrbStack / 单节点 Kind / IPv4 开发集群。
 采用原 Atlas Architecture v1.0.2、GitOps v1.0.3、Network v1.0 的权责模型；
 参考源固定为原仓库 `aca4ff137a1d254cfeceaec24526e0699b585e92`。
@@ -163,6 +164,6 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality \
 `NotAllowedByListeners`。这不能作为已证明可用的 route attachment，也不能因此改真实清单为 `All`。
 本地 conformance 会检查 selector 与指定 namespace 标签一致；真实跨 namespace 绑定留给上述验收。
 
-当前未证明真实 Cilium 连通、TLS 自动签发/轮换、PVC provision/rebind、Argo 运行时接管、
-目标主机端口可达与完整故障恢复。后续再补 HA、观测栈、备份、Recovery/Drill、Admission 证据保护、
+本次真实验证已覆盖 Cilium 承载 Web 流量、TLS 初次签发、PVC provision、Argo 接管和本机端口。
+证书轮换、PVC rebind、负向网络探针与完整故障恢复仍未证明。后续再补 HA、观测栈、备份、Recovery/Drill、Admission 证据保护、
 发布签名/SBOM、跨执行器锁和生产供应链。公网域名/ACME、数据库、消息队列、对象存储也不在第一批范围。
