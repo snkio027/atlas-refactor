@@ -53,7 +53,7 @@ func Verify(path, image string) error {
 		if e != nil {
 			return e
 		}
-		if !strings.HasPrefix(h.Name, "blobs/sha256/") {
+		if h.Typeflag == tar.TypeDir || !strings.HasPrefix(h.Name, "blobs/sha256/") {
 			continue
 		}
 		name := strings.TrimPrefix(h.Name, "blobs/sha256/")

@@ -41,6 +41,7 @@ func archive(t *testing.T, damage string) (string, string) {
 	}
 	var out bytes.Buffer
 	tw := tar.NewWriter(&out)
+	_ = tw.WriteHeader(&tar.Header{Name: "blobs/sha256/", Typeflag: tar.TypeDir, Mode: 0755})
 	for h, b := range blobs {
 		_ = tw.WriteHeader(&tar.Header{Name: "blobs/sha256/" + h, Mode: 0600, Size: int64(len(b))})
 		_, _ = tw.Write(b)
