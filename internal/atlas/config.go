@@ -1,6 +1,7 @@
 package atlas
 
 import (
+	"atlas-refactor/internal/developmentprofile"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -162,6 +163,9 @@ func Load(root, configFile string) (Config, Lock, error) {
 }
 
 func (c Config) Validate() error {
+	if (c.Cluster == developmentprofile.OT1Cluster || c.Revision == developmentprofile.OT1Revision) && c.Schema != 3 {
+		return errors.New("OT-1 requires the isolated four-node profile")
+	}
 	if (c.Schema != 1 && c.Schema != 2 && c.Schema != 3) || !regexp.MustCompile(`^atlas-refactor-test(?:-[a-z0-9]{1,12})?$`).MatchString(c.Cluster) {
 		return errors.New("schema 1, 2 or 3 and an atlas-refactor-test[-suffix] cluster are required")
 	}
@@ -176,8 +180,8 @@ func (c Config) Validate() error {
 		return errors.New("orbstack and a 30..1800 second timeout are required")
 	}
 	if c.developmentProfile() {
-		if c.GitOpsPath != "gitops/root/overlays/development" || c.RepositoryURL != "https://github.com/snkio027/atlas-refactor.git" || c.Revision != "codex/development-platform" {
-			return errors.New("development schema requires the reviewed development source and root")
+		if e := developmentprofile.Validate(c.Schema, c.Cluster, c.RepositoryURL, c.Revision, c.GitOpsPath); e != nil {
+			return e
 		}
 	} else if c.GitOpsPath != "gitops/test" {
 		return errors.New("schema 1 requires gitops/test")

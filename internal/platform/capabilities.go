@@ -1,6 +1,7 @@
 package platform
 
 import (
+	"atlas-refactor/internal/developmentprofile"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -587,6 +588,19 @@ func (p *Project) CapabilityActivation(names []string) (map[string][]byte, error
 					spec["destinations"] = append(slice(spec["destinations"]), Object{"server": "https://kubernetes.default.svc", "namespace": ns})
 				}
 			}
+		}
+	}
+	// OT-1 freezes the full permission set before migration; canonical ordering
+	// makes the old and split catalogs project identical AppProject bytes.
+	if p.Config.Revision == developmentprofile.OT1Revision {
+		for _, field := range []string{"destinations", "namespaceResourceWhitelist", "clusterResourceWhitelist"} {
+			entries := slice(spec[field])
+			sort.Slice(entries, func(i, j int) bool {
+				a, _ := json.Marshal(entries[i])
+				b, _ := json.Marshal(entries[j])
+				return string(a) < string(b)
+			})
+			spec[field] = entries
 		}
 	}
 	encodeList := func(o []Object) []byte {

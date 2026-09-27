@@ -1,6 +1,7 @@
 package atlas
 
 import (
+	"atlas-refactor/internal/developmentprofile"
 	"atlas-refactor/internal/platform"
 	"context"
 	"encoding/json"
@@ -76,7 +77,7 @@ func (a *App) prepareDevelopment() error {
 			return e
 		}
 	}
-	if e = validateDevelopmentKind(files["platform/development/bootstrap/kind.json"]); e != nil {
+	if e = validateDevelopmentKindFor(a.Config.Revision, files["platform/development/bootstrap/kind.json"]); e != nil {
 		return e
 	}
 	for _, path := range []string{"gitops/root/overlays/development/resources.json", "gitops/platform/applications/overlays/development/resources.json", "gitops/workloads/applications/overlays/development/resources.json"} {
@@ -209,6 +210,9 @@ func (a *App) developmentIdentity(d map[string]string) {
 		d["schema"] = "atlas-refactor/identity/v3-development"
 		d["substrateProfile"] = "kind-cilium-ipv4-four-node/v1"
 	}
+	if a.Config.Revision == developmentprofile.OT1Revision {
+		d["substrateProfile"] = "kind-cilium-ipv4-four-node-ot1/v1"
+	}
 	d["platformSHA256"] = a.development.baselineFingerprint
 }
 func (a *App) initialWait() string {
@@ -226,6 +230,14 @@ func (a *App) artifactPath(path string) string {
 
 // Keep runtime substrate exposure within the reviewed four-node local profile.
 func validateDevelopmentKind(data []byte) error {
+	return validateDevelopmentKindFor(developmentprofile.DevelopmentRevision, data)
+}
+
+func validateDevelopmentKindFor(revision string, data []byte) error {
+	profile, err := developmentprofile.Lookup(revision)
+	if err != nil {
+		return err
+	}
 	const expected = `{"apiVersion":"kind.x-k8s.io/v1alpha4","kind":"Cluster","networking":{"ipFamily":"ipv4","apiServerAddress":"127.0.0.1","disableDefaultCNI":true,"kubeProxyMode":"iptables"},"nodes":[{"role":"control-plane"},{"role":"worker","labels":{"node-role.local/gateway":"true"},"extraPortMappings":[{"containerPort":30080,"hostPort":8080,"listenAddress":"127.0.0.1","protocol":"TCP"},{"containerPort":30443,"hostPort":8443,"listenAddress":"127.0.0.1","protocol":"TCP"}]},{"role":"worker","labels":{"node-role.local/compute":"true"}},{"role":"worker","labels":{"node-role.local/data":"true","topology.kubernetes.io/zone":"data-zone-1"},"kubeadmConfigPatches":["apiVersion: kubeadm.k8s.io/v1beta4\nkind: JoinConfiguration\nnodeRegistration:\n  taints:\n    - key: node-role.local/data\n      value: \"true\"\n      effect: NoSchedule\n"]}]}`
 	var got, want Object
 	if err := strictJSON(data, &got); err != nil {
@@ -234,6 +246,9 @@ func validateDevelopmentKind(data []byte) error {
 	if err := strictJSON([]byte(expected), &want); err != nil {
 		return err
 	}
+	mappings := want["nodes"].([]any)[1].(map[string]any)["extraPortMappings"].([]any)
+	mappings[0].(map[string]any)["hostPort"] = float64(profile.HTTPPort)
+	mappings[1].(map[string]any)["hostPort"] = float64(profile.HTTPSPort)
 	if !reflect.DeepEqual(got, want) {
 		return errors.New("development Kind configuration exceeds the reviewed local profile")
 	}
@@ -246,6 +261,7 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 	var baseline struct {
 		Schema       int               `json:"schema"`
 		Commit       string            `json:"commit"`
+		Projection   string            `json:"projection,omitempty"`
 		BundleHashes map[string]string `json:"bundleHashes"`
 	}
 	if err := strictJSON(files["platform/development/bootstrap/baseline.json"], &baseline); err != nil {
@@ -273,7 +289,11 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 	}
 	if schema == 3 {
 		snapshot := files["platform/development/bootstrap/baseline-v3.json"]
-		expected := "6971d4560e39e6148f6155f7f4263181e9b8df62c1c8706ba6a9f00761ae7ab9"
+		profile, err := developmentprofile.Lookup(a.Config.Revision)
+		if err != nil {
+			return "", err
+		}
+		expected := profile.SnapshotSHA256
 		if a.fixtureSnapshotDigest != "" {
 			expected = a.fixtureSnapshotDigest
 		}
@@ -282,6 +302,9 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 		}
 		if err := strictJSON(snapshot, &baseline); err != nil {
 			return "", err
+		}
+		if a.Config.Revision == developmentprofile.OT1Revision && (baseline.Commit != developmentprofile.OT1SourceCommit || baseline.Projection != developmentprofile.OT1Projection) {
+			return "", errors.New("OT-1 instantiation provenance changed")
 		}
 		contract := map[string][]byte{}
 		for _, path := range bound {

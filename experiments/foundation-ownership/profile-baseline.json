@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "commit": "65af8497c02d22a60eb8bcaecf2434790edda2df",
+  "projection": "ot1-isolated-instantiation/v1",
+  "bundleHashes": {
+    "platform/development/config.json": "f6fdb01da69ac3a617a1d70b05bdd2b7e0eb59933d1c7261758d07a731287ab2",
+    "platform/development/versions.lock.json": "3590d1e4c6ebaf6bbac3d84acc9b010a029262c82491f5f4deb927df5b10b790",
+    "platform/development/health/ready.lua": "af5e05e31791a1f5083b3b9e791dada87f7b198539edfabda9cd35028886c1d4",
+    "platform/development/values/cilium.json": "a45facce11af10232ba7ac420bf6698843a7b54946e284f5b3c43729c09ac562",
+    "platform/development/bootstrap/kind.json": "14d6fb78aa65be60021b2d510ce783c8c54caf4cc9140b5cece78c970bd2655d",
+    "platform/development/bootstrap/project.json": "47cb4ca0175ab324d96e958b839ffe91d0592575742899fe9fd849bb2a0d1aed",
+    "platform/development/bootstrap/root.json": "e4b51221623bf49fd25196059f9b5f1009c4611b02623946f49d5be326633d87",
+    "platform/development/bootstrap/argocd-self-seed.yaml": "4367cde564278398b4210e2826613fb94245286959dd79a90acb18a62d18deb8",
+    "platform/development/bootstrap/cilium-seed.yaml": "bb9346ccabea9c365f0be6fc4a3283844167d0df70e5423157e5a6482d10f0ca",
+    "gitops/root/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/root/overlays/development/resources.json": "8f2e8a0b386b02989c1fb55797ae3bb4bcf4a8540282d9e22f3c5b1f892eaa36",
+    "gitops/platform/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/applications/overlays/development/resources.json": "25ade480d0c21cc2bac30932aaa8b1e4f92533f422f8f9a8ffe6d69a2d534986",
+    "gitops/workloads/applications/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/workloads/applications/overlays/development/resources.json": "680157ace3ce19bbcb629a2b592ee36eb227587800c60b6b03b6d28156e1289f",
+    "gitops/platform/management/projects/overlays/development/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/management/projects/overlays/development/resources.json": "37aa70e909765f7a83962be476f838cae0b20b9cc7fa24acbb5e4c7f5f5a3216",
+    "gitops/platform/management/argocd-self/overlays/development/kustomization.yaml": "22850a28cad62bde1b8cd0cd23b1f33faadc843726c500e090bf1f8b9d31ce4b",
+    "gitops/platform/networking/cilium/overlays/development/kustomization.yaml": "131328529e76b77fd52d7b457396d41ef078b5a8e790996104a83a006574ef9b"
+  }
+}
