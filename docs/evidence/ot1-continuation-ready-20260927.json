@@ -1,0 +1,210 @@
+{
+  "schema": "atlas.ot1-continuation-ready/v1",
+  "implementation": {
+    "revision": "4ec600554b09e696f752435924de9df2cb69257e",
+    "dirty": false,
+    "binariesSHA256": {
+      "atlas": "d88516f819208fd4c44a97cb2862dce7144c982b169ec98845734e62b4acc2df",
+      "atlas-dev": "6b72f90a3d29dbd3f494d5261f37e81afc55bf29ead5ff0f7d34559d5cb4d5c3",
+      "atlas-artifacts": "ed6aff80acf0637e3690d4ec15525a01f9911e66bc8bf128ef35b19ffb5c26f9",
+      "atlas-platform": "506ff6dc3fcf841da0940289408b650e1ef3eacbcb31e2c87f2ddbd0be7094ce",
+      "atlas-ot1": "3d34ec736f2f8d33464057e81d94d678d8f6656500c53be44426d3a561c0963f"
+    }
+  },
+  "localVerification": {
+    "quality": {
+      "command": [
+        "task",
+        "quality",
+        "PLATFORM_HELM=/Users/nekoreb/Workspace/03_Projects/atlas-refactor/.state/tools/helm",
+        "PLATFORM_KUBECTL=/Users/nekoreb/Workspace/03_Projects/atlas-refactor/.state/tools/kubectl",
+        "PLATFORM_YQ=/Users/nekoreb/Workspace/03_Projects/atlas-refactor/.state/tools/yq",
+        "PLATFORM_LUA=/opt/homebrew/bin/lua",
+        "KUBESEAL=/Users/nekoreb/Workspace/03_Projects/atlas-refactor/.state/tools/kubeseal"
+      ],
+      "startedAt": "2026-09-27T12:13:23.150392+00:00",
+      "finishedAt": "2026-09-27T12:15:20.827114+00:00",
+      "exitCode": 0
+    },
+    "goVersion": "go1.27.1",
+    "cleanFiveCLIBuild": true,
+    "targetedPositiveNegativeTests": "PASS"
+  },
+  "plan": {
+    "sha256": "c26950f5c7d6920fb1f6571db504e2bcfbe32bbdf98557480307578ecdf76452",
+    "target": {
+      "cluster": "atlas-refactor-test-ot1",
+      "context": "kind-atlas-refactor-test-ot1",
+      "clusterUID": "30a366bd-41f9-48b0-9330-70dffaf62662",
+      "kubeconfigSHA256": "0a10ec362b40f3f2b0d7e09d7bf17951955cf1fe4776040e69bfca3160b9aa0a"
+    },
+    "lockedTools": {
+      "go": "1.27.1",
+      "helm": "4.2.3",
+      "kind": "0.32.0",
+      "kubectl": "1.36.3",
+      "kubernetes": "1.36.1"
+    },
+    "baselineRevision": "541705df77a500d784f808fe036794b5e2d551d8",
+    "revisions": {
+      "baseline": "541705df77a500d784f808fe036794b5e2d551d8",
+      "detached-forward": "3bb0790ae33ab870cde4c189b6c8ea1af1c1a62e",
+      "detached-mixed": "f49e902217d64eb1985c51eb82743ddfafd544c3",
+      "detached-reverse": "e2b84334824e4564f720b30eb963d09c12289755",
+      "forward-restored": "ca6071b67306c42d53752c8f2fcccf2b406182e6",
+      "mixed-restored": "0bd13e5e1e26750d5689081c6faeaea3610ad5e4",
+      "reverse-restored": "4185933885b150aa9175e1dccd2ef1e9cb8b9066"
+    },
+    "renderFilesByRevisionSHA256": {
+      "baseline": "f4bc8e037c33ab66a08297dcbc32768d77ea34821851c1bd514f9247d048f6d2",
+      "detached-forward": "175372e22373f794120c02be38363acbad588a8d5f07a9031d3e690a95926711",
+      "detached-mixed": "175372e22373f794120c02be38363acbad588a8d5f07a9031d3e690a95926711",
+      "detached-reverse": "42624ff2c32034033c62a855aeceaa3cedd48c7dd05d96d040f58436f4d1e874",
+      "forward-restored": "4ab8f56c655493345d90e1e63453cc5bb9807681d5ff28969aab6b77085cf57e",
+      "mixed-restored": "f4bc8e037c33ab66a08297dcbc32768d77ea34821851c1bd514f9247d048f6d2",
+      "reverse-restored": "f4bc8e037c33ab66a08297dcbc32768d77ea34821851c1bd514f9247d048f6d2"
+    },
+    "renderHashEncoding": "SHA256 of sorted compact JSON filesSHA256 map",
+    "phaseCount": 29,
+    "objectCount": 13,
+    "maxStageSeconds": 300,
+    "globalBudgetSeconds": 9600,
+    "runtime": "NOT_RUN",
+    "nextAttempt": ".state/ot1-continuation-20260927-f45/transfer-attempt-02"
+  },
+  "preflight": {
+    "captureExit": 0,
+    "classification": "VERIFIED",
+    "snapshotSHA256": "bdfe5475c60da9f612ff392e9905161ac48bb2c96a12c654afe1890b3a7a774e",
+    "inventoryError": null,
+    "nodes": 4,
+    "applications": 24,
+    "projects": 4,
+    "assessment": {
+      "stage": "BASELINE_ADOPTED",
+      "ownership": "VERIFIED",
+      "atlas": "NOT_PROVEN",
+      "reasons": []
+    },
+    "gateProofSupplied": false,
+    "normalBootstrap": {
+      "state": "ADOPTED",
+      "detail": "GitOps owns reconciliation"
+    },
+    "normalBootstrapExit": 0,
+    "scopeObjects": [
+      {
+        "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-monitoring/monitoring-ingress",
+        "uid": "6c8fc77c-1020-450c-945c-064697a774c7",
+        "tracking": "capability-foundation:networking.k8s.io/NetworkPolicy:atlas-monitoring/monitoring-ingress",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-storage/s3-clients",
+        "uid": "b5bb2704-f1ba-4bf8-a771-2e2975d74d7f",
+        "tracking": "capability-foundation:networking.k8s.io/NetworkPolicy:atlas-storage/s3-clients",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-storage/s3-default-deny",
+        "uid": "87172ffe-ab61-4b26-a1c3-6eeba8db3cf8",
+        "tracking": "capability-foundation:networking.k8s.io/NetworkPolicy:atlas-storage/s3-default-deny",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "networking.k8s.io/v1/NetworkPolicy/workload-web/s3-client-egress",
+        "uid": "5c62bb9c-0e26-4411-8d2f-7f296173bda6",
+        "tracking": "capability-foundation:networking.k8s.io/NetworkPolicy:workload-web/s3-client-egress",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/LimitRange/atlas-monitoring/defaults",
+        "uid": "5478517b-1180-4ce0-8f8c-a3c42c8a7632",
+        "tracking": "capability-foundation:/LimitRange:atlas-monitoring/defaults",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/LimitRange/atlas-secrets/defaults",
+        "uid": "c32470a3-95b0-4b5f-a234-09d4dfe25df0",
+        "tracking": "capability-foundation:/LimitRange:atlas-secrets/defaults",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/LimitRange/atlas-storage/defaults",
+        "uid": "561a0710-3bf7-42bd-98ec-f80f82dc047e",
+        "tracking": "capability-foundation:/LimitRange:atlas-storage/defaults",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/Namespace//atlas-monitoring",
+        "uid": "fbcc6000-98b0-4083-909b-11eaaeca8eff",
+        "tracking": "capability-foundation:/Namespace:argocd/atlas-monitoring",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/Namespace//atlas-secrets",
+        "uid": "ad9e28f2-d366-4b5c-83ba-bbdd266d975c",
+        "tracking": "capability-foundation:/Namespace:argocd/atlas-secrets",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/Namespace//atlas-storage",
+        "uid": "cd107dad-3636-495f-8576-b37beac45bec",
+        "tracking": "capability-foundation:/Namespace:argocd/atlas-storage",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/ResourceQuota/atlas-monitoring/platform-budget",
+        "uid": "0eab1500-2a88-43ac-8689-fbe285731055",
+        "tracking": "capability-foundation:/ResourceQuota:atlas-monitoring/platform-budget",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/ResourceQuota/atlas-secrets/platform-budget",
+        "uid": "63ef2b6f-ceb1-428f-914b-b45fca826e2f",
+        "tracking": "capability-foundation:/ResourceQuota:atlas-secrets/platform-budget",
+        "semanticUnchangedFromPriorPreflight": true
+      },
+      {
+        "identity": "v1/ResourceQuota/atlas-storage/platform-budget",
+        "uid": "6b4344da-7c2e-4c6d-92f1-5b330daddf78",
+        "tracking": "capability-foundation:/ResourceQuota:atlas-storage/platform-budget",
+        "semanticUnchangedFromPriorPreflight": true
+      }
+    ],
+    "bootstrapIdentitiesAndContentsStableFromF123": true
+  },
+  "historyPreserved": {
+    "originalSTOPPlanAndLock": true,
+    "F123PlanAndPreflight": true,
+    "oldAndF123Binaries": true,
+    "oldLockSHA256": "04f6127033fc1aff72a685b497408d23b33824e1cc86b979ff4e631f2f5d9b4e",
+    "oldAttemptKubectlMutationCount": 0,
+    "defaultKubeconfigUnchanged": true
+  },
+  "clusterMutationRequests": 0,
+  "ceremonyAttemptCreated": false,
+  "liveApproval": "PENDING",
+  "privateEvidenceDirectory": ".state/ot1-continuation-20260927-f45",
+  "privateEvidenceSHA256": {
+    "assess-baseline.go": "3fb2e92c9fa6bd40b62226c12b871bf1798f49f0d87c98ba4003fefe82a83ff2",
+    "build-result.json": "fbbdaaf11cc701625e73a1edda1d2b1c193ec4a41ba1aee8ab02ce138a64635a",
+    "build.log": "9f5fbf905601df0f34004fd9e30802c9a1cf19f3982e785d398d527723a88f6d",
+    "history-preservation.json": "271fae31d15d22cc566f90828982b939249bd2c7c389b7e5ea8102bd683ede48",
+    "normal-status-result.json": "d1088762c36c50e662f71cd5572fdf8eef8765f58e4ced42c6462ac5a41943e5",
+    "normal-status.json": "3b04bfa2b4c0b6fdecfb776cde36ac484a7991985a5b7d891d1d11ea974f5726",
+    "normal-status.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plan-build-result.json": "74fddbe18f24d9a2525f2ba540b508977a981e143774391591e524e2552149ac",
+    "plan-build.log": "22a6e77840013065c9295208eb29ca0d9b977da368e2f36b4a1aaf05deaa7c99",
+    "plan-inspection.json": "002dcca8f2cc884b2f421cead2e412ad08cf73d0bb195c2c5e4e38a5116c3dbd",
+    "preflight-assessment.json": "5cc78da5d9f5950fd822111a8372b1dfbd99c88aec4704192d2e4f9739b54403",
+    "preflight-baseline-snapshot.json": "bdfe5475c60da9f612ff392e9905161ac48bb2c96a12c654afe1890b3a7a774e",
+    "preflight-capture-result.json": "d30a73e80f77e0f9f7044f5ed01278d3b97de7c904fe738617463528333fe791",
+    "preflight-capture.log": "a10532bc762a313c73bededcfb4b9780beb5f6758ff8379b39e41681fe63ae73",
+    "quality-result.json": "b0d2a8b170f7eab479d16c0ba2893f845a72fbf96598313060efbe95ebba1887",
+    "quality.log": "58dbf61564c296e32f1db69edf22b7c13ed26c9b1d184923f9805fdc29a58ab0",
+    "target-binding.json": "5096ab4b36dd9c3d3883264922e63c041ae32032e9019a1d873ee78be00ea829",
+    "target-recheck.json": "65b878a2ce9b527996cd2ab591422d5181f7da9b0be2c5ec379b76027201ab47",
+    "transfer-plan.json": "c26950f5c7d6920fb1f6571db504e2bcfbe32bbdf98557480307578ecdf76452"
+  }
+}

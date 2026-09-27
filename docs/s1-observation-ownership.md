@@ -160,3 +160,5 @@ platform-project / workload-project，加这个 upstream 内建项目。校验�
 clean build。前一份记录保持历史字节；新记录仍明确 `runtime=NOT_RUN`。
 
 F1/F2/F3 follow-up: [same-cluster preflight report](ot1-f123-preflight-20260927.md). Local quality and clean builds pass; the new plan remains NOT_RUN because hook status and empty-selector representation block the baseline. The original STOP and run lock remain intact.
+
+Subsequent owner-approved hook/selector fixes and the new read-only baseline now pass. See [continuation plan and verification](ot1-continuation-ready-20260927.md). The 29-stage ceremony remains NOT_RUN, pending approval of the new plan and explicit old-lock disposition.
