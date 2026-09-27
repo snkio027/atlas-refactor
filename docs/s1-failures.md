@@ -3,7 +3,8 @@
 失败知识保留在回归测试和本表中。这里的“零 mutation”指失败的 transfer/preflight
 未执行 ceremony 写请求、未发布后续 Git 阶段；不否认先前真实 Bootstrap 和平台创建。
 真实创建、凭据/Trust Root 的证据仍见 [首次现场记录](ot1-clean-rebuild-20260927.md)。
-S1 最终 runtime 闭环已通过，功能开发冻结；最新结果见 [最终验证](s1-final-validation.md)。
+S1 的跨 attempt runtime 闭环已通过，功能开发冻结；历史结果见 [最终验证](s1-final-validation.md)。
+随后干净集群单次复验在 index 12 STOP（12/29）；当前结果见 [干净复验](s1-clean-revalidation-20260928.md)。
 本页保留失败发生时的事实与修复知识，历史 STOP 不因后续成功而改写。ADR-0009～0012 保持 Proposed。
 
 | ID | 症状与原因 | 外部影响 | 修复 | 回归 |
@@ -22,6 +23,7 @@ S1 最终 runtime 闭环已通过，功能开发冻结；最新结果见 [最终
 | F12 | Operation completion preceded its post-sync comparison; readiness conflated two controller loops | Current STOP has tracking 3/4/6 and only observability window open; 10 App requests, 10 Argo scope writes, zero Git publication | Separate operation proof from comparison; require reconciledAt >= finishedAt on both checkpoint reads, wait only for known progress; strict refusal unchanged | `TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint`, `TestPostOperationComparisonFreshness`; one-off recovery starts with strict closure at index 7 |
 | F13 | Full Atlas Gate used repository revision equality as leaf desired-state identity: five healthy unchanged Apps still reported b0768e7 after 220a113 | Only platform-control child projection changed; source closures for the five Apps were byte-identical. All 13 resources retained UID/content/SSA under the restored source; no window; STOP at 12 before full capture/Gate-B | ADR-0011: F13/F14 now use the continuously unchanged source/spec class in published plan history; critical owners remain exact. Schema-3 post-Receipt ADOPTED verifies durable authority/Seed ownership independently of rollout/runtime; initial adoption remains strict. No timeout/refresh/recovery change | `TestFullGateDesiredIdentity`, `TestInitialBaselineRejectsEarlierRevision`, `TestDurableHandoffDoesNotQueryBranchHeadOrLeafRollout`, `TestSchema3AuthorityDamageStillFailsClosed`, `TestFirstDevelopmentHandoffStillNeedsExactLeafRevision` |
 | F14 | A prior-revision leaf accepted at stage 22 becomes two revisions old immediately after stage 23 publication; `applicationProgress` rejects it instead of waiting for a known predecessor observation to converge | Original stages 13..22 passed; 19 guarded Application writes and two Git publications; STOP at 23 before forward Gate-B, no reverse | S1 Finalization / ADR-0011: `desiredEquivalent` scans only the published plan prefix and stops at the first source/spec change; no timeout, F12 or mutation-fence change | `TestDesiredIdentityStopsAtContentBoundary`, `TestDesiredIdentitySurvivesNextPublication`, `TestFullGateDesiredIdentity`; retained real F14 snapshots also pass local replay with critical owners still progressing |
+| F15 | Fresh normal run misses the bounded reattachment gate: platform-control remains on the previous revision, and capability-foundation also retains the manual strict spec | New UID 478c4e71; 0..11 passed, 21 guarded App writes and two Git publications; index 12 STOP before complete capture/Gate-B. Later native reconciliation restores current revision/spec, with 13 resources intact and zero windows | No implementation change or retry; preserve exact-current/full-spec and immutable STOP. Clean single-run completion remains unproven | Retained snapshot replay: historical readiness=false with exactly two critical blockers; post-STOP ownership VERIFIED but Atlas NOT_PROVEN. Existing critical-owner rules unchanged |
 
 F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime 使用含 F9 修正的实现，但没有新增 Namespace 写入案例。F10/F11 的回归记录本轮新发现，未改变原执行器预算或 STOP 规则。
 
@@ -52,7 +54,7 @@ F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime �
 - 当时的混合状态不能通过清锁后从 baseline 重放来恢复。后续用户选择删除旧集群并重新
   创建独立新 UID；原失败与完整证据不因重建而改变。
 
-## 当前现场：新集群重建通过，SOURCE_RELEASED 超时
+## 历史现场：新集群重建通过，SOURCE_RELEASED 超时
 
 用户再次授权清理旧集群并用新集群验证。旧 UID `30a366bd-41f9-48b0-9330-70dffaf62662`
 对应的四个 Kind 节点已删除；旧 authority bundle 校验后迁至

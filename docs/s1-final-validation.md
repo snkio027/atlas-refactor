@@ -5,6 +5,9 @@
 最终 reverse 串联；历史 STOP 全部保持原样，最终新 attempt 只含原 indices 24..28。
 PR #6 进入收口审核；ADR disposition、远端 CI 和发布准备仍是独立 Gate。
 
+后续另一次 [干净集群单次复验](s1-clean-revalidation-20260928.md) 已完成 Bootstrap/平台验收，
+但 index 12 超时 STOP（12/29）。本页记录的历史闭环不改写，也不代表该新运行通过。
+
 ## 精确绑定
 
 | 项目 | 值 |
