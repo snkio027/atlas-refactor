@@ -1,6 +1,8 @@
 {
   "schema": 1,
   "capabilities": [
-    "secrets-controller"
+    "monitoring",
+    "object-storage",
+    "storage-monitoring"
   ]
 }
