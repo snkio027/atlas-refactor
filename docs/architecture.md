@@ -96,7 +96,7 @@ API 监听 loopback。Metadata-only 审计只记录写请求，不记录正文�
 `gitops/{root,platform,workloads}/` 的 development overlays 实现网络、TLS、本地存储与 Web 示例。
 它们没有替换 `gitops/test`。schema 2 在同一正常 Bootstrap engine 中把初始 Cilium Seed
 纳入既有 durable latch 边界；交接后没有新的持续 mutation authority。
-`cmd/atlas-platform` 只渲染和校验本地文件；它不是第二个 Bootstrap engine。
+`cmd/atlas-platform` 编译/校验本地文件，并提供按需只读 observation；它不是第二个 Bootstrap engine。
 完整控制图、当前验证边界和 Cilium-first 启动前置工作见
 [开发平台与部署审查](development-platform.md)。
 
@@ -119,4 +119,29 @@ Git SHA，但仍检查当前 Sync/Health、资源清单与 SSA ownership，首�
 [Proposed ADR-0007](adr/0007-platform-contract-hardening.md) 实现单调启用、统一 GVK scope、
 permissionDomain 元数据和 foundation 分域；现有 dev02 的资源 owner 迁移尚未批准或执行。
 长期 [Typed Platform Contract 方向](typed-platform-contracts.md) 保留有限 Bootstrap 与 GitOps
-分工，按 A5 / Project / Workload / Binding 分阶段设计，不增加常驻调谐执行器。
+分工，按 S1 Observation/Ownership、S2 Project/Workload/Binding、S3 经需求筛选的 runtime/CI
+推进，不增加常驻调谐执行器。
+
+## 语义层与控制角色
+
+Substrate / Platform Control / Capability / Project / Workload / Runtime Objects
+描述平台语义；Compiler / Bootstrap / Reconciler / Observer / Ceremony 描述控制角色。
+这两个维度独立：同一个资源可以被编译、观察、由 Argo 调谐，但不会因此给 Observer 写权限。
+
+| 角色 | 当前入口 | Authority |
+| --- | --- | --- |
+| Compiler | atlas-platform plan/select/render/check | 本地 Git desired state |
+| Bootstrap | atlas doctor/render/apply/status，atlas-dev | 有限实例化；durable latch 后不恢复 Seed 权限 |
+| Reconciler | Argo / Kubernetes / Operator | 各自被定义的持续调谐 |
+| Observer | atlas-platform observe/verify，internal/observation | GET 与私有 evidence；不修复、不 refresh、不更新 desired state |
+| Ceremony | atlas-ot1 | 精确计划、精确目标下的有限 Application 生命周期与模式操作 |
+
+Git owns definition；正常 Bootstrap authority 单调减少；UNKNOWN fail closed；
+Observation 不授权 mutation；Enable、Retire、Migrate、Recover 是不同协议；资源 identity
+与 reconciliation ownership 分开验证。复杂度由真实 workload 需求支付，优先 Git-time
+编译，不为未来需求预造完整 DSL、CRD 或 Atlas Operator。
+
+S1 使用同一 Observation/Evidence 库服务通用观察与精确 OT-1 演练。它扩大一个 PR 的
+架构问题覆盖范围，同时保留窄 mutation unit：一次计划批准内正常阶段续行，未知、漂移、
+超时或意外失败即停止；没有自动修复或失败后自动 rollback。实施、现场 Gate 与历史证据
+分别记录，见 [ADR-0009](adr/0009-foundation-ownership-rehearsal.md)。

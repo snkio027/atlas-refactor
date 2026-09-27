@@ -1,10 +1,10 @@
-# ADR-0009：Foundation Ownership Split Rehearsal（OT-1）
+# ADR-0009：S1 Observation / Evidence 与 Foundation Ownership Rehearsal
 
 - Status: Proposed
 - Date: 2026-09-27
 - Parent: [ADR-0007](0007-platform-contract-hardening.md)、[ADR-0008](0008-ownership-transfer-probe.md)
 - Scope: 仅 atlas-refactor-test-ot1；13-object、1→3→1 实验，不批准 dev02 迁移
-- Execution status: NOT_READY；当前交付范围契约和离线校验，尚无 OT-1 runtime proof
+- Implementation: S1 本地实现与验证；runtime NOT_RUN，完整现场计划尚未授权
 
 ## 决策目标与权责
 
@@ -47,32 +47,51 @@ registry 和默认 kubeconfig。不导入任何旧 identity、Receipt、密钥�
 Git、日志或报告。未来发布的新三份密文必须在具体部署计划中列出 namespace/name/hash。
 当前没有生成新密钥、读取旧密钥或生成/发布 OT-1 密文。
 
-## 必须先解决的首次实例化前提
+## S1 范围与首次实例化
 
-当前 Go 实现不能直接建立该等价环境：
+用户已将此前“仅审查契约、暂不改普通 engine”的范围更新为完整 S1：共享 Go
+Observation/Evidence、OT-1 状态机与执行准备、受限实例化 profile 一并实现并本地验证，
+在现有 PR #6 中统一审核。真实集群操作仍须完整计划与独立批准；此次没有运行 OT-1。
 
-1. `internal/atlas/config.go` 与 `internal/platform/render.go` 限定 development source
-   为 dev02 的 codex/development-platform。修改这个共享分支会影响 dev02。
-2. `validateDevelopmentKind` 精确固定 8080/8443；这些入口已由 dev02 占用。
-   `atlas-dev verify` 也固定相同端口及重定向地址。
-3. schema 3 的 baseline-v3.json 被编译期 digest 固定。不能改写该历史快照、注入
-   fixtureSnapshotDigest、复制旧 identity 或跳过验证来让 OT-1 启动。
-4. 当前 catalog 已是拆分布局；AH-1 正常路径不允许隐式移除旧 foundation。
-   直接运行当前 atlas-dev up 不会产生要求的 pre-PR#4 baseline。
+同一个 Go engine 现在认识两个固定 development 绑定。新绑定仅允许 schema 3、
+atlas-refactor-test-ot1、codex/ot1-desired-state、18080/18443；错误组合在外部写入前拒绝。
+新 profile 使用独立 substrate identity 和编译期 snapshot digest。正常 development
+分支、8080/8443 和 baseline-v3.json 的历史字节没有变更。没有通用 hash override、
+force、第二个 Bootstrap engine 或 implicit migration。
 
-建议作为独立前置变更审查：在**同一个 Go engine** 中加入仅绑定
-atlas-refactor-test-ot1 / codex/ot1-desired-state / 127.0.0.1:18080,18443 的实验实例化
-profile；为这个新目标创建有来源 commit、独立 digest 的首次实例化快照。现有 dev02
-配置、快照与默认行为逐字节保持。不是通用 profile framework，不增加 force、可由
-命令行覆盖的 baseline hash、迁移命令或第二个 Bootstrap engine。
+`atlas-ot1 prepare-profile` 从固定来源 65af8497c02d22a60eb8bcaecf2434790edda2df 建立
+新的私有本地 clone，仅投影实验 source/port，导入固定旧 catalog/foundation；旧密文被清空。
+[profile-baseline.json](../../experiments/foundation-ownership/profile-baseline.json) 记录这次
+首次实例化的来源、投影标识和 19 个冻结输入摘要。真实 Helm/Kustomize 与普通 engine
+验证这个新快照；正常 dev02 快照不由新输入重新计算。
 
-该前置变更须证明错误 cluster/source/port/snapshot 组合全部在外部写入前拒绝，
-真实 Helm/Kustomize 与普通 Bootstrap 回归通过。它尚未实现或批准用于运行。
-本 ADR 不通过声明新 profile 来掩盖当前无法运行的事实。
+完整能力启用、独立密钥备份和三份新密文仍是现场准备。`plan` 只接受已提交的完整旧布局，
+输出 7 个本地 Git revision 和 29 个阶段；后续只有 catalog 与父级 Application 投影可变化，
+AppProject 权限、实际 13 个资源、controller payload、Root、Seed、凭据等保持字节相同。
+本地测试中的不可解密密文只是语法 fixture，绝不作为现场凭据或 runtime evidence。
 
-用户在审查该前置方案后明确决定：**本轮先审查实验契约，暂不改普通 engine**。
-因此本轮到此保持 experiment-only；专用 profile、阶段 executor 和真实集群执行留待
-后续独立任务。此决定没有批准新建 OT-1 或改动现有冻结快照。
+## 共享 Observation 与有限执行器
+
+`internal/observation` 与 `atlas-platform observe|verify` 只读取事实。复用锁版本的 GVK
+scope，记录精确 revision、UID/RV、generation/observedGeneration、完整 spec 摘要、
+Sync/Health、operation、conditions 和 blocking resources。没有数据的字段保持缺失；
+UNKNOWN 不能当作不存在。API 客户端只有 GET，拒绝默认 kubeconfig、exec 插件、非
+loopback API、重定向和 Secret/SealedSecret 读取。私有快照 0600、目录 0700、create-only。
+
+OT-1 复用该观察器；预期 strict 拒绝仅由阶段校验器解释，不把通用 Observation 的
+DRIFTED/DEGRADED 改为健康。`atlas-ot1 run` 独立于普通 Bootstrap/select/render；它要求
+同一 clean Go binary、完整 plan SHA、精确 cluster UID/kubeconfig hash 与独立 runtime
+checkout。每个请求先持久记录 intent，随后只提交一次；正常阶段自动续行。
+
+执行器只向固定实验 Git 分支作 fast-forward 发布，并操作四个精确 foundation
+Application 的 create、带 UID/RV/full-spec tests 的 syncOptions/operation patch、
+带 UID/RV preconditions 和 Orphan propagation 的 DELETE。每步重新核对 Git、目标和
+受测资源；不会直接写 13 个对象、放宽 AppProject、手改 tracking 或回退 Bootstrap latch。
+
+平台完整 Gate 调用同一 engine 的 Status/Apply；重复 Apply 包装在拒绝写请求的 Runner
+中，并比较 Metadata-only audit ID 集合、身份摘要、四节点/Pod/PVC/PV 和本地 HTTPS。
+审计另检查 13 对象仅有 Argo 写入，允许 Kubernetes 控制器的正常 status 更新。
+API 多对象读取不是事务；首尾版本或 inventory 变化会 UNKNOWN/STOP。
 
 ## 父 Application 的持续 authority
 
@@ -156,11 +175,14 @@ Receipt 后 CRD 规则；不能为通过本实验改弱首次 adoption 或当前
 各阶段 desired Git SHA / render hash /完整 App spec、scope inventory hash、phase graph
 hash、toolchain/artifact/image hashes、精确 cluster/context/API exposure、允许请求列表、
 timeout/stop 行为与批准记录。Plan SHA 是最终 plan 文件字节 hash，不把自身 hash 写入
-自身。Cluster UID、kubeconfig hash 在创建后追加独立 binding，再做第一步 mutation。
+自身。首次启动准备与 transfer plan 分开：cluster 创建后形成独立 target binding，transfer plan
+在编译时包含 cluster UID 和 kubeconfig hash；没有完整绑定就不能生成可运行 transfer plan。
 
 预期拒绝的 Argo operation 为 Failed，阶段 verifier 可以 exit 0；报告必须同时保存
 operation phase、verifier exit、对象差异和无旁路写入证据。公开证据只包含经过检查的
 非敏感结果；私有 GET 原文、kubeconfig、key/credentials 与日志留在 .state/Vault。
 
-当前只有离线 scope/phase/patch guard 测试；OT-1A、OT-1B、父级 detach/reattach、fresh
-bootstrap、完整平台、failure-path 均未执行。不得据此接纳 ADR-0008 或迁移 dev02。
+当前验证覆盖本地真实渲染、普通 Bootstrap 回归、共享观察器、完整合成阶段链、请求 guard、
+自动续行与不可覆盖 STOP；OT-1A/OT-1B、父级 detach/reattach、fresh bootstrap、完整平台
+和 failure-path 的真实集群证明全部 NOT_RUN。不得据此接纳 ADR-0008 或迁移 dev02。
+具体入口、plan/evidence 格式、授权边界及限制见 [S1 实现说明](../s1-observation-ownership.md)。

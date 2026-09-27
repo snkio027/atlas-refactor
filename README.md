@@ -149,3 +149,10 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 
 平台能力扩展、监测与 S3 候选的本地命令和部署 Gate，见
 [平台能力扩展](docs/platform-capabilities.md)。
+
+## S1 Observation 与 Ownership Rehearsal
+
+[实现说明](docs/s1-observation-ownership.md) 介绍共享 Go 只读观察器、Evidence envelope、
+OT-1 独立 profile、29 阶段 plan/checker 与有限 run。代码在同一 Slice 中审核；真实 OT-1
+仍 NOT_RUN，ADR-0009 保持 Proposed。观察成功不授权 mutation，运行需精确 plan SHA 的
+独立批准；普通开发分支与历史 Bootstrap/OT-0 evidence 保持原含义。
