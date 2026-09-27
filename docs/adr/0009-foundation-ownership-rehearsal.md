@@ -70,6 +70,10 @@ profile；为这个新目标创建有来源 commit、独立 digest 的首次实�
 真实 Helm/Kustomize 与普通 Bootstrap 回归通过。它尚未实现或批准用于运行。
 本 ADR 不通过声明新 profile 来掩盖当前无法运行的事实。
 
+用户在审查该前置方案后明确决定：**本轮先审查实验契约，暂不改普通 engine**。
+因此本轮到此保持 experiment-only；专用 profile、阶段 executor 和真实集群执行留待
+后续独立任务。此决定没有批准新建 OT-1 或改动现有冻结快照。
+
 ## 父 Application 的持续 authority
 
 platform-control 会自动创建/修复 Git 中的子 Application。因此删除旧 owner 后仅

@@ -4,6 +4,9 @@
 模式补丁 helper，不提供创建集群、执行迁移或捕获 live evidence 的命令。
 这不是普通平台功能或通用 RolloutObservation API。
 
+用户已明确选择本轮仅审查实验契约，暂不修改普通 engine。下列运行前提继续保持待办；
+本轮不会推进集群创建、密钥生成或实际 transfer。
+
 控制权、前置变更、父 App 隔离、STOP、两类 Gate 与证据要求见
 [Proposed ADR-0009](../../docs/adr/0009-foundation-ownership-rehearsal.md)。ADR-0008 不变。
 
