@@ -1,0 +1,330 @@
+{
+  "schema": "atlas.ot1-clean-rebuild/v1",
+  "date": "2026-09-27",
+  "implementation": {
+    "revision": "a8ddf72bc86478f6c6a321c63417a29ad3f17d6c",
+    "dirty": false,
+    "binarySHA256": "63ed88ad91ce1500ffbe5c18cfc0d2b6d71277ca6fe104407a321879bfe16488"
+  },
+  "lockedTools": {
+    "go": "1.27.1",
+    "helm": "4.2.3",
+    "kind": "0.32.0",
+    "kubectl": "1.36.3",
+    "kubernetes": "1.36.1"
+  },
+  "target": {
+    "cluster": "atlas-refactor-test-ot1",
+    "clusterUID": "30a366bd-41f9-48b0-9330-70dffaf62662",
+    "topology": [
+      "control-plane",
+      "gateway",
+      "compute",
+      "data"
+    ],
+    "http": "127.0.0.1:18080",
+    "https": "127.0.0.1:18443"
+  },
+  "deletedClusters": [
+    "atlas-refactor-test-dev02",
+    "atlas-refactor-test-ot0"
+  ],
+  "sourceCommits": {
+    "core": "8376d204425db85dfb7be6fdb68966993e43cd76",
+    "secrets": "83521c85934c9cad2ee07ff98498ac72f9502fd0",
+    "fullPlatform": "541705df77a500d784f808fe036794b5e2d551d8"
+  },
+  "bootstrap": {
+    "state": "ADOPTED",
+    "detail": "GitOps owns reconciliation"
+  },
+  "core": {
+    "result": "PASS_AFTER_INTERRUPTED_FIRST_ATTEMPT",
+    "firstAttemptExitCode": 1,
+    "firstAttemptReason": "Local waiting process interrupted during delayed Argo health/reconciliation; original evidence retained",
+    "successfulAttemptExitCode": 0,
+    "repeatApply": {
+      "exitCode": 0,
+      "identitiesStable": true,
+      "kubectlMutationDelta": 0
+    },
+    "http": {
+      "body": "",
+      "location": "https://web.atlas.test:18443/",
+      "status": 301,
+      "tlsVerified": false
+    },
+    "https": {
+      "status": 200,
+      "tlsVerified": true
+    },
+    "pvc": {
+      "phase": "Bound",
+      "reclaimPolicy": "Retain"
+    },
+    "manualRefresh": false,
+    "controllerRestart": false
+  },
+  "fullPlatform": {
+    "result": "PASS",
+    "readyNodes": 4,
+    "applications": [
+      {
+        "name": "argocd-self",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "atlas-refactor-root",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "capability-foundation",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "cert-manager",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "cilium",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "edge",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "envoy-crds",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "envoy-gateway",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "foundation",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "gateway-api",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "local-pki",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "local-storage",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "monitoring",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "monitoring-crds",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "monitoring-operator",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "object-storage",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "platform-control",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "platform-credentials",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "project-bootstrap",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "secrets-controller",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "secrets-crds",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "storage-monitoring",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "web-smoke",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      },
+      {
+        "name": "workload-control",
+        "revision": "541705df77a500d784f808fe036794b5e2d551d8",
+        "sync": "Synced",
+        "health": "Healthy",
+        "idle": true
+      }
+    ],
+    "api": {
+      "s3": {
+        "authenticatedList": 200,
+        "roundTripSHA256": "7398412e78777ee0925c92af496a4b57fa780017e3d5d29e3cdc3ad55af3da5d",
+        "presignedGet": 200,
+        "anonymousDenied": 403,
+        "crossBucketDenied": 403,
+        "multipart": 200,
+        "delete": 204
+      },
+      "grafana": {
+        "login": true,
+        "database": "ok",
+        "dashboardCount": 26,
+        "atlasDashboard": true
+      },
+      "prometheus": {
+        "targetCount": 27,
+        "down": [],
+        "ruleGroups": 31,
+        "nodeMetrics": "4"
+      },
+      "alertmanager": {
+        "apiFiringThenResolved": true,
+        "externalNotificationTested": false
+      }
+    },
+    "bootstrapIdentitiesUnchanged": true
+  },
+  "secrets": {
+    "freshKey": true,
+    "keyPairVerified": true,
+    "separateBackup": true,
+    "physicallyIsolated": false,
+    "ownerApprovedDevelopmentException": true,
+    "newCiphertextsPublished": 3
+  },
+  "ownershipTransfer": {
+    "result": "STOP",
+    "runExitCode": 2,
+    "stage": "BASELINE_ADOPTED",
+    "completedStages": 0,
+    "plannedStages": 29,
+    "planSHA256": "3b3d89475fac4d4d977aca05a0bb4a9598b24f8eb7a709ab369a65ac262adbfb",
+    "recordedMutationRequests": 0,
+    "kubectlMutationAuditDelta": 0,
+    "runLockPreserved": true,
+    "automaticRecovery": false,
+    "error": "operation outcome/revision mismatch",
+    "actualObservedRevision": "541705df77a500d784f808fe036794b5e2d551d8",
+    "lastSuccessfulOperationRevision": "83521c85934c9cad2ee07ff98498ac72f9502fd0",
+    "foundationDesiredFilesUnchanged": {
+      "platform/development/capabilities/resources/capability-foundation.json": {
+        "83521c85934c9cad2ee07ff98498ac72f9502fd0": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c",
+        "541705df77a500d784f808fe036794b5e2d551d8": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c"
+      },
+      "gitops/platform/foundation/capabilities/overlays/development/resources.json": {
+        "83521c85934c9cad2ee07ff98498ac72f9502fd0": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c",
+        "541705df77a500d784f808fe036794b5e2d551d8": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c"
+      }
+    }
+  },
+  "readOnlyFollowup": {
+    "result": "INVENTORY_UNAVAILABLE",
+    "failedKind": "v1/Node",
+    "applicationInventoryCount": 24,
+    "projectInventoryCount": 4,
+    "cause": "Raw v1/NodeList members omit apiVersion and kind; strict member validation currently rejects them.",
+    "changesToCluster": 0
+  },
+  "limitations": [
+    "OT-1A and OT-1B not proven; no ownership transfer performed.",
+    "Clean core eventually passed after a retained interrupted attempt; not an uninterrupted one-shot success.",
+    "AppProject/capability source observation ordering caused transient namespace refusals, then converged through existing Argo retries.",
+    "Alertmanager API injection is not a Prometheus rule firing chain or external notification test.",
+    "No HA, disaster recovery, production readiness or authority cutover claim."
+  ],
+  "privateEvidenceSHA256": {
+    "core-up-attempt1-result.json": "19bcc446a3c9ded715ba116bf2baaaacbcd329c9d122aa749677f850038c9168",
+    "core-up-attempt2.json": "52c42153fd422b4034e18b33cb56f25c68f81a8f6a30c07d69d3c013f2d8ef1f",
+    "secrets-ready-applications.json": "0b2cf44fc1a2e7640b4c18399c954283cde2ea8ce38a8609d3a5d3ac10b8de79",
+    "full-ready-applications.json": "66c94e33de7f0beb36050b6208ddd10ca2581941d21289196d1984342df064ee",
+    "full-platform-api.json": "dad7ff9b45cb89d12b0edbb338e910f05be4d18844014ceb3fbdff32717d4888",
+    "full-runtime-verify.json": "ec65fde1f4d26b2075fba89487331f7f457aa1b27aef229400095f1bd29916d2",
+    "transfer-stop-diagnosis.json": "568b4878c6e9a82384c49c557c6f39b5daf933570bd735c9d0d1c0853df37d65",
+    "post-stop-raw-node-list.json": "30aaaf9183df8bbcf6207c2f23cd4d5bc2c228bbd980614b5f57ab1a4938f628",
+    "quality-before-secrets-02.log": "f938158c9a30084aced9c8af331ea146973666ce7144b6099d914928362a9aaf"
+  },
+  "privateEvidenceDirectory": ".state/ot1-live-20260927/setup-evidence"
+}

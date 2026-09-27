@@ -1,6 +1,6 @@
 # S1：Observation、Evidence 与 Ownership Rehearsal
 
-本次是同一 PR #6 的完整本地工程 Slice。运行结论仍为 **NOT_RUN**；ADR-0009 保持 Proposed。
+本次是同一 PR #6 的完整工程 Slice。首次干净重建和完整平台验收已通过；OT-1 在基线阶段 STOP，尚未发生所有权转移。见 [现场结果](ot1-clean-rebuild-20260927.md)；ADR-0009 保持 Proposed。
 现有 Bootstrap integration 基线、OT-0 成功/失败证据与 dev02 desired 分支没有改写。
 
 ## 实现与目的
@@ -41,7 +41,7 @@ bin/atlas-ot1 prepare-profile --root "$PWD" \
 `prepare-profile` 清空旧 SealedSecret 密文，生成新的 profiles/ot1.json、core 渲染与本地提交。
 它不是完整平台启动：仍需按具体 setup plan 发布独立 desired branch、用普通 `atlas-dev up`
 创建新目标、启用独立 Sealed Secrets、备份新 key、准备三份新密文并启用完整旧 catalog。
-这些操作与密文公开发布须有精确计划；本轮没有执行，也没有读取或复用旧私钥。
+这些操作与密文公开发布须有精确计划。首次执行已使用独立新 trust root，未复用旧私钥；实际结果与 STOP 见 [现场记录](ot1-clean-rebuild-20260927.md)。
 
 完整旧平台准备好后，target-binding JSON 需要 `cluster/context/clusterUID/kubeconfigSHA256`。
 `plan --root ... --repo <已提交的完整旧布局> --output-repo <新私有目录>

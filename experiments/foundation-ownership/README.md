@@ -1,6 +1,6 @@
 # OT-1 — Foundation Ownership Split Rehearsal
 
-当前属于 **S1 本地实现 / runtime NOT_RUN**。共享 Go Observation、精确状态机、有限执行器、
+当前为 **完整平台验收 PASS / OT-1 基线 STOP**，尚未发生所有权转移。见 [首次现场记录](../../docs/ot1-clean-rebuild-20260927.md)。共享 Go Observation、精确状态机、有限执行器、
 独立实例化 profile 与离线阶段 Git 编译在同一 PR #6 中审核。
 
 - 旧布局：b618dea24b7c46cd36fd11a568a72c9a88f2097a。
@@ -26,18 +26,18 @@ quality 包含 Go vet/race、真实 Helm/Kustomize、348 资源的普通平台�
 观察或迁移。新的运行路径只使用 Go 的统一 GVK model 与 Observation；没有第二套 Python observer。
 合成测试不进入 docs/evidence，也不伪装成 OT-1A/OT-1B PASS。
 
-## 运行前仍需形成具体计划
+## 首次真实执行状态
 
 | 条件 | 状态 |
 | --- | --- |
 | 独立 source/port/snapshot，旧布局与阶段投影 | 本地实现与真实渲染验证 |
 | 13-object 语义检查、父级重接、29 阶段与 create-only evidence | 本地实现与合成验证 |
 | 有限 run、单次请求、批准 plan SHA、超时/STOP | 本地实现与合成验证 |
-| 四节点 fresh Bootstrap 与完整旧平台 ADOPTED | NOT_RUN |
-| 新私钥、w1/atlas-refactor-ot1 独立备份、新的三份密文 | 未生成；开发备份例外已有授权，具体凭据发布随现场计划审查 |
-| 带实际 cluster UID/kubeconfig hash 的 transfer plan 与 7 个 Git SHA | 需先完成独立环境准备 |
-| 精确 setup/transfer plan 的真实操作批准 | 尚未请求 |
-| OT-1A / OT-1B、partial rollback、full reverse | NOT_RUN |
+| 四节点 fresh Bootstrap 与完整旧平台 ADOPTED | 已验收；首次 core 中断记录保留 |
+| 新私钥、w1/atlas-refactor-ot1 独立备份、新的三份密文 | 已生成、备份并按精确批准发布；同机开发例外 |
+| 带实际 cluster UID/kubeconfig hash 的 transfer plan 与 7 个 Git SHA | 已编译并批准；后续阶段提交未发布 |
+| 精确 setup/transfer plan 的真实操作批准 | 已取得；本次 attempt 在 BASELINE_ADOPTED STOP |
+| OT-1A / OT-1B、partial rollback、full reverse | 尚未证明；迁移请求数为 0，保留失败证据与运行锁 |
 
 `proposed-profile.json` / `proposed-kind.json` 保留为审查差异示例。应使用 `prepare-profile`
 生成完整私有 checkout；把示例直接套在现有 dev02 输入上不能形成有效 OT-1 快照。
