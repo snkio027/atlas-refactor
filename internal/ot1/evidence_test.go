@@ -190,6 +190,7 @@ func TestAll29StatesAndNegativeOwnershipEvidence(t *testing.T) {
 		mutate func(*Snapshot)
 	}{
 		{"wrong desired revision", 3, func(s *Snapshot) { s.Revision = strings.Repeat("a", 40) }},
+		{"application list-get version fence changed", 7, func(s *Snapshot) { s.InventoryError = "APPLICATION_CHANGED_DURING_CAPTURE" }},
 		{"read unavailable", 3, func(s *Snapshot) { s.InventoryError = "timeout" }},
 		{"closing fence changed", 3, func(s *Snapshot) { s.Envelope.Reasons = []string{"SNAPSHOT_CHANGED"} }},
 		{"object recreated", 3, func(s *Snapshot) { observation.Map(s.Envelope.Raw[len(s.Applications)]["metadata"])["uid"] = "new" }},

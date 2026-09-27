@@ -196,6 +196,26 @@ func TestAuditRejectsSideChannelWritesAndLostHistory(t *testing.T) {
 	if e := x.auditScope(); e == nil {
 		t.Fatal("lost audit history accepted")
 	}
+	for _, tc := range []struct {
+		name, user, resource, namespace string
+		wantError                       bool
+	}{
+		{"namespace-wire-argo", "system:serviceaccount:argocd:argocd-application-controller", "namespaces", "atlas-storage", false},
+		{"namespace-wire-side-channel", "admin", "namespaces", "atlas-storage", true},
+		{"namespace-inconsistent", "system:serviceaccount:argocd:argocd-application-controller", "namespaces", "wrong", true},
+		{"unrelated-namespaced-resource", "admin", "resourcequotas", "other-namespace", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			name := "atlas-storage"
+			if tc.resource == "resourcequotas" {
+				name = "platform-budget"
+			}
+			writeEvents(old, event("wire", tc.user, tc.resource, name, tc.namespace, ""))
+			if err := x.auditScope(); (err != nil) != tc.wantError {
+				t.Fatalf("audit request identity: want error %v, got %v", tc.wantError, err)
+			}
+		})
+	}
 }
 
 type fixedInventory struct{ object observation.Object }

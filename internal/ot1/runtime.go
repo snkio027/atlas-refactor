@@ -281,9 +281,18 @@ func (x *Executor) auditScope() error {
 		if group := observation.String(ref["apiGroup"]); group != "" {
 			version = group + "/" + version
 		}
-		identity := observation.Ref{APIVersion: version, Kind: kind, Namespace: observation.String(ref["namespace"]), Name: observation.String(ref["name"])}
+		namespace := observation.String(ref["namespace"])
+		if kind == "Namespace" {
+			// Kubernetes audit request metadata may repeat the Namespace name in
+			// objectRef.namespace. The transferred object itself is cluster-scoped.
+			namespace = ""
+		}
+		identity := observation.Ref{APIVersion: version, Kind: kind, Namespace: namespace, Name: observation.String(ref["name"])}
 		if !scope[identity.Key()] {
 			continue
+		}
+		if kind == "Namespace" && observation.String(ref["namespace"]) != "" && observation.String(ref["namespace"]) != identity.Name {
+			return errors.New("inconsistent Namespace audit identity")
 		}
 		user := observation.String(observation.At(event, "user", "username"))
 		subresource := observation.String(ref["subresource"])
