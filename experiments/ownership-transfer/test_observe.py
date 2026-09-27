@@ -4,6 +4,7 @@ import unittest
 
 from observe import check, semantic, TRACKING, STAGES, OWNERS, PREVIOUS
 from prepare import application, options, CLUSTER, argocd_config
+from transition import transition_patch
 
 SHA = 'a' * 40
 PLAN = {'revision': SHA}
@@ -27,6 +28,7 @@ def snapshot(stage):
     if owner:
         app = application(owner, strict, SHA)
         app['metadata']['uid'] = owner + '-uid'
+        app['metadata']['resourceVersion'] = '10'
         app['status'] = {'sync': {'revision': SHA, 'status': 'Synced'}, 'health': {'status': 'Healthy'},
             'resources': [{'kind': 'Namespace', 'name': 'ot0-probe'}, {'kind': 'ConfigMap', 'name': 'probe', 'namespace': 'ot0-probe'}],
             'operationState': {'finishedAt': '2026-09-27T00:00:00Z', 'phase': 'Failed' if outcome == 'blocked' else 'Succeeded',
@@ -43,6 +45,25 @@ def snapshot(stage):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_application_window_patch_is_guarded_and_narrow(self):
+        for stage in ('A4', 'A5', 'A6-transfer', 'A6-restored'):
+            current = snapshot(PREVIOUS[stage])['applications'][0]
+            owner, strict, _ = STAGES[stage]
+            target = application(owner, strict, SHA)
+            patch = transition_patch(current, target, stage, SHA)
+            self.assertEqual([o['path'] for o in patch if o['op'] != 'test'], ['/spec/syncPolicy/syncOptions'])
+            self.assertEqual(patch[0]['value'], current['metadata']['uid'])
+            self.assertEqual(patch[1]['value'], current['metadata']['resourceVersion'])
+            for field, value in [('project', 'other-project'), ('source', {'targetRevision': 'wrong'})]:
+                altered = copy.deepcopy(current)
+                altered['spec'][field] = value
+                with self.assertRaises(ValueError):
+                    transition_patch(altered, target, stage, SHA)
+            altered = copy.deepcopy(current)
+            altered['operation'] = {'sync': {}}
+            with self.assertRaises(ValueError):
+                transition_patch(altered, target, stage, SHA)
+
     def test_settings_configmap_is_visible_to_argocd_informer(self):
         # Upstream v3.5.1 SettingsManager.initialize applies this selector;
         # the first live attempt failed before A1 when the label was omitted.

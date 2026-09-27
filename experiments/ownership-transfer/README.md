@@ -1,6 +1,6 @@
 # OT-0：两对象 Argo ownership transfer probe
 
-状态：首次运行在 SETUP 停止，A1–A6 未执行，尚无 ownership runtime proof。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
+状态：标签修正后 A1–A3 已实测通过；A4 在 Application 配置写入时停止，尚无转移成功 proof。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
 这是一次性实验材料，不是普通 Bootstrap、recovery 或 capability migration 命令。
 
 ## 精确目标与启动门禁
@@ -55,14 +55,14 @@ fixture 和全部生成文件的 SHA。Argo 匿名从公开 repo 读取该 commi
 | A1 | create A1-app.json | A1-sync.json |
 | A2 | delete owner-a --cascade=orphan --wait=true | 无 |
 | A3 | create A3-app.json | A3-sync.json |
-| A4 | SSA apply A4-app.json（同一个 owner-b） | A4-sync.json |
-| A5 | SSA apply A5-app.json | A5-sync.json |
+| A4 | guarded patch → A4-app.json（同一个 owner-b） | A4-sync.json |
+| A5 | guarded patch → A5-app.json | A5-sync.json |
 | A6-release | delete owner-b --cascade=orphan --wait=true | 无 |
 | A6-strict | create A6-strict-app.json | A6-strict-sync.json |
-| A6-transfer | SSA apply A6-transfer-app.json（同一个 owner-a） | A6-transfer-sync.json |
-| A6-restored | SSA apply A6-restored-app.json | A6-restored-sync.json |
+| A6-transfer | guarded patch → A6-transfer-app.json（同一个 owner-a） | A6-transfer-sync.json |
+| A6-restored | guarded patch → A6-restored-app.json | A6-restored-sync.json |
 
-Application 写入使用同一 `--field-manager=ot0-ceremony`；同步用
+Application 创建使用 `--field-manager=ot0-ceremony`；模式变化使用下述受保护 JSON Patch；同步用
 `kubectl patch application <owner> -n argocd --type=merge --patch-file <stage>-sync.json`。
 禁止对 Namespace/ConfigMap 执行 apply、patch、annotate、delete；Argo 始终是其 tracking writer。
 人工门禁只授权这两个已审查资源的窗口，并非降低 AppProject 或扩大资源集合。
@@ -94,3 +94,28 @@ argocd-cm UID、原始 data 与标签为空，确认仍无 probe Application/Nam
 argocd-cm 的两个 labels，等待 Kubernetes 正常重试拉起 controller。禁止重建集群、替换
 Seed、主动 restart 或修改 Secret。完成 readiness 后再创建 AppProject，并按原 A1–A6
 序列执行，使用新计划的统一 commit SHA。任何再次异常仍停止；OT-1/dev02 继续不获批准。
+
+## A4 Application 配置写入冲突与操作修正
+
+标签修正已获单独批准并完成；同一集群以 fe76dd5 开始实验，A1、A2、A3 均通过。
+A4 尚未请求同步：从 create（managedFields operation=Update）切换到 SSA Apply 修改
+syncOptions 时，API 报与同名 ot0-ceremony manager 冲突。原实验错误地把 manager 字符串
+相同视为 Update/Apply 同一所有权。禁止 force-conflicts；owner-b 目前保持 strict，tracking 仍为 A。
+失败与成功阶段证据见 [attempt02](../../docs/evidence/ownership-transfer-ot0-20260927-attempt02.json)。
+
+经再次续行批准后，仅修正 Application 配置变化的操作方法。实时 GET 当前 App，运行纯本地
+transition.py；生成的 JSON Patch 先 test UID、resourceVersion 和完整原 spec，再只 replace
+/spec/syncPolicy/syncOptions。它拒绝错误阶段、owner、revision、前序 operation、活动操作、
+finalizer 和其他 spec drift。Argo 对两个 probe 对象仍执行原来的 SSA，所有验证断言保持。
+
+```bash
+# CURRENT 是刚 GET 的 owner-b/owner-a 完整 JSON；PLAN 是已执行 A1–A3 的 ot0-retry1。
+python3 -B experiments/ownership-transfer/transition.py   --stage A4 --current "$CURRENT" --plan-dir "$PLAN" > "$PATCH"
+# 经 gate 后，向已绑定的专用 kubeconfig/context 执行：
+# kubectl patch application owner-b -n argocd --type=json --patch-file "$PATCH"
+```
+
+所有源清单和显式 sync 的 Git SHA 继续固定 fe76dd57034b82eaf9c0359292eae2394cadfb15，
+不改写 A1–A3 历史。新的操作方法另绑修正提交和 patch 摘要。续行从 A4 开始，保留 B 的 UID、
+两个 probe UID、AppProject UID、cluster UID；不重新跑 A1、不重建对象、不修改 tracking。
+A4、A5、A6-transfer、A6-restored 均使用相同受保护方式切换模式；任一新异常仍停止。
