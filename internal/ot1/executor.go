@@ -25,6 +25,7 @@ type Executor struct {
 	request           int
 	baseline          *Snapshot
 	baselineAudit     map[string]bool
+	activeUID         string // captured by the guarded request, including newly created owners
 }
 
 func (x *Executor) remote(ctx context.Context) (string, error) {
@@ -85,6 +86,9 @@ func (x *Executor) kube(ctx context.Context, index int, args []string, input []b
 }
 func (x *Executor) wait(ctx context.Context, fn func() (bool, error)) error {
 	for {
+		if e := ctx.Err(); e != nil {
+			return e
+		}
 		done, e := fn()
 		if e != nil || done {
 			return e
@@ -162,6 +166,7 @@ func (x *Executor) publish(ctx context.Context, index int, previous Snapshot) er
 	return nil
 }
 func (x *Executor) Transition(ctx context.Context, index int, previous *Snapshot) error {
+	x.activeUID = ""
 	phase := x.Plan.Phases[index]
 	step := Steps(x.Plan)[index]
 	if index == 0 {
@@ -263,6 +268,7 @@ func (x *Executor) Transition(ctx context.Context, index int, previous *Snapshot
 			return e
 		}
 	}
+	x.activeUID = uid
 	patch, e := SyncPatch(current, uid, phase)
 	if e != nil {
 		return e
@@ -277,6 +283,18 @@ func (x *Executor) Converge(ctx context.Context, index int, baseline, previous *
 		if e := x.fence(ctx, phase.Revision); e != nil {
 			return false, e
 		}
+		// Avoid opening a multi-object version fence while our own operation is
+		// still changing Application status. A single list is only a readiness
+		// precheck; the complete closing fences below remain mandatory.
+		apps, e := x.Reader.List(ctx, AppRef(""))
+		if e != nil {
+			return false, e
+		}
+		out = Snapshot{Schema: 1, PlanSHA256: observation.Digest(x.Plan), Stage: phase.Stage.Name, Revision: phase.Revision, Applications: apps, InventoryError: "READINESS_PRECHECK_NOT_FULL_CAPTURE"}
+		ready, e := applicationProgress(x.Plan, index, apps, previous, x.activeUID)
+		if e != nil || !ready {
+			return false, e
+		}
 		s, e := Capture(ctx, x.Reader, x.Plan, index, baseline)
 		out = s
 		if index == 0 {
@@ -284,6 +302,9 @@ func (x *Executor) Converge(ctx context.Context, index int, baseline, previous *
 			x.baseline = &copy
 		}
 		if e != nil {
+			return false, e
+		}
+		if _, e = applicationProgress(x.Plan, index, s.Applications, previous, x.activeUID); e != nil {
 			return false, e
 		}
 		if e = x.fence(ctx, phase.Revision); e != nil {
@@ -360,9 +381,19 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 	if e := checkProjects(s.Projects, baseline, desired); e != nil {
 		return e
 	}
-	apps := rawIndex(s.Applications)
-	if len(apps) != len(phase.Applications) || len(apps) != len(s.Applications) {
-		return errors.New("Application inventory changed during convergence")
+	_, e := applicationProgress(plan, index, s.Applications, previous, "")
+	return e
+}
+
+// applicationProgress checks one list snapshot without pretending that it is
+// complete ownership evidence. Only known controller progress may be waited on.
+// activeUID binds a newly created owner to the UID returned before SyncPatch.
+func applicationProgress(plan Plan, index int, applications []observation.Object, previous *Snapshot, activeUID string) (bool, error) {
+	phase := plan.Phases[index]
+	ready := true
+	apps := rawIndex(applications)
+	if len(apps) != len(phase.Applications) || len(apps) != len(applications) {
+		return false, errors.New("Application inventory changed during convergence")
 	}
 	prev := map[string]observation.Object{}
 	if previous != nil {
@@ -372,34 +403,37 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 		o := apps[AppRef(expect.Name).Key()]
 		old := prev[AppRef(expect.Name).Key()]
 		if o == nil || observation.String(observation.At(o, "metadata", "uid")) == "" || old != nil && observation.String(observation.At(old, "metadata", "uid")) != observation.String(observation.At(o, "metadata", "uid")) || observation.At(o, "metadata", "deletionTimestamp") != nil || len(observation.Slice(observation.At(o, "metadata", "finalizers"))) > 0 {
-			return errors.New("Application identity/deletion drift during convergence")
+			return false, errors.New("Application identity/deletion drift during convergence")
 		}
 		spec := observation.Digest(o["spec"])
 		if spec != observation.Digest(expect.Spec) && !(phase.Stage.AtlasGate && destination(expect.Name) != "" && spec == observation.Digest(old["spec"])) {
-			return errors.New("Application spec drift during convergence")
+			return false, errors.New("Application spec drift during convergence")
 		}
 		active := phase.Stage.ActiveOwner != nil && expect.Name == *phase.Stage.ActiveOwner
+		if active && activeUID != "" && observation.String(observation.At(o, "metadata", "uid")) != activeUID {
+			return false, errors.New("requested owner UID changed during convergence")
+		}
 		for _, c := range observation.Slice(observation.At(o, "status", "conditions")) {
 			if !(active && observation.String(observation.Map(c)["type"]) == "SharedResourceWarning") {
-				return errors.New("unexpected Argo condition")
+				return false, errors.New("unexpected Argo condition")
 			}
 		}
 		health := observation.String(observation.At(o, "status", "health", "status"))
 		if health == "" || health == "Unknown" || health == "Degraded" {
-			return errors.New("unhealthy/unknown Application")
+			return false, errors.New("unhealthy/unknown Application")
 		}
 		observed := observation.String(observation.At(o, "status", "sync", "revision"))
 		if observed != phase.Revision && (previous == nil || observed != previous.Revision) {
-			return errors.New("unexpected Application revision")
+			return false, errors.New("unexpected Application revision")
 		}
 
 		op := observation.String(observation.At(o, "status", "operationState", "phase"))
-		if op == "Error" {
-			return errors.New("unexpected operation error")
+		if op == "Error" || op == "Terminating" {
+			return false, errors.New("unexpected operation error/termination")
 		}
 		if op == "Failed" {
 			if !active || !strings.Contains(observation.String(observation.At(o, "status", "operationState", "message")), "Shared resource found:") {
-				return errors.New("unexpected operation failure")
+				return false, errors.New("unexpected operation failure")
 			}
 			marker := observation.Digest(observation.At(o, "status", "operationState", "operation", "info"))
 			currentMarker := observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}})
@@ -408,17 +442,60 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 				oldMarker = observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": plan.Phases[index-1].Stage.Name}})
 			}
 			if !(phase.Stage.Outcome == "blocked" && marker == currentMarker || phase.Stage.Applications[expect.Name] == "window" && marker == oldMarker) {
-				return errors.New("failed operation does not belong to the expected refusal")
+				return false, errors.New("failed operation does not belong to the expected refusal")
 			}
 		}
 		if active && o["operation"] != nil {
 			request := observation.Map(o["operation"])
-			if observation.Digest(request["info"]) != observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) || observation.At(request, "sync", "revision") != phase.Revision || observation.At(request, "sync", "prune") != false || observation.Digest(observation.At(request, "sync", "syncOptions")) != observation.Digest(Options(phase.Stage.Applications[expect.Name] == "strict")) {
-				return errors.New("active operation escaped the phase request")
+			if observation.Digest(request["info"]) != observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) || !approvedSyncRequest(request, phase.Revision, Options(phase.Stage.Applications[expect.Name] == "strict")) {
+				return false, errors.New("active operation escaped the phase request")
 			}
 		}
+		check := expect
+		check.Spec = observation.Map(o["spec"])
+		if old != nil {
+			check.UID = observation.String(observation.At(old, "metadata", "uid"))
+		}
+		fact := observation.ClassifyApplication(check, o, nil)
+		for _, reason := range fact.Reasons {
+			switch reason {
+			case "REVISION_NOT_CONVERGED", "OUT_OF_SYNC", "HEALTH_NOT_READY", "OPERATION_ACTIVE", "BLOCKING_RESOURCES", "STALE_OBSERVED_GENERATION":
+			case "SHARED_RESOURCE", "LAST_OPERATION_FAILED":
+				if !active {
+					return false, errors.New("unrelated refusal while awaiting convergence")
+				}
+			default:
+				return false, fmt.Errorf("Application observation cannot converge: %s", reason)
+			}
+		}
+		appReady := spec == observation.Digest(expect.Spec) && fact.Classification == observation.Verified
+		if active {
+			if state := observation.Map(observation.At(o, "status", "operationState")); op == "Running" {
+				request := observation.Map(state["operation"])
+				if observation.Digest(request["info"]) != observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) || !approvedSyncRequest(request, phase.Revision, Options(phase.Stage.Applications[expect.Name] == "strict")) {
+					return false, errors.New("running operation escaped the phase request")
+				}
+			}
+			if o["operation"] == nil && (op == "Succeeded" || op == "Failed") {
+				if e := operationMatches(o, phase, phase.Stage.Name, phase.Stage.Outcome); e != nil {
+					return false, e
+				}
+				if phase.Stage.Outcome == "blocked" {
+					// A strict refusal is ready evidence, never generic health.
+					appReady = spec == observation.Digest(expect.Spec)
+					for _, reason := range fact.Reasons {
+						if reason == "STALE_OBSERVED_GENERATION" {
+							appReady = false
+						}
+					}
+				}
+			} else {
+				appReady = false
+			}
+		}
+		ready = ready && appReady
 	}
-	return nil
+	return ready, nil
 }
 
 func (x *Executor) Preflight(ctx context.Context) error {

@@ -95,7 +95,10 @@ kubeconfig/context；Source 分支只允许计划内 fast-forward。每步前重
 对象与来源，每次 API mutation 检查 13 对象及审计；patch/delete 使用服务器原子前置条件。
 父级先移出 foundation Apps，比较新 SHA 后才 release；全部 strict 恢复后按 Git 重接 parent。
 
-一个阶段最多 300 秒；允许等待已提交 Argo 操作的可解释收敛，不重试 mutation。任何未知、
+一个阶段最多 300 秒；先以单次 Application list 检查已提交操作的可解释收敛，待就绪后
+才采集完整多对象证据。新建 owner 的 UID 绑定 create/sync 返回的身份；完整快照仍要求
+首尾 UID/RV 与 inventory 一致。Argo `omitempty` 省略的 `prune=false` 可被识别，但每次
+operation 的 source/manifests/resources 等覆盖参数会被拒绝。等待只读，不重试 mutation。任何未知、
 意外条件、scope/spec/UID drift、额外对象、超时、中断或证据写失败都会停止。失败的 run lock、
 intent、响应摘要与现场保留；不会自动关闭窗口、恢复 controller、rollback、删除集群或续跑。
 窗口可能仍开放；续行必须先审查现场与新计划，不能简单删锁后重放同一 attempt。

@@ -365,3 +365,29 @@ func TestReadOnlyRepeatApplyGuard(t *testing.T) {
 		t.Fatal("existing engine's purely client-side manifest decode denied")
 	}
 }
+
+func TestArgoOperationRoundTripOmitsFalseButCannotOverrideGitSource(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	phase := plan.Phases[2]
+	app := observation.Clone(rawIndex(snapshots[2].Applications)[AppRef(*phase.Stage.ActiveOwner).Key()])
+	sync := observation.Map(observation.At(app, "status", "operationState", "operation", "sync"))
+	delete(sync, "prune")
+	if e := operationMatches(app, phase, phase.Stage.Name, phase.Stage.Outcome); e != nil {
+		t.Fatal("Go omitempty round trip rejected", e)
+	}
+	for _, field := range []string{"source", "sources", "manifests", "resources", "dryRun", "syncStrategy", "unrecognized"} {
+		bad := observation.Clone(app)
+		observation.Map(observation.At(bad, "status", "operationState", "operation", "sync"))[field] = true
+		if e := operationMatches(bad, phase, phase.Stage.Name, phase.Stage.Outcome); e == nil {
+			t.Fatal("unreviewed operation override accepted", field)
+		}
+	}
+	for _, value := range []any{true, "false", 0, nil} {
+		bad := observation.Clone(app)
+		observation.Map(observation.At(bad, "status", "operationState", "operation", "sync"))["prune"] = value
+		if e := operationMatches(bad, phase, phase.Stage.Name, phase.Stage.Outcome); e == nil {
+			t.Fatal("malformed/enabled prune accepted", value)
+		}
+	}
+}

@@ -170,7 +170,7 @@ func operationMatches(app observation.Object, phase Phase, name, outcome string)
 		return errors.New("operation outcome/revision mismatch")
 	}
 	request := observation.Map(op["operation"])
-	if !reflect.DeepEqual(observation.Slice(request["info"]), []any{observation.Object{"name": "ot1-stage", "value": name}}) || observation.String(observation.At(request, "sync", "revision")) != phase.Revision || observation.At(request, "sync", "prune") != false || observation.Digest(observation.At(request, "sync", "syncOptions")) != observation.Digest(observation.At(app, "spec", "syncPolicy", "syncOptions")) {
+	if !reflect.DeepEqual(observation.Slice(request["info"]), []any{observation.Object{"name": "ot1-stage", "value": name}}) || observation.String(observation.At(request, "sync", "revision")) != phase.Revision || !approvedSyncRequest(request, phase.Revision, observation.At(app, "spec", "syncPolicy", "syncOptions")) {
 		return errors.New("operation request does not bind this phase")
 	}
 	conditions := observation.Slice(status["conditions"])
@@ -433,4 +433,26 @@ func foundationInventory(scope Scope, owner string, app observation.Object) erro
 // Source: https://github.com/argoproj/argo-cd/blob/v3.5.1/server/server.go#L276-L300
 func DefaultProject() observation.Object {
 	return observation.Object{"apiVersion": "argoproj.io/v1alpha1", "kind": "AppProject", "metadata": observation.Object{"name": "default", "namespace": "argocd"}, "spec": observation.Object{"sourceRepos": []any{"*"}, "destinations": []any{observation.Object{"server": "*", "namespace": "*"}}, "clusterResourceWhitelist": []any{observation.Object{"group": "*", "kind": "*"}}}}
+}
+
+// Argo CD SyncOperation.Prune is bool with json:",omitempty": a controller
+// round trip omits false. Omission means false; no other override is accepted.
+// https://github.com/argoproj/argo-cd/blob/v3.5.1/pkg/apis/application/v1alpha1/types.go
+func approvedSyncRequest(request observation.Object, revision string, options any) bool {
+	sync := observation.Map(request["sync"])
+	if sync == nil || observation.String(sync["revision"]) != revision || observation.Digest(sync["syncOptions"]) != observation.Digest(options) {
+		return false
+	}
+	for key, value := range sync {
+		switch key {
+		case "revision", "syncOptions":
+		case "prune":
+			if value != false {
+				return false
+			}
+		default:
+			return false // deny source/manifests/resources/dry-run/strategy overrides
+		}
+	}
+	return true
 }

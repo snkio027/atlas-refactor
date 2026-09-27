@@ -1,6 +1,7 @@
 package ot1
 
 import (
+	"atlas-refactor/internal/atlas"
 	"atlas-refactor/internal/observation"
 	"context"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func runtimeFixture(s Snapshot) observation.Object {
@@ -229,5 +231,134 @@ func TestParentPruneConfirmationMayRemainRunningWithoutGeneralPruneApproval(t *t
 	x.Reader = fixedInventory{bad}
 	if _, e := x.compared(context.Background(), 1, "platform-control", parent, uid, true); e == nil {
 		t.Fatal("parent ownership conflict ignored")
+	}
+}
+
+func TestApplicationReadinessBeforeVersionFencedCapture(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	for i, snapshot := range snapshots {
+		var previous *Snapshot
+		if i > 0 {
+			previous = &snapshots[i-1]
+		}
+		activeUID := ""
+		if plan.Phases[i].Stage.ActiveOwner != nil {
+			app := rawIndex(snapshot.Applications)[AppRef(*plan.Phases[i].Stage.ActiveOwner).Key()]
+			activeUID = observation.String(observation.At(app, "metadata", "uid"))
+		}
+		if ready, e := applicationProgress(plan, i, snapshot.Applications, previous, activeUID); !ready || e != nil {
+			t.Fatalf("terminal stage %s not ready: %v", snapshot.Stage, e)
+		}
+		if plan.Phases[i].Stage.ActiveOwner == nil {
+			continue
+		}
+		pending := cloneSnapshot(t, snapshot)
+		app := rawIndex(pending.Applications)[AppRef(*plan.Phases[i].Stage.ActiveOwner).Key()]
+		state := observation.Map(observation.At(app, "status", "operationState"))
+		state["phase"] = "Running"
+		delete(state, "finishedAt")
+		app["operation"] = observation.Clone(observation.Map(state["operation"]))
+		if ready, e := applicationProgress(plan, i, pending.Applications, previous, activeUID); ready || e != nil {
+			t.Fatalf("running stage %s should wait without a complete capture: %v", snapshot.Stage, e)
+		}
+		if _, e := applicationProgress(plan, i, snapshot.Applications, previous, "recreated-owner"); e == nil {
+			t.Fatal("newly created owner UID was not bound to submitted request")
+		}
+		observation.Map(observation.At(app, "operation", "sync"))["source"] = observation.Object{"path": "outside-plan"}
+		if _, e := applicationProgress(plan, i, pending.Applications, previous, activeUID); e == nil {
+			t.Fatal("override accepted while waiting")
+		}
+	}
+	for _, test := range []struct {
+		name   string
+		mutate func(observation.Object)
+	}{
+		{"unknown health", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "health"))["status"] = "Unknown"
+		}},
+		{"unplanned revision", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "sync"))["revision"] = strings.Repeat("f", 40)
+		}},
+		{"recreated app", func(o observation.Object) { observation.Map(o["metadata"])["uid"] = "another" }},
+		{"missing RV", func(o observation.Object) { delete(observation.Map(o["metadata"]), "resourceVersion") }},
+		{"spec drift", func(o observation.Object) { observation.Map(o["spec"])["project"] = "default" }},
+		{"unknown condition", func(o observation.Object) {
+			observation.Map(o["status"])["conditions"] = []any{observation.Object{"type": "ComparisonError"}}
+		}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			s := cloneSnapshot(t, snapshots[1])
+			test.mutate(s.Applications[0])
+			if _, e := applicationProgress(plan, 1, s.Applications, &snapshots[0], ""); e == nil {
+				t.Fatal("unexpected drift treated as progress")
+			}
+		})
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	called := false
+	x := Executor{}
+	if e := x.wait(ctx, func() (bool, error) { called = true; return true, nil }); e == nil || called {
+		t.Fatal("canceled wait performed another read")
+	}
+}
+
+type convergenceInventory struct {
+	target       observation.Target
+	apps         []observation.Object
+	reads, lists int
+}
+
+func (r *convergenceInventory) ClusterIdentity(context.Context) (string, error) {
+	return r.target.ClusterUID, nil
+}
+func (r *convergenceInventory) Read(context.Context, observation.Ref) (observation.Object, error) {
+	r.reads++
+	return nil, errors.New("complete capture must wait")
+}
+func (r *convergenceInventory) List(context.Context, observation.Ref) ([]observation.Object, error) {
+	r.lists++
+	return r.apps, nil
+}
+
+type phaseRemote struct {
+	plan  Plan
+	calls int
+}
+
+func (r *phaseRemote) Run(_ context.Context, q atlas.Request) ([]byte, error) {
+	r.calls++
+	if q.Tool != "git" || len(q.Args) == 0 || q.Args[0] != "ls-remote" {
+		return nil, errors.New("unexpected runner request")
+	}
+	return []byte(r.plan.Phases[2].Revision + "\trefs/heads/" + r.plan.Branch + "\n"), nil
+}
+func TestConvergeDoesNotCaptureAcrossItsRunningOperation(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	pending := cloneSnapshot(t, snapshots[2])
+	active := rawIndex(pending.Applications)[AppRef(*plan.Phases[2].Stage.ActiveOwner).Key()]
+	state := observation.Map(observation.At(active, "status", "operationState"))
+	state["phase"] = "Running"
+	delete(state, "finishedAt")
+	active["operation"] = observation.Clone(observation.Map(state["operation"]))
+	repo := privateTemp(t)
+	evidence := privateTemp(t)
+	kube := []byte("synthetic binding, not an actual kubeconfig")
+	plan.Target.KubeconfigSHA256 = observation.SHA(kube)
+	if e := observation.CreatePrivate(filepath.Join(repo, ".state/kubeconfig"), kube); e != nil {
+		t.Fatal(e)
+	}
+	reader := &convergenceInventory{target: plan.Target, apps: pending.Applications}
+	runner := &phaseRemote{plan: plan}
+	executor := Executor{Plan: plan, RuntimeRepository: repo, EvidenceDirectory: evidence, Reader: reader, Runner: runner, Desired: desired, activeUID: observation.String(observation.At(active, "metadata", "uid"))}
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+	if _, e := executor.Converge(ctx, 2, &snapshots[0], &snapshots[1]); !errors.Is(e, context.DeadlineExceeded) {
+		t.Fatal("expected bounded read-only wait", e)
+	}
+	if reader.reads != 0 || reader.lists != 1 || runner.calls != 1 {
+		t.Fatal("operation was resubmitted or full capture opened prematurely", reader.reads, reader.lists, runner.calls)
 	}
 }
