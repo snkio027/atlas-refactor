@@ -126,3 +126,7 @@ platform-project / workload-project，加这个 upstream 内建项目。校验�
 本轮 [本地验证记录](s1-local-validation-20260927.json) 绑定 clean implementation commit
 `1fc71885b641668efcf27849de53d5428f8240c7`、实际工具版本、五个 binary hash 和独立 profile 渲染摘要。
 后续文档提交不改变这组本地验证的实现身份；它不包含现场 cluster UID 或 runtime PASS。
+
+最终 [本地复验记录](s1-local-validation-20260927-final.json) 绑定实现 `a8ddf72bc86478f6c6a321c63417a29ad3f17d6c`，
+覆盖有界收敛等待、Argo operation 序列化与默认工具入口修正；五个 CLI 均为此 SHA 的
+clean build。前一份记录保持历史字节；新记录仍明确 `runtime=NOT_RUN`。
