@@ -120,6 +120,51 @@ func TestBoundedRunAndStopWithoutFurtherRequests(t *testing.T) {
 		t.Fatal("interrupted run issued request")
 	}
 }
+
+// A completed transition is not a completed checkpoint. A deadline while
+// observing the changed state must preserve STOP and prevent another transition.
+type convergenceDeadlineDriver struct{ *simulatedDriver }
+
+func (d *convergenceDeadlineDriver) Converge(ctx context.Context, i int, baseline, previous *Snapshot) (Snapshot, error) {
+	if i == 1 {
+		<-ctx.Done()
+		return Snapshot{}, ctx.Err()
+	}
+	return d.simulatedDriver.Converge(ctx, i, baseline, previous)
+}
+
+func TestConvergenceDeadlineAfterTransitionKeepsStop(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	plan.MaxStageSeconds = 1
+	dir := filepath.Join(privateTemp(t), "attempt")
+	driver := &convergenceDeadlineDriver{&simulatedDriver{t: t, plan: plan, snapshots: syntheticSnapshots(t, plan, desired), failAt: -1}}
+	err := Run(context.Background(), plan, observation.Digest(plan), dir, desired, driver)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("expected convergence deadline, got %v", err)
+	}
+	if len(driver.calls) != 2 || driver.calls[0] != 0 || driver.calls[1] != 1 {
+		t.Fatal("continued or retried after transition timeout", driver.calls)
+	}
+	checkpoints, err := filepath.Glob(filepath.Join(dir, "*-checkpoint.json"))
+	if err != nil || len(checkpoints) != 1 {
+		t.Fatal("timeout was recorded as a passed checkpoint", checkpoints, err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "terminal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var terminal struct {
+		State     string `json:"state"`
+		NextIndex int    `json:"nextIndex"`
+	}
+	if err = observation.Decode(raw, &terminal, false); err != nil || terminal.State != "STOP" || terminal.NextIndex != 1 {
+		t.Fatal("missing immutable STOP", string(raw), err)
+	}
+	if err = Run(context.Background(), plan, observation.Digest(plan), dir, desired, driver); err == nil || len(driver.calls) != 2 {
+		t.Fatal("stopped attempt reopened or issued a request", err, driver.calls)
+	}
+}
+
 func TestGateEvidenceRejectsPartialAndChangedArtifacts(t *testing.T) {
 	plan, desired := syntheticPlan(t)
 	s := syntheticSnapshots(t, plan, desired)[0]
