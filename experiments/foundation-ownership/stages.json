@@ -1,0 +1,443 @@
+[
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": true,
+    "name": "BASELINE_ADOPTED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": null
+  },
+  {
+    "activeOwner": null,
+    "applications": {},
+    "atlasGate": false,
+    "name": "SOURCE_RELEASED",
+    "outcome": "released",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "BASELINE_ADOPTED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_SECRETS_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "SOURCE_RELEASED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "window"
+    },
+    "atlasGate": false,
+    "name": "MIXED_SECRETS_ADOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_SECRETS_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_SECRETS_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_SECRETS_ADOPTED_WINDOW"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_OBSERVABILITY_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_SECRETS_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "window",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_OBSERVABILITY_ADOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_OBSERVABILITY_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_OBSERVABILITY_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_OBSERVABILITY_ADOPTED_WINDOW"
+  },
+  {
+    "activeOwner": null,
+    "applications": {},
+    "atlasGate": false,
+    "name": "MIXED_ROLLBACK_TARGETS_RELEASED",
+    "outcome": "released",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_OBSERVABILITY_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_ROLLBACK_SOURCE_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_ROLLBACK_TARGETS_RELEASED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "window"
+    },
+    "atlasGate": false,
+    "name": "MIXED_ROLLBACK_SOURCE_READOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_ROLLBACK_SOURCE_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "MIXED_ROLLBACK_SOURCE_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_ROLLBACK_SOURCE_READOPTED_WINDOW"
+  },
+  {
+    "activeOwner": null,
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": true,
+    "name": "MIXED_ROLLBACK_VERIFIED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_ROLLBACK_SOURCE_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": null,
+    "applications": {},
+    "atlasGate": false,
+    "name": "SECOND_SOURCE_RELEASED",
+    "outcome": "released",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "MIXED_ROLLBACK_VERIFIED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_SECRETS_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "SECOND_SOURCE_RELEASED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "window"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_SECRETS_ADOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_SECRETS_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "secrets-foundation",
+    "applications": {
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_SECRETS_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_SECRETS_ADOPTED_WINDOW"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_OBSERVABILITY_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_SECRETS_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "window",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_OBSERVABILITY_ADOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_OBSERVABILITY_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "observability-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_OBSERVABILITY_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_OBSERVABILITY_ADOPTED_WINDOW"
+  },
+  {
+    "activeOwner": "storage-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict",
+      "storage-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_STORAGE_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "FORWARD_OBSERVABILITY_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": "storage-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict",
+      "storage-foundation": "window"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_STORAGE_ADOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "storage-foundation"
+    },
+    "previous": "FORWARD_STORAGE_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "storage-foundation",
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict",
+      "storage-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "FORWARD_STORAGE_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "storage-foundation"
+    },
+    "previous": "FORWARD_STORAGE_ADOPTED_WINDOW"
+  },
+  {
+    "activeOwner": null,
+    "applications": {
+      "observability-foundation": "strict",
+      "secrets-foundation": "strict",
+      "storage-foundation": "strict"
+    },
+    "atlasGate": true,
+    "name": "FORWARD_VERIFIED",
+    "outcome": "success",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "storage-foundation"
+    },
+    "previous": "FORWARD_STORAGE_STRICT_RESTORED"
+  },
+  {
+    "activeOwner": null,
+    "applications": {},
+    "atlasGate": false,
+    "name": "REVERSE_TARGETS_RELEASED",
+    "outcome": "released",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "storage-foundation"
+    },
+    "previous": "FORWARD_VERIFIED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "REVERSE_SOURCE_STRICT_REFUSED",
+    "outcome": "blocked",
+    "owners": {
+      "observability": "observability-foundation",
+      "secrets": "secrets-foundation",
+      "storage": "storage-foundation"
+    },
+    "previous": "REVERSE_TARGETS_RELEASED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "window"
+    },
+    "atlasGate": false,
+    "name": "REVERSE_SOURCE_READOPTED_WINDOW",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "REVERSE_SOURCE_STRICT_REFUSED"
+  },
+  {
+    "activeOwner": "capability-foundation",
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": false,
+    "name": "REVERSE_SOURCE_STRICT_RESTORED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "REVERSE_SOURCE_READOPTED_WINDOW"
+  },
+  {
+    "activeOwner": null,
+    "applications": {
+      "capability-foundation": "strict"
+    },
+    "atlasGate": true,
+    "name": "REVERSE_VERIFIED",
+    "outcome": "success",
+    "owners": {
+      "observability": "capability-foundation",
+      "secrets": "capability-foundation",
+      "storage": "capability-foundation"
+    },
+    "previous": "REVERSE_SOURCE_STRICT_RESTORED"
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "controllerPayloadSHA256": "b57f54f0f9186b0eb2294ad12487e24c0ebf31c268c3f31d48fc32e63408ca4f",
+  "newLayoutCommit": "b5d0562381f5b3989578d62e2677364d8c73710d",
+  "objects": [
+    {
+      "desiredSHA256": "6ec7075dac1ee1bba900d7fe085f5398761005efa06911a90e00fba78b7ba6a0",
+      "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-monitoring/monitoring-ingress",
+      "newOwner": "observability-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "83473d5f54f51eea44121af5c37c27f449269c7ca65cee5c8292014c9201bf09",
+      "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-storage/s3-clients",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "88f831189e29187027cea9f325b85665bca663def3b91322b1c750d211b5fa2c",
+      "identity": "networking.k8s.io/v1/NetworkPolicy/atlas-storage/s3-default-deny",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "dca62a20f8be76f0feda2a33183d8e3c8f982fd6e591d5df4072b6560f10eac0",
+      "identity": "networking.k8s.io/v1/NetworkPolicy/workload-web/s3-client-egress",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "0d7b7c78f1af640481074d737fa1f1616d74cecaf911e288d651be7824a45f57",
+      "identity": "v1/LimitRange/atlas-monitoring/defaults",
+      "newOwner": "observability-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "347bfcc0accdfe95c690dd66d140553e10203ba86771815dc84866416f4965b6",
+      "identity": "v1/LimitRange/atlas-secrets/defaults",
+      "newOwner": "secrets-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "83300ea6b88cb4d3d19e508e643d10332ae8b29a026ac566f1f80aa8198b23df",
+      "identity": "v1/LimitRange/atlas-storage/defaults",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "fb23415a7848ec00981e2ff7a48503f2ba77a2783512b369cc2ad4bf6adae222",
+      "identity": "v1/Namespace//atlas-monitoring",
+      "newOwner": "observability-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "71c55725dd7bec4ffb456aaf8e1f863925c97a2489c9e42e826b4179d03877f8",
+      "identity": "v1/Namespace//atlas-secrets",
+      "newOwner": "secrets-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "1837431ef055e3fd216d5e2d995dd5ff417d11c5c5ce202c31702cca1bfb726e",
+      "identity": "v1/Namespace//atlas-storage",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "b2b001935f115d93092b3c058b95a228c9ca3b724e7650e20570f00d0ab50bdf",
+      "identity": "v1/ResourceQuota/atlas-monitoring/platform-budget",
+      "newOwner": "observability-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "fd8ee7050980dceee169866ee25a7753156048d4f618cdeabad4fbab1e3c6825",
+      "identity": "v1/ResourceQuota/atlas-secrets/platform-budget",
+      "newOwner": "secrets-foundation",
+      "oldOwner": "capability-foundation"
+    },
+    {
+      "desiredSHA256": "635acccef020cd1a644860adea520228a21b9ceeae2c29b3ab129e5e1c1e47c8",
+      "identity": "v1/ResourceQuota/atlas-storage/platform-budget",
+      "newOwner": "storage-foundation",
+      "oldOwner": "capability-foundation"
+    }
+  ],
+  "oldLayoutCommit": "b618dea24b7c46cd36fd11a568a72c9a88f2097a",
+  "sourceFilesSHA256": {
+    "gitops/platform/foundation/capabilities/overlays/development/resources.json": "93c5038996b2e2837d9b829b8eb967a3f2e8f4abd90ad953da89e70db7102e8c",
+    "gitops/platform/foundation/observability/overlays/development/resources.json": "df5981c62184911165faa2f07bbc4525dec477ca068e3a685a6364de68673a1c",
+    "gitops/platform/foundation/secrets/overlays/development/resources.json": "77406cc7a0606d3cba799443b4cbe0e861b024ffa2bd6f4a0b439abfc4746bcb",
+    "gitops/platform/foundation/storage/overlays/development/resources.json": "38bcd02a1516d843a96f874e8aff3e2406cd6b83760c461cd10bac9efcc090c9"
+  }
+}
