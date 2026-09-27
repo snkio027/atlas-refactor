@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
-  "revision": "codex/development-platform",
+  "revision": "codex/ot1-desired-state",
   "rootPath": "gitops/root/overlays/development",
   "components": {
     "foundation": "gitops/platform/foundation/overlays/development",

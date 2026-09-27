@@ -1,0 +1,9 @@
+{
+  "schema": 3,
+  "cluster": "atlas-refactor-test-ot1",
+  "repositoryURL": "https://github.com/snkio027/atlas-refactor.git",
+  "revision": "codex/ot1-desired-state",
+  "gitopsPath": "gitops/root/overlays/development",
+  "dockerContext": "orbstack",
+  "timeoutSeconds": 1800
+}

@@ -1,5 +1,6 @@
 {
   "apiVersion": "v1",
+  "kind": "List",
   "items": [
     {
       "apiVersion": "argoproj.io/v1alpha1",
@@ -9,6 +10,39 @@
         "namespace": "argocd"
       },
       "spec": {
+        "sourceRepos": [
+          "https://github.com/snkio027/atlas-refactor.git"
+        ],
+        "destinations": [
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "argocd"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "kube-system"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "cert-manager"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "envoy-gateway-system"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "atlas-gateway"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "local-path-storage"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "workload-web"
+          }
+        ],
         "clusterResourceWhitelist": [
           {
             "group": "",
@@ -49,48 +83,6 @@
           {
             "group": "admissionregistration.k8s.io",
             "kind": "ValidatingAdmissionPolicyBinding"
-          }
-        ],
-        "destinations": [
-          {
-            "namespace": "argocd",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "kube-system",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "cert-manager",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "envoy-gateway-system",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "atlas-gateway",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "local-path-storage",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "workload-web",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "atlas-monitoring",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "atlas-secrets",
-            "server": "https://kubernetes.default.svc"
-          },
-          {
-            "namespace": "atlas-storage",
-            "server": "https://kubernetes.default.svc"
           }
         ],
         "namespaceResourceWhitelist": [
@@ -169,38 +161,7 @@
           {
             "group": "gateway.networking.k8s.io",
             "kind": "Gateway"
-          },
-          {
-            "group": "bitnami.com",
-            "kind": "SealedSecret"
-          },
-          {
-            "group": "monitoring.coreos.com",
-            "kind": "AlertmanagerConfig"
-          },
-          {
-            "group": "",
-            "kind": "PersistentVolumeClaim"
-          },
-          {
-            "group": "monitoring.coreos.com",
-            "kind": "Alertmanager"
-          },
-          {
-            "group": "monitoring.coreos.com",
-            "kind": "Prometheus"
-          },
-          {
-            "group": "monitoring.coreos.com",
-            "kind": "PrometheusRule"
-          },
-          {
-            "group": "monitoring.coreos.com",
-            "kind": "ServiceMonitor"
           }
-        ],
-        "sourceRepos": [
-          "https://github.com/snkio027/atlas-refactor.git"
         ]
       }
     },
@@ -212,13 +173,16 @@
         "namespace": "argocd"
       },
       "spec": {
-        "clusterResourceWhitelist": [],
+        "sourceRepos": [
+          "https://github.com/snkio027/atlas-refactor.git"
+        ],
         "destinations": [
           {
-            "namespace": "workload-web",
-            "server": "https://kubernetes.default.svc"
+            "server": "https://kubernetes.default.svc",
+            "namespace": "workload-web"
           }
         ],
+        "clusterResourceWhitelist": [],
         "namespaceResourceWhitelist": [
           {
             "group": "",
@@ -240,12 +204,8 @@
             "group": "gateway.networking.k8s.io",
             "kind": "HTTPRoute"
           }
-        ],
-        "sourceRepos": [
-          "https://github.com/snkio027/atlas-refactor.git"
         ]
       }
     }
-  ],
-  "kind": "List"
+  ]
 }
