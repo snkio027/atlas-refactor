@@ -32,7 +32,18 @@ func ReadOnlyRequest(q atlas.Request) bool {
 	if len(q.Input) > 0 {
 		// The existing engine decodes rendered manifests with strictly client-side
 		// dry run; this performs discovery GETs but never sends a create request.
-		return q.Tool == "kubectl" && len(a) == 12 && a[0] == "--kubeconfig" && a[2] == "--context" && a[4] == "--request-timeout=30s" && strings.Join(a[5:], " ") == "create --dry-run=client --validate=false -f - -o json"
+		if q.Tool != "kubectl" || len(a) != 12 || a[0] != "--kubeconfig" || a[2] != "--context" || a[4] != "--request-timeout=30s" {
+			return false
+		}
+		switch strings.Join(a[5:], " ") {
+		case "create --dry-run=client --validate=false -f - -o json",
+			"get -f - --ignore-not-found=true --show-managed-fields -o json":
+			// The second form reads the rendered Seed identities from stdin;
+			// passing a manifest to kubectl get does not grant write authority.
+			return true
+		default:
+			return false
+		}
 	}
 	switch q.Tool {
 	case "git":

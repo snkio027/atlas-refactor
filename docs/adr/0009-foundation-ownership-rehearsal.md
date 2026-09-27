@@ -182,7 +182,16 @@ timeout/stop 行为与批准记录。Plan SHA 是最终 plan 文件字节 hash�
 operation phase、verifier exit、对象差异和无旁路写入证据。公开证据只包含经过检查的
 非敏感结果；私有 GET 原文、kubeconfig、key/credentials 与日志留在 .state/Vault。
 
-当前验证覆盖本地真实渲染、普通 Bootstrap 回归、共享观察器、完整合成阶段链、请求 guard、
-自动续行与不可覆盖 STOP；OT-1A/OT-1B、父级 detach/reattach、fresh bootstrap、完整平台
-和 failure-path 的真实集群证明全部 NOT_RUN。不得据此接纳 ADR-0008 或迁移 dev02。
+当前已验证本地真实渲染、普通 Bootstrap 回归、共享观察器、合成阶段链及请求 guard；
+fresh Bootstrap 和完整平台已有现场证明。OT-1 在外部 mutation 前 STOP，完整
+OT-1A/OT-1B、父级 detach/reattach 与 rollback 仍未证明。不得据此接纳 ADR-0008 或迁移 dev02。
 具体入口、plan/evidence 格式、授权边界及限制见 [S1 实现说明](../s1-observation-ownership.md)。
+
+## 开发保留策略
+
+create-only、SHA 绑定和不可覆盖终态用于实际 authority execution。日常本地开发与只读
+预检使用 latest 工作状态；已理解且确认没有外部 mutation 的失败进入回归测试和
+[Failure Journal](../s1-failures.md)，临时 plan/binary/快照可清理。重要 live/Git mutation、
+Trust Root/凭据变化、影响不明的 STOP 与最终 Gate PASS 仍保留完整 authority evidence。
+锁用于互斥和阻止未经审查的重入，不兼任永久档案；执行器失败仍留锁，调用者仅在明确
+零影响、当前状态复核及用户授权后清理摘要匹配的旧锁。已发生 mutation 的恢复决定不变。

@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -35,7 +36,7 @@ func (x *Executor) AtlasGate(ctx context.Context, index int, snapshot Snapshot, 
 	app := &atlas.App{Root: x.RuntimeRepository, Config: config, Lock: lock, Runner: readonly}
 	report := app.Status(ctx)
 	if report.State != atlas.Adopted {
-		return snapshot, nil, errors.New("existing engine does not report ADOPTED")
+		return snapshot, nil, fmt.Errorf("existing engine does not report ADOPTED: %s: %s", report.State, report.Detail)
 	}
 	before, e := readAudit(x.RuntimeRepository)
 	if e != nil {

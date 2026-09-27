@@ -127,8 +127,8 @@ kubeconfig/context；Source 分支只允许计划内 fast-forward。每步前重
 才采集完整多对象证据。新建 owner 的 UID 绑定 create/sync 返回的身份；完整快照仍要求
 首尾 UID/RV 与 inventory 一致。Argo `omitempty` 省略的 `prune=false` 可被识别，但每次
 operation 的 source/manifests/resources 等覆盖参数会被拒绝。等待只读，不重试 mutation。任何未知、
-意外条件、scope/spec/UID drift、额外对象、超时、中断或证据写失败都会停止。失败的 run lock、
-intent、响应摘要与现场保留；不会自动关闭窗口、恢复 controller、rollback、删除集群或续跑。
+意外条件、scope/spec/UID drift、额外对象、超时、中断或证据写失败都会停止。失败时 run lock、
+intent、响应摘要与现场先保留；不会自动关闭窗口、恢复 controller、rollback、删除集群或续跑。
 窗口可能仍开放；续行必须先审查现场与新计划，不能简单删锁后重放同一 attempt。
 
 ## 本地验证与现场 Gate
@@ -151,14 +151,24 @@ S2 Project/Workload/Binding 与 S3 scopegen/runtime/CI 只更新路线图，未�
 platform-project / workload-project，加这个 upstream 内建项目。校验器对内建 spec 使用
 该版本的精确投影，之后绑定 UID/完整 semantic；不会删除它、放宽它或把 Atlas App 指向它。
 
-本轮 [本地验证记录](s1-local-validation-20260927.json) 绑定 clean implementation commit
-`1fc71885b641668efcf27849de53d5428f8240c7`、实际工具版本、五个 binary hash 和独立 profile 渲染摘要。
-后续文档提交不改变这组本地验证的实现身份；它不包含现场 cluster UID 或 runtime PASS。
+## 开发证据与 authority evidence
 
-最终 [本地复验记录](s1-local-validation-20260927-final.json) 绑定实现 `a8ddf72bc86478f6c6a321c63417a29ad3f17d6c`，
-覆盖有界收敛等待、Argo operation 序列化与默认工具入口修正；五个 CLI 均为此 SHA 的
-clean build。前一份记录保持历史字节；新记录仍明确 `runtime=NOT_RUN`。
+日常开发只验证最新 implementation、plan、cluster 与 verification，固定使用
+`.state/latest/ot1/`；失败沉淀为 [Failure Journal](s1-failures.md) 与回归测试。
+本地编译、只读 capture/preflight、质量日志可在确认不再被运行引用后替换。
+CLI 的 create-only 检查仍保留；清理由调用者在重新生成前显式执行，不添加 force/overwrite。
 
-F1/F2/F3 follow-up: [same-cluster preflight report](ot1-f123-preflight-20260927.md). Local quality and clean builds pass; the new plan remains NOT_RUN because hook status and empty-selector representation block the baseline. The original STOP and run lock remain intact.
+| 情况 | 保留与续行 |
+| --- | --- |
+| 本地/只读失败 | 确定原因、补测试、更新 journal；替换临时开发输出 |
+| ceremony 在外部 mutation 前 STOP | 先核对 request intent、Git source、审计和当前目标；明确零影响后可清理旧 binary/plan/快照/锁，在既有授权范围内用最新绑定重验 |
+| 已发布后续 Git、已写 live resource、数据或 Trust Root，或影响不明 | 冻结完整 plan/binary/intent/响应/前后事实；停止并审查恢复决定 |
+| 正式 Gate PASS | 保存完整不可变最终 bundle |
 
-Subsequent owner-approved hook/selector fixes and the new read-only baseline now pass. See [continuation plan and verification](ot1-continuation-ready-20260927.md). The 29-stage ceremony remains NOT_RUN, pending approval of the new plan and explicit old-lock disposition.
+run lock 阻止并发与未经审查的重入，terminal 记录运行终态。两者用途分开。
+失败时执行器仍保留锁并停止，不自行判断可恢复；经上述零影响核对及用户授权后，
+调用者可显式移除摘要匹配的 stale lock。重要 mutation 后 STOP 的锁和证据继续保留，
+直到恢复/完成决定；禁止仅删锁后重放。此规则不改变任何 Kubernetes/Git 写权限、
+13 对象作用域、failure classifier 或批准过的目标。
+
+当前完整 ceremony 尚未通过；最新零写入失败及修复见 Failure Journal。真实 Bootstrap 与平台创建证据继续保留，最终结果仅在完整 Gate 后记录。

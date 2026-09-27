@@ -524,3 +524,27 @@ func TestNetworkPolicyEmptySelectorsKeepPeerAndPlacement(t *testing.T) {
 		t.Fatal("absence of namespace selector was hidden")
 	}
 }
+
+func TestReadOnlySeedInventoryWithStdin(t *testing.T) {
+	q := atlas.Request{Tool: "kubectl", Args: []string{"--kubeconfig", "private", "--context", "bound", "--request-timeout=30s", "get", "-f", "-", "--ignore-not-found=true", "--show-managed-fields", "-o", "json"}, Input: []byte("{\"kind\":\"List\",\"items\":[]}")}
+	if !ReadOnlyRequest(q) {
+		t.Fatal("normal engine Seed inventory GET was denied")
+	}
+	for _, change := range []func(*atlas.Request){
+		func(r *atlas.Request) { r.Args[5] = "apply" },
+		func(r *atlas.Request) { r.Args[5] = "create" },
+		func(r *atlas.Request) { r.Args[5] = "delete" },
+		func(r *atlas.Request) { r.Args[7] = "unreviewed-file" },
+		func(r *atlas.Request) { r.Args[8] = "--raw=/api/v1/namespaces" },
+		func(r *atlas.Request) { r.Args = append(r.Args, "--watch") },
+		func(r *atlas.Request) { r.InputPath = "file" },
+		func(r *atlas.Request) { r.Tool = "other" },
+	} {
+		bad := q
+		bad.Args = append([]string(nil), q.Args...)
+		change(&bad)
+		if ReadOnlyRequest(bad) {
+			t.Fatalf("stdin exception admitted another request: %v", bad.Args)
+		}
+	}
+}
