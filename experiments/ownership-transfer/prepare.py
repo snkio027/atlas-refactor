@@ -84,6 +84,16 @@ def images(value):
             yield from images(v)
 
 
+def argocd_config():
+    # Argo v3.5.1's SettingsManager filters ConfigMaps by this part-of label.
+    return {'apiVersion': 'v1', 'kind': 'ConfigMap',
+            'metadata': {'name': 'argocd-cm', 'namespace': 'argocd', 'labels': {
+                'app.kubernetes.io/name': 'argocd-cm',
+                'app.kubernetes.io/part-of': 'argocd'}},
+            'data': {'application.resourceTrackingMethod': 'annotation',
+                     'timeout.reconciliation': '15s', 'timeout.reconciliation.jitter': '0s'}}
+
+
 def prepare(revision, output, tools):
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('a full reviewed commit SHA is required')
@@ -126,7 +136,7 @@ def prepare(revision, output, tools):
         raise ValueError('unexpected seed image set')
     write(output / 'seed.json', {'apiVersion': 'v1', 'kind': 'List', 'items': seed})
     write(output / 'argocd-namespace.json', {'apiVersion': 'v1', 'kind': 'Namespace', 'metadata': {'name': 'argocd'}})
-    write(output / 'argocd-cm.json', {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': {'name': 'argocd-cm', 'namespace': 'argocd'}, 'data': {'application.resourceTrackingMethod': 'annotation', 'timeout.reconciliation': '15s', 'timeout.reconciliation.jitter': '0s'}})
+    write(output / 'argocd-cm.json', argocd_config())
     project = {'apiVersion': 'argoproj.io/v1alpha1', 'kind': 'AppProject', 'metadata': {'name': 'ot0-probe', 'namespace': 'argocd'}, 'spec': {
         'sourceRepos': [REPO], 'destinations': [{'server': 'https://kubernetes.default.svc', 'namespace': 'ot0-probe'}],
         'clusterResourceWhitelist': [{'group': '', 'kind': 'Namespace'}],

@@ -1,6 +1,6 @@
 # OT-0：两对象 Argo ownership transfer probe
 
-状态：PREPARED，尚无 runtime proof。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
+状态：首次运行在 SETUP 停止，A1–A6 未执行，尚无 ownership runtime proof。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
 这是一次性实验材料，不是普通 Bootstrap、recovery 或 capability migration 命令。
 
 ## 精确目标与启动门禁
@@ -79,3 +79,18 @@ python3 -B experiments/ownership-transfer/observe.py \
 实验结束只允许报告 OT0_TRANSFER_WINDOW_VERIFIED；13 对象和 Bootstrap authority 不在本实验内。
 关闭窗口是 A5/A6-restored 的明确同步阶段，没有自动计时恢复；中断时报告遗留的 strict/transfer
 状态并保持停止。保留新集群和证据，后续清理须另行授权。
+
+## 首次运行与受审查续行
+
+ac90898 的首次运行已创建独立 OT-0 集群并安装 Seed，但生成的 argocd-cm 缺少
+`app.kubernetes.io/part-of=argocd`，被 settings informer 过滤，controller 因此退出。
+A1 尚未开始，无 probe Application、无两个 probe 对象、无 transfer window。
+原计划/日志留在 `.state/ownership-transfer/ot0`；失败证据见
+[attempt01](../../docs/evidence/ownership-transfer-ot0-20260927-attempt01.json)。
+
+修正仅增加 argocd-cm 的 Argo 识别标签。新的 immutable plan 写入独立目录 `ot0-retry1`，
+不覆盖首次计划。续行需要新的明确批准：核对原 binding 的 cluster UID、kubeconfig SHA、
+argocd-cm UID、原始 data 与标签为空，确认仍无 probe Application/Namespace，随后仅更新
+argocd-cm 的两个 labels，等待 Kubernetes 正常重试拉起 controller。禁止重建集群、替换
+Seed、主动 restart 或修改 Secret。完成 readiness 后再创建 AppProject，并按原 A1–A6
+序列执行，使用新计划的统一 commit SHA。任何再次异常仍停止；OT-1/dev02 继续不获批准。

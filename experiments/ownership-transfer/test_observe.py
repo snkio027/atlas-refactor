@@ -3,7 +3,7 @@ import copy
 import unittest
 
 from observe import check, semantic, TRACKING, STAGES, OWNERS, PREVIOUS
-from prepare import application, options, CLUSTER
+from prepare import application, options, CLUSTER, argocd_config
 
 SHA = 'a' * 40
 PLAN = {'revision': SHA}
@@ -43,6 +43,15 @@ def snapshot(stage):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_settings_configmap_is_visible_to_argocd_informer(self):
+        # Upstream v3.5.1 SettingsManager.initialize applies this selector;
+        # the first live attempt failed before A1 when the label was omitted.
+        cm = argocd_config()
+        selected = [o for o in [cm] if o['metadata'].get('labels', {}).get(
+            'app.kubernetes.io/part-of') == 'argocd']
+        self.assertEqual([o['metadata']['name'] for o in selected], ['argocd-cm'])
+        self.assertEqual(selected[0]['data']['application.resourceTrackingMethod'], 'annotation')
+
     def test_accepts_explicit_forward_and_reverse_sequence(self):
         baseline = snapshot('A1')
         previous = None
