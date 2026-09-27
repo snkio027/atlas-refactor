@@ -4,7 +4,7 @@
 - Date: 2026-09-27
 - Parent: [ADR-0007](0007-platform-contract-hardening.md)、[ADR-0008](0008-ownership-transfer-probe.md)
 - Scope: 仅 atlas-refactor-test-ot1；13-object、1→3→1 实验，不批准 dev02 迁移
-- Implementation: S1 本地实现与验证；runtime NOT_RUN，完整现场计划尚未授权
+- Implementation: S1 Observation/runtime substrate 部分现场验证；OT-1 ownership 在 BASELINE_ADOPTED STOP，NOT PROVEN。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
 
 ## 决策目标与权责
 

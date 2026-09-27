@@ -197,6 +197,7 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 		return Assessment{Ownership: "STOP", Atlas: "NOT_PROVEN", Reasons: []string{"PHASE_OUTSIDE_PLAN"}}
 	}
 	phase := plan.Phases[index]
+	step := Steps(plan)[index]
 	out := Assessment{Stage: phase.Stage.Name, Ownership: "VERIFIED", Atlas: "NOT_APPLICABLE", Reasons: []string{}}
 	fail := func(reason string) { out.Ownership = "STOP"; out.Reasons = append(out.Reasons, reason) }
 	if current.Envelope.Schema != "atlas.observation/v1" || current.Envelope.Subject != "ot1/"+phase.Stage.Name || current.Envelope.StartedAt.IsZero() || current.Envelope.FinishedAt.Before(current.Envelope.StartedAt) || current.Schema != 1 || current.PlanSHA256 != observation.Digest(plan) || current.Stage != phase.Stage.Name || current.Revision != phase.Revision || current.Envelope.Target != plan.Target || current.Envelope.ImplementationSHA != plan.Implementation.Revision || current.Envelope.BinarySHA256 != plan.Implementation.BinarySHA256 || current.Envelope.ExpectedRevision != phase.Revision {
@@ -260,8 +261,10 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 			expect.UID = observation.String(observation.At(old, "metadata", "uid"))
 		}
 		fact := observation.ClassifyApplication(expect, app, nil)
-		active := phase.Stage.ActiveOwner != nil && *phase.Stage.ActiveOwner == expect.Name
-		if active && phase.Stage.Outcome == "blocked" {
+		// Only a submitted ceremony sync needs operation-correlated evidence.
+		// A state gate may observe a newer revision than the last successful sync.
+		syncOwner := step.Sync && step.Owner == expect.Name
+		if syncOwner && phase.Stage.Outcome == "blocked" {
 			for _, reason := range fact.Reasons {
 				if reason != "SHARED_RESOURCE" && reason != "LAST_OPERATION_FAILED" && reason != "OUT_OF_SYNC" && reason != "HEALTH_NOT_READY" && reason != "BLOCKING_RESOURCES" {
 					fail("UNEXPECTED_REFUSAL_STATE:" + reason)
@@ -280,7 +283,7 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 				fail("FOUNDATION_INVENTORY_MISMATCH:" + expect.Name)
 			}
 		}
-		if active {
+		if syncOwner {
 			if e := operationMatches(app, phase, phase.Stage.Name, phase.Stage.Outcome); e != nil {
 				fail("OPERATION_FENCE:" + expect.Name)
 			}

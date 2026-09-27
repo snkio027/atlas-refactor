@@ -104,7 +104,7 @@ func syntheticSnapshots(t *testing.T, plan Plan, desired map[string]observation.
 					observation.Map(app["metadata"])["annotations"] = observation.Object{observation.TrackingAnnotation: observation.Tracking("platform-control", "argocd", AppRef(expect.Name))}
 				}
 			}
-			if phase.Stage.ActiveOwner != nil && *phase.Stage.ActiveOwner == expect.Name {
+			if step := Steps(plan)[i]; step.Sync && step.Owner == expect.Name {
 				op := observation.Object{"phase": "Succeeded", "finishedAt": "2026-09-27T00:00:00Z", "syncResult": observation.Object{"revision": phase.Revision}, "operation": observation.Object{"info": []any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}, "sync": observation.Object{"revision": phase.Revision, "prune": false, "syncOptions": observation.At(app, "spec", "syncPolicy", "syncOptions")}}}
 				if phase.Stage.Outcome == "blocked" {
 					op["phase"] = "Failed"
@@ -389,5 +389,68 @@ func TestArgoOperationRoundTripOmitsFalseButCannotOverrideGitSource(t *testing.T
 		if e := operationMatches(bad, phase, phase.Stage.Name, phase.Stage.Outcome); e == nil {
 			t.Fatal("malformed/enabled prune accepted", value)
 		}
+	}
+}
+
+// Argo can compare unchanged manifests at B without performing another sync:
+// status.sync.revision=B while the successful operation still records A.
+func TestObservedStateDoesNotInventCeremonyOperation(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	for _, name := range []string{"BASELINE_ADOPTED", "FORWARD_SECRETS_STRICT_RESTORED"} {
+		t.Run(name, func(t *testing.T) {
+			index := -1
+			for i, p := range plan.Phases {
+				if p.Stage.Name == name {
+					index = i
+				}
+			}
+			if index < 0 {
+				t.Fatal("missing fixture phase")
+			}
+			s := snapshots[index]
+			owner := *plan.Phases[index].Stage.ActiveOwner
+			app := rawIndex(s.Applications)[AppRef(owner).Key()]
+			observation.Map(app["status"])["operationState"] = observation.Object{
+				"phase": "Succeeded", "finishedAt": "2026-09-27T00:00:00Z",
+				"syncResult": observation.Object{"revision": strings.Repeat("a", 40)},
+				"operation":  observation.Object{"sync": observation.Object{"revision": strings.Repeat("a", 40)}},
+			}
+			var base, previous *Snapshot
+			if index > 0 {
+				base, previous = &snapshots[0], &snapshots[index-1]
+			}
+			ready, e := applicationProgress(plan, index, s.Applications, previous, "")
+			got := Assess(plan, index, s, base, previous, desired, fixtureGate(plan, plan.Phases[index], s))
+			if name == "BASELINE_ADOPTED" {
+				if !ready || e != nil || !got.Passed() {
+					t.Fatalf("valid observed baseline rejected: ready=%v err=%v assessment=%+v", ready, e, got)
+				}
+				// State-only evidence still requires exact observed revision and idle health.
+				for _, change := range []string{"revision", "failed", "active", "unhealthy"} {
+					bad := cloneSnapshot(t, s)
+					for _, objects := range [][]observation.Object{bad.Applications, bad.Envelope.Raw} {
+						o := rawIndex(objects)[AppRef(owner).Key()]
+						switch change {
+						case "revision":
+							observation.Map(observation.At(o, "status", "sync"))["revision"] = strings.Repeat("a", 40)
+						case "failed":
+							observation.Map(observation.At(o, "status", "operationState"))["phase"] = "Failed"
+						case "active":
+							o["operation"] = observation.Object{"sync": observation.Object{"revision": plan.Phases[index].Revision}}
+						case "unhealthy":
+							observation.Map(observation.At(o, "status", "health"))["status"] = "Degraded"
+						}
+					}
+					ready, _ := applicationProgress(plan, index, bad.Applications, previous, "")
+					got := Assess(plan, index, bad, base, previous, desired, fixtureGate(plan, plan.Phases[index], bad))
+					if ready || got.Ownership != "STOP" {
+						t.Fatalf("%s baseline accepted: ready=%v assessment=%+v", change, ready, got)
+					}
+				}
+			} else if ready || e == nil || got.Ownership != "STOP" || !strings.Contains(strings.Join(got.Reasons, ","), "OPERATION_FENCE:"+owner) {
+				t.Fatalf("uncorrelated transition accepted: ready=%v err=%v assessment=%+v", ready, e, got)
+			}
+		})
 	}
 }

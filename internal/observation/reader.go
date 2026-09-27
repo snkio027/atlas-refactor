@@ -332,13 +332,33 @@ func (r *APIReader) List(ctx context.Context, kind Ref) ([]Object, error) {
 		return nil, errors.New("inventory unavailable")
 	}
 	items, ok := o["items"].([]any)
-	if !ok || String(o["apiVersion"]) != kind.APIVersion || String(o["kind"]) != kind.Kind+"List" || String(At(o, "metadata", "resourceVersion")) == "" || String(At(o, "metadata", "continue")) != "" {
+	if !ok || String(o["apiVersion"]) != kind.APIVersion || String(o["kind"]) != kind.Kind+"List" || String(At(o, "metadata", "resourceVersion")) == "" {
 		return nil, errors.New("incomplete inventory response")
+	}
+	if continuation, present := Map(o["metadata"])["continue"]; present {
+		if token, ok := continuation.(string); !ok || token != "" {
+			return nil, errors.New("incomplete inventory response")
+		}
 	}
 	out := []Object{}
 	seen := map[string]bool{}
 	for _, raw := range items {
 		item := Map(raw)
+		if item == nil {
+			return nil, errors.New("invalid inventory member")
+		}
+		// Typed Kubernetes lists can omit member TypeMeta. Inherit only absent
+		// fields after discovery, locked scope and the list header are verified.
+		// Explicit null, empty, malformed or conflicting values still fail closed.
+		for field, expected := range map[string]string{"apiVersion": kind.APIVersion, "kind": kind.Kind} {
+			if value, present := item[field]; present {
+				if text, ok := value.(string); !ok || text != expected {
+					return nil, errors.New("invalid inventory member type")
+				}
+			} else {
+				item[field] = expected
+			}
+		}
 		ref := Reference(item)
 		if ref.APIVersion != kind.APIVersion || ref.Kind != kind.Kind || ref.Namespace != kind.Namespace || ref.Validate() != nil || seen[ref.Key()] {
 			return nil, errors.New("invalid inventory member")

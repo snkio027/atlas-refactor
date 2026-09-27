@@ -22,6 +22,18 @@ Observation 为 `VERIFIED / PROGRESSING / DEGRADED / DRIFTED / UNKNOWN / ABSENT`
 exit 0 只表示本次 expectation 验证成功；普通未就绪/退化/缺失为 1，未知/漂移/输入错误为 2。
 它不授权修复，不修改 refresh annotation，不写 catalog/enabled，不成为 daemon。
 
+## 状态证据与操作证据
+
+校验器依据编译后的 `Steps(plan)[index].Sync` 判断是否需要本阶段 operation proof。
+未提交 sync 的 BASELINE_ADOPTED 验证当前完整 spec、精确 observed revision、Synced/Healthy、
+idle、identity、tracking 与 inventory；最近成功 operation 可以属于更早的无内容差异提交，
+无需虚构 ceremony marker。实际提交 sync 的阶段仍要求精确 ot1-stage、operation revision、
+outcome 和 syncOptions；同样的旧 operation 在 STRICT_RESTORED 必须失败。
+
+共享 APIReader 先验证 discovery、锁定 GVK/scope、typed list header、resourceVersion 和无分页，
+然后仅补全成员中缺失的 apiVersion/kind。显式空值、null、类型错误和冲突值仍拒绝；后续
+namespace/name、scope 与重复 identity 校验不变。规范化不能隐藏语义分歧。
+
 ## 入口
 
 在仓库根目录使用锁定工具构建。`observe/capture/run` 要求 `go build` 的 clean VCS-stamped
@@ -94,6 +106,10 @@ baseline SHA，并持有创建该集群时的专用 kubeconfig、offline archive
 kubeconfig/context；Source 分支只允许计划内 fast-forward。每步前重新观察前驱、目标、
 对象与来源，每次 API mutation 检查 13 对象及审计；patch/delete 使用服务器原子前置条件。
 父级先移出 foundation Apps，比较新 SHA 后才 release；全部 strict 恢复后按 Git 重接 parent。
+
+总 deadline 从命令准备开始计时，按 `阶段数 × MaxStageSeconds + 15 分钟` 推导；
+当前为 `29 × 300 秒 + 15 分钟 = 160 分钟`。计划验证阶段仍限 10 分钟，运行阶段不继承
+该较短 timer；调用者的取消和更短 deadline 仍有效。不会新增可调超时配置。
 
 一个阶段最多 300 秒；先以单次 Application list 检查已提交操作的可解释收敛，待就绪后
 才采集完整多对象证据。新建 owner 的 UID 绑定 create/sync 返回的身份；完整快照仍要求

@@ -250,7 +250,7 @@ func TestApplicationReadinessBeforeVersionFencedCapture(t *testing.T) {
 		if ready, e := applicationProgress(plan, i, snapshot.Applications, previous, activeUID); !ready || e != nil {
 			t.Fatalf("terminal stage %s not ready: %v", snapshot.Stage, e)
 		}
-		if plan.Phases[i].Stage.ActiveOwner == nil {
+		if !Steps(plan)[i].Sync {
 			continue
 		}
 		pending := cloneSnapshot(t, snapshot)

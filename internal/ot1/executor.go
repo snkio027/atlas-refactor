@@ -336,8 +336,9 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 		return errors.New("observation unavailable or changed during capture")
 	}
 	phase := plan.Phases[index]
-	if phase.Stage.ActiveOwner != nil {
-		active := rawIndex(s.Applications)[AppRef(*phase.Stage.ActiveOwner).Key()]
+	step := Steps(plan)[index]
+	if step.Sync {
+		active := rawIndex(s.Applications)[AppRef(step.Owner).Key()]
 		opPhase := observation.String(observation.At(active, "status", "operationState", "phase"))
 		marker := observation.Digest(observation.At(active, "status", "operationState", "operation", "info"))
 		if active["operation"] == nil && (opPhase == "Succeeded" || opPhase == "Failed") && marker == observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) {
@@ -390,6 +391,7 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 // activeUID binds a newly created owner to the UID returned before SyncPatch.
 func applicationProgress(plan Plan, index int, applications []observation.Object, previous *Snapshot, activeUID string) (bool, error) {
 	phase := plan.Phases[index]
+	step := Steps(plan)[index]
 	ready := true
 	apps := rawIndex(applications)
 	if len(apps) != len(phase.Applications) || len(apps) != len(applications) {
@@ -409,12 +411,12 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 		if spec != observation.Digest(expect.Spec) && !(phase.Stage.AtlasGate && destination(expect.Name) != "" && spec == observation.Digest(old["spec"])) {
 			return false, errors.New("Application spec drift during convergence")
 		}
-		active := phase.Stage.ActiveOwner != nil && expect.Name == *phase.Stage.ActiveOwner
-		if active && activeUID != "" && observation.String(observation.At(o, "metadata", "uid")) != activeUID {
+		syncOwner := step.Sync && expect.Name == step.Owner
+		if syncOwner && activeUID != "" && observation.String(observation.At(o, "metadata", "uid")) != activeUID {
 			return false, errors.New("requested owner UID changed during convergence")
 		}
 		for _, c := range observation.Slice(observation.At(o, "status", "conditions")) {
-			if !(active && observation.String(observation.Map(c)["type"]) == "SharedResourceWarning") {
+			if !(syncOwner && observation.String(observation.Map(c)["type"]) == "SharedResourceWarning") {
 				return false, errors.New("unexpected Argo condition")
 			}
 		}
@@ -432,7 +434,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			return false, errors.New("unexpected operation error/termination")
 		}
 		if op == "Failed" {
-			if !active || !strings.Contains(observation.String(observation.At(o, "status", "operationState", "message")), "Shared resource found:") {
+			if !syncOwner || !strings.Contains(observation.String(observation.At(o, "status", "operationState", "message")), "Shared resource found:") {
 				return false, errors.New("unexpected operation failure")
 			}
 			marker := observation.Digest(observation.At(o, "status", "operationState", "operation", "info"))
@@ -445,7 +447,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 				return false, errors.New("failed operation does not belong to the expected refusal")
 			}
 		}
-		if active && o["operation"] != nil {
+		if syncOwner && o["operation"] != nil {
 			request := observation.Map(o["operation"])
 			if observation.Digest(request["info"]) != observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) || !approvedSyncRequest(request, phase.Revision, Options(phase.Stage.Applications[expect.Name] == "strict")) {
 				return false, errors.New("active operation escaped the phase request")
@@ -461,7 +463,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			switch reason {
 			case "REVISION_NOT_CONVERGED", "OUT_OF_SYNC", "HEALTH_NOT_READY", "OPERATION_ACTIVE", "BLOCKING_RESOURCES", "STALE_OBSERVED_GENERATION":
 			case "SHARED_RESOURCE", "LAST_OPERATION_FAILED":
-				if !active {
+				if !syncOwner {
 					return false, errors.New("unrelated refusal while awaiting convergence")
 				}
 			default:
@@ -469,7 +471,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			}
 		}
 		appReady := spec == observation.Digest(expect.Spec) && fact.Classification == observation.Verified
-		if active {
+		if syncOwner {
 			if state := observation.Map(observation.At(o, "status", "operationState")); op == "Running" {
 				request := observation.Map(state["operation"])
 				if observation.Digest(request["info"]) != observation.Digest([]any{observation.Object{"name": "ot1-stage", "value": phase.Stage.Name}}) || !approvedSyncRequest(request, phase.Revision, Options(phase.Stage.Applications[expect.Name] == "strict")) {

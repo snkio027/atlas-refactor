@@ -70,11 +70,11 @@ func run(ctx context.Context, args []string) (int, error) {
 		return 2, e
 	}
 	tools := platform.Tools{Helm: *helm, Kubectl: *kubectl, YQ: *yq}
-	limit := 10 * time.Minute
-	if verb == "run" {
-		limit = 150 * time.Minute
-	}
-	ctx, cancel := context.WithTimeout(ctx, limit)
+	parent := ctx
+	started := time.Now()
+	// Bound preparation while the plan is still untrusted. A validated run gets
+	// its full derived budget below, without inheriting this shorter deadline.
+	ctx, cancel := context.WithTimeout(parent, 10*time.Minute)
 	defer cancel()
 	switch verb {
 	case "prepare-profile":
@@ -119,6 +119,11 @@ func run(ctx context.Context, args []string) (int, error) {
 	plan, e := ot1.ReadPlan(ctx, abs, *repo, *planFile)
 	if e != nil {
 		return 2, e
+	}
+	if verb == "run" {
+		cancel()
+		ctx, cancel = runContext(parent, started, plan)
+		defer cancel()
 	}
 	if verb == "inspect-plan" {
 		fmt.Print(string(observation.Bytes(observation.Object{"planSHA256": observation.Digest(plan), "target": plan.Target, "steps": ot1.Steps(plan), "runtime": "NOT_RUN"})))
@@ -319,4 +324,11 @@ func boolCode(e error) int {
 		return 2
 	}
 	return 0
+}
+
+// runContext requires a validated plan. Include preparation time in the fixed
+// overhead; respect caller cancellation without retaining the preparation timer.
+func runContext(parent context.Context, started time.Time, plan ot1.Plan) (context.Context, context.CancelFunc) {
+	budget := time.Duration(len(plan.Phases))*time.Duration(plan.MaxStageSeconds)*time.Second + 15*time.Minute
+	return context.WithDeadline(parent, started.Add(budget))
 }
