@@ -10,14 +10,6 @@ import (
 
 const EvidenceModel = "ot1.semantic-transitions/v1"
 
-func precedingRevision(p Plan, index int) string {
-	for i := index - 1; i >= 0; i-- {
-		if p.Phases[i].Revision != p.Phases[index].Revision {
-			return p.Phases[i].Revision
-		}
-	}
-	return ""
-}
 func sourceDigest(p Plan, revision string, spec observation.Object) string {
 	source := observation.Map(spec["source"])
 	dir := observation.String(source["path"])
@@ -89,21 +81,47 @@ func validateSourceClosures(ctx context.Context, repo string, p Plan) error {
 	return nil
 }
 
-// transitionExpectation never alters raw observations or the phase's exact SHA.
-// It derives desired-content identity at transitional and full rollout gates.
-// Initial adoption and authority-critical owners keep exact revision checks.
-func transitionExpectation(p Plan, index int, want observation.ExpectedApplication, app, prior observation.Object) observation.ExpectedApplication {
-	if p.EvidenceModel != EvidenceModel || index == 0 || destination(want.Name) != "" || want.Name == "platform-control" || prior == nil {
-		return want
+// desiredEquivalent is read-only evidence, never mutation authorization. Walk
+// only the already-published prefix of this immutable plan; a content/spec
+// change (including change-and-revert) terminates the equivalence class.
+func desiredEquivalent(p Plan, index int, want observation.ExpectedApplication, app, prior observation.Object) bool {
+	if p.EvidenceModel != EvidenceModel || index <= 0 || index >= len(p.Phases) || destination(want.Name) != "" || want.Name == "platform-control" || prior == nil {
+		return false
+	}
+	if active := p.Phases[index].Stage.ActiveOwner; active != nil && *active == want.Name {
+		return false
 	}
 	observed := observation.String(observation.At(app, "status", "sync", "revision"))
-	previous := precedingRevision(p, index)
-	if observed == "" || observed != previous || observation.String(observation.At(prior, "metadata", "uid")) == "" || observation.At(app, "metadata", "uid") != observation.At(prior, "metadata", "uid") || observation.Digest(prior["spec"]) != observation.Digest(want.Spec) || observation.Digest(app["spec"]) != observation.Digest(want.Spec) {
-		return want
+	if !observation.FullSHA(observed) || observation.String(observation.At(prior, "metadata", "uid")) == "" || observation.At(app, "metadata", "uid") != observation.At(prior, "metadata", "uid") || observation.Digest(prior["spec"]) != observation.Digest(want.Spec) || observation.Digest(app["spec"]) != observation.Digest(want.Spec) {
+		return false
 	}
-	old, current := sourceDigest(p, previous, want.Spec), sourceDigest(p, p.Phases[index].Revision, want.Spec)
-	if old != "" && old == current {
-		want.Revision = observed
+	current := sourceDigest(p, p.Phases[index].Revision, want.Spec)
+	if current == "" {
+		return false
+	}
+	for i := index; i >= 0; i-- {
+		phase := p.Phases[i]
+		found := false
+		for _, planned := range phase.Applications {
+			if planned.Name == want.Name {
+				found = observation.Digest(planned.Spec) == observation.Digest(want.Spec)
+				break
+			}
+		}
+		if !found || sourceDigest(p, phase.Revision, want.Spec) != current {
+			return false
+		}
+		if phase.Revision == observed {
+			return true
+		}
+	}
+	return false
+}
+
+// Only the derived expectation changes; raw facts and the phase SHA stay exact.
+func transitionExpectation(p Plan, index int, want observation.ExpectedApplication, app, prior observation.Object) observation.ExpectedApplication {
+	if desiredEquivalent(p, index, want, app, prior) {
+		want.Revision = observation.String(observation.At(app, "status", "sync", "revision"))
 	}
 	return want
 }

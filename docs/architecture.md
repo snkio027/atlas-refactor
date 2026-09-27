@@ -111,11 +111,14 @@ Identity/Latch/Receipt/Signal、Root/self 绑定与两个 Seed 的当前 trackin
 或损坏的 authority/ownership 仍失败关闭，正常 apply 永远不恢复 Seed 权限。
 首次 Receipt 仍须精确 revision、Sync/Health 与完整 Seed 同步证明。
 
-当前 rollout 由 Observation 与完整 Gate-B 检查：普通持久 Application 仅可使用前一
-planned revision 且完整 source closure 字节相同的证明；UID/full spec、Synced/Healthy、
-idle、conditions 与资源证明仍须有效。platform-control、foundation/active owners 保持
-exact-current。Gate-B 另外检查节点、Pod、放置、PVC/PV 与 HTTPS。此变更没有新增恢复
-或 continuation；本轮只读验证不改变历史 STOP 或批准剩余阶段。
+当前 rollout 由 Observation 与完整 Gate-B 检查：普通持久 Application 的 Desired
+Identity 沿当前 immutable plan 的已发布历史向前计算；完整 source closure 与 App spec
+连续不变的 revisions 等价，第一次变化或未知输入立即截断，不能跨过改动后恢复的历史。
+UID/full spec、Synced/Healthy、idle、conditions 与资源证明仍须有效。首次接管、
+platform-control、foundation/active owners 和所有 mutation fences 保持 exact-current。
+Gate-B 另外检查节点、Pod、放置、PVC/PV 与 HTTPS。ADR-0011 同时限定当前 stage-23
+STOP 的固定收口入口：fresh forward Gate-B anchor 后只执行原 24..28，不重写历史，
+不增加普通生命周期或通用恢复接口。
 
 ## 声明式平台扩展候选
 

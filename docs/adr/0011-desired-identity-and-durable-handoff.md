@@ -6,14 +6,12 @@ Scope: atlas-refactor schema-3 development candidate and read-only OT-1 gates
 
 ## Requested decision
 
-The owner requested the F13 correction in attachment
-b48e4162-5bec-4072-be10-4ce68ae0a17a: distinguish repository revision,
-Application desired identity and runtime state; separate post-Receipt Bootstrap
-authority from rollout verification; implement regressions and perform only a
-read-only check of the current stage-12 state. No continuation, recovery, cluster
-rebuild, refresh/sync request or STOP-lock handoff is authorized by this change.
-This ADR is the dedicated review record required by AGENTS.md. It remains Proposed;
-local implementation/verification does not constitute acceptance or deployment.
+The owner requests a single S1 Finalization Change: consolidate F13/F14 into
+plan-bounded Desired Identity, preserve durable authority and F12 semantics, and
+complete the current isolated stage-23 STOP through a fresh forward Gate-B anchor
+and original reverse stages 24..28. This dedicated ADR records both the corrected
+read-only rule and the exact incident execution boundary; it remains Proposed.
+No general recovery API, new evidence schema, CI infrastructure or S2 is included.
 
 ## Evidence and corrected invariant
 
@@ -22,13 +20,21 @@ child Application projection. The five healthy Applications still at b0768e7 in
 the F13 deadline read have unchanged local source closures. Repository SHA records
 a platform snapshot; it is not itself each Application's desired-state identity.
 
-OT-1 reuses the existing complete local source-closure hashes and spec/UID fences
-at full read-only rollout gates as well as transitional gates. Only the immediately
-preceding distinct planned SHA is eligible. Both revisions must exist in the
-verified plan; complete supported inputs must hash equally; UID/full spec must
-persist. Sync/Health/idle/conditions/resource readiness and ownership still pass.
-Changed inputs, unrecognized/two-epochs-old revisions, remote sources, plugins,
-generators, multi-source or escaping Kustomization inputs remain rejected.
+OT-1 uses complete local source-closure hashes and stable UID/full-spec fences
+at transitional and full read-only rollout gates. Starting at the current phase,
+walk backward only through the published prefix of the verified immutable plan.
+Consecutive planned revisions with the same complete source digest and Application
+spec form one Desired Identity class. Stop at the first changed, missing or unknown
+input; a change followed by a revert does not reconnect the older class. Future
+planned commits, unplanned/unknown SHAs, remote sources, plugins, generators,
+multi-source and escaping Kustomization inputs remain ineligible.
+
+F14 demonstrated why a one-commit bound was incorrect: four unchanged leaves at
+220a113 passed stage 22 (849d4f8), then were rejected immediately after publication
+of 6c1311f. Their source inputs are identical across all three commits. Distance
+in repository history is not a desired-content boundary. UID/full spec must still
+persist; Sync/Health/idle/conditions/resource readiness and ownership still pass.
+This rule affects evidence only, never a mutation request's revision fence.
 
 Initial BASELINE_ADOPTED, platform-control, every foundation owner and active
 ceremony owner retain exact-current revision checks. Mutation requests retain
@@ -82,14 +88,51 @@ once durable authority is verified; it is not a workload repair or rollout comma
 ## Verification and limits
 
 Regressions must prove full-gate unchanged prior source PASS; changed source,
-critical owner, unknown/two-epoch revision, UID/spec drift and unhealthy/active
-leaf FAIL. Schema-3 tests must prove Receipt plus a later unrelated commit remains
+multiple unchanged planned revisions PASS; intermediate content/spec changes
+(including change-and-revert), critical owners, future/unknown revisions, UID/spec
+drift and unhealthy/active leaves FAIL. Schema-3 tests must prove Receipt plus a later unrelated commit remains
 ADOPTED without querying branch HEAD; workload/runtime failures still fail the
 separate rollout/runtime gate. Root/Receipt/latch/Identity/Signal/Seed ownership
 damage and unknown authority reads fail closed without writes. First handoff
 must still reject stale revision or unproven CRD sync evidence.
 
-Run locked task quality and a new read-only stage-12 check against the retained
-F13 target. Preserve the old STOP terminal, lock and immutable bundles. Current
-read-only success is a new observation, never a retroactive checkpoint or
-permission to execute the remaining ownership stages. S1 acceptance stays open.
+Run locked task quality plus all fixed-entry tagged race/vet. Retained runtime
+snapshots should reproduce F14 and demonstrate its correction without rewriting
+the original failure. The F12 operation → fresh comparison rule is unchanged.
+
+## Fixed finalization of the current stage-23 STOP
+
+The build-tagged entry `experiments/foundation-ownership/finalize` is bound to:
+
+- target atlas-refactor-test-ot1, UID b886f730-ea3b-44b9-a904-8bd55ac345f2;
+- predecessor plan 619e492be725fbfb7f3d24aba380479defd64cafad433a107738cf5ab1d65cff,
+  STOP / NextIndex 23 / FORWARD_VERIFIED;
+- immutable manifest 252baa12ed1d3b56d8c92690bf77981270e1f310c7b3ca915e3c427f62ecae68;
+- STOP lock 959051a4bd141acdc59d1bf5373e3e360084ab02f2e508368affc8733f37cd36;
+- already-published Git 6c1311ff9fa64a80973eb0ef4f4c3ba406ecac24;
+- the three exact owner UIDs, original 13 resources, seven commits and 29-stage graph.
+
+A clean executable and canonical plan are bound before execution. The current
+owner instruction authorizes this bounded finalization workflow; its concrete
+binding is recorded in the execution decision. Check mode first verifies only
+current state. Execute repeats the full read-only
+`CONTINUATION_ANCHOR_FORWARD_VERIFIED`: exact predecessor/baseline evidence,
+cluster/Git/lock/audit continuity, strict owners 3/4/6, no window, unchanged 13
+UID/content/SSA facts, exact-current critical Apps and desired-equivalent ordinary
+leaves, full forward Gate-B and repeat-apply zero writes. Any mismatch leaves the
+old lock intact. Historical STOP and checkpoint files remain immutable.
+
+Only after that anchor, perform existing lock compare-and-replace and run original
+indices 24..28. Do not replay 13..22 or stage 23 publication. The exact remaining
+budget is nine protected foundation Application writes and two original Git
+publications (dd2e4cd and 28c4dc6); stage 28 includes reverse/final Gate-B. Retain
+300 seconds per phase, 40 minutes total including the anchor and preparation.
+No Tier-0, direct transferred-resource/tracking, credential or Trust Root writes;
+no refresh, force-conflicts, new desired history, rebuild or arbitrary resume.
+An unexpected result stops immediately and preserves full authority evidence and
+successor lock; only full success removes the exact owned lock.
+
+On success freeze S1, preserve one final evidence bundle referencing historical
+STOPs, and finish architecture/ADR/PR review. ADR acceptance, CI and release gates
+remain distinct. This fixed entry is an experiment reference, not a new ordinary
+Atlas lifecycle interface or a general recovery framework.

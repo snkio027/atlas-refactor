@@ -425,7 +425,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			return false, errors.New("unhealthy/unknown Application")
 		}
 		observed := observation.String(observation.At(o, "status", "sync", "revision"))
-		if observed != phase.Revision && (previous == nil || observed != previous.Revision) && !(plan.EvidenceModel == EvidenceModel && observed == precedingRevision(plan, index)) {
+		if observed != phase.Revision && (previous == nil || observed != previous.Revision) && !desiredEquivalent(plan, index, expect, o, old) {
 			return false, errors.New("unexpected Application revision")
 		}
 

@@ -112,9 +112,9 @@ func TestFullGateDesiredIdentity(t *testing.T) {
 		{"unknown revision", func(_ *Plan, s Snapshot) {
 			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = strings.Repeat("a", 40)
 		}, false},
-		{"two epochs old", func(p *Plan, s Snapshot) {
+		{"two epochs old with unchanged closure", func(p *Plan, s Snapshot) {
 			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = p.BaselineRevision
-		}, false},
+		}, true},
 		{"UID changed", func(_ *Plan, s Snapshot) {
 			observation.Map(rawIndex(s.Applications)[AppRef("argocd-self").Key()]["metadata"])["uid"] = "replacement"
 		}, false},
@@ -175,24 +175,94 @@ func TestInitialBaselineRejectsEarlierRevision(t *testing.T) {
 	}
 }
 
-func TestEquivalenceDoesNotExpandToOlderGitEpoch(t *testing.T) {
-	p, _, ss := revisionFixture(t)
-	app := rawIndex(ss[2].Applications)[AppRef("argocd-self").Key()]
-	observation.Map(observation.At(app, "status", "sync"))["revision"] = p.BaselineRevision
-	var expect observation.ExpectedApplication
-	for _, a := range p.Phases[2].Applications {
-		if a.Name == "argocd-self" {
-			expect = a
+func TestDesiredIdentityStopsAtContentBoundary(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		mutate func(*Plan, observation.Object, observation.Object)
+		want   bool
+	}{
+		{"multiple unchanged publications", func(*Plan, observation.Object, observation.Object) {}, true},
+		{"changed then reverted", func(p *Plan, _, _ observation.Object) {
+			r := p.Revisions["detached-mixed"]
+			r.FilesSHA256 = map[string]string{"gitops/test/leaf/kustomization.yaml": strings.Repeat("1", 64), "gitops/test/leaf/rendered.yaml": strings.Repeat("3", 64)}
+			p.Revisions["detached-mixed"] = r
+		}, false},
+		{"unknown digest", func(p *Plan, _, _ observation.Object) {
+			r := p.Revisions["detached-mixed"]
+			r.FilesSHA256 = nil
+			p.Revisions["detached-mixed"] = r
+		}, false},
+		{"future planned revision", func(p *Plan, a, _ observation.Object) {
+			p.Revisions["future"] = Revision{Commit: strings.Repeat("a", 40), FilesSHA256: p.Revisions["baseline"].FilesSHA256}
+			observation.Map(observation.At(a, "status", "sync"))["revision"] = strings.Repeat("a", 40)
+		}, false},
+		{"unplanned revision", func(_ *Plan, a, _ observation.Object) {
+			observation.Map(observation.At(a, "status", "sync"))["revision"] = strings.Repeat("b", 40)
+		}, false},
+		{"intermediate App spec changed", func(p *Plan, _, _ observation.Object) {
+			for i := range p.Phases[1].Applications {
+				if p.Phases[1].Applications[i].Name == "argocd-self" {
+					p.Phases[1].Applications[i].Spec = observation.Clone(p.Phases[1].Applications[i].Spec)
+					p.Phases[1].Applications[i].Spec["project"] = "foreign"
+				}
+			}
+		}, false},
+		{"UID changed", func(_ *Plan, a, _ observation.Object) { observation.Map(a["metadata"])["uid"] = "replacement" }, false},
+		{"prior spec changed", func(_ *Plan, _, b observation.Object) { observation.Map(b["spec"])["project"] = "foreign" }, false},
+		{"initial adoption", func(p *Plan, _, _ observation.Object) { p.Phases = p.Phases[2:] }, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			p, _, ss := revisionFixture(t)
+			p.Phases[2].Revision = strings.Repeat("f", 40)
+			p.Revisions["mixed-restored"] = Revision{Commit: p.Phases[2].Revision, FilesSHA256: p.Revisions["baseline"].FilesSHA256}
+			var want observation.ExpectedApplication
+			for _, a := range p.Phases[2].Applications {
+				if a.Name == "argocd-self" {
+					want = a
+				}
+			}
+			want.Revision = p.Phases[2].Revision
+			a := observation.Clone(rawIndex(ss[2].Applications)[AppRef(want.Name).Key()])
+			prior := observation.Clone(a)
+			observation.Map(observation.At(a, "status", "sync"))["revision"] = p.BaselineRevision
+			tc.mutate(&p, a, prior)
+			index := 2
+			if tc.name == "initial adoption" {
+				index = 0
+			}
+			if got := desiredEquivalent(p, index, want, a, prior); got != tc.want {
+				t.Fatalf("equivalent=%v want=%v", got, tc.want)
+			}
+		})
+	}
+}
+
+// F14: publishing the next unchanged revision must not invalidate an accepted
+// leaf solely because it has now crossed two repository commits.
+func TestDesiredIdentitySurvivesNextPublication(t *testing.T) {
+	p, d, _ := revisionFixture(t)
+	p.Phases[12].Revision = strings.Repeat("f", 40)
+	for i := range p.Phases[12].Applications {
+		p.Phases[12].Applications[i].Revision = p.Phases[12].Revision
+	}
+	p.Revisions["mixed-restored"] = Revision{Commit: p.Phases[12].Revision, FilesSHA256: p.Revisions["baseline"].FilesSHA256}
+	ss := syntheticSnapshots(t, p, d)
+	for _, index := range []int{11, 12} {
+		s := ss[index]
+		observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = p.BaselineRevision
+		s = proofSnapshot(s)
+		ss[index] = s
+		ready, e := applicationProgress(p, index, s.Applications, &ss[index-1], "")
+		if !ready || e != nil {
+			t.Fatalf("phase %d invalidated unchanged desired identity: %v", index, e)
 		}
-	}
-	if transitionExpectation(p, 2, expect, app, rawIndex(ss[1].Applications)[AppRef(expect.Name).Key()]).Revision != p.BaselineRevision {
-		t.Fatal("same detached epoch should keep the preceding Git revision")
-	}
-	// Once another Git revision is published, the older baseline is no longer eligible.
-	p.Phases[2].Revision = strings.Repeat("f", 40)
-	expect.Revision = p.Phases[2].Revision
-	if transitionExpectation(p, 2, expect, app, app).Revision != expect.Revision {
-		t.Fatal("two revisions old admitted")
+		var gate *GateProof
+		if p.Phases[index].Stage.AtlasGate {
+			gate = writeGateFixture(t, privateTemp(t), "publication", p, p.Phases[index], s)
+		}
+		if got := Assess(p, index, s, &ss[0], &ss[index-1], d, gate); !got.Passed() {
+			t.Fatal(got)
+		}
 	}
 }
 func TestStoredSemanticProofRejectsTamperedClosingRead(t *testing.T) {

@@ -185,3 +185,15 @@ one exact STOP/manifest/target/lock and starts only at original index 13; it is 
 a normal lifecycle or arbitrary-stage recovery interface. The approved execution
 stopped at index 23; this entry cannot be reused against the new STOP. No additional
 continuation or recovery capability was added after that failure.
+
+
+## S1 Finalization Change
+
+F13/F14 now share the plan-bounded Desired Identity rule in ADR-0011: ordinary
+leaf revisions remain equivalent across the contiguous published history with
+unchanged complete source inputs and App spec. Content/spec changes terminate
+that class. Critical owners and mutation fences remain exact; F12 is unchanged.
+The fixed `experiments/foundation-ownership/finalize` entry proves a fresh forward
+Gate-B anchor for the current stage-23 STOP, then executes only original 24..28.
+Local tests and preparation are not runtime completion; the final result is
+recorded separately from immutable historical STOPs.

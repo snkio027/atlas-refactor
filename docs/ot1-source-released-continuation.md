@@ -99,3 +99,9 @@ revision. Later convergence is diagnostic only. Current resources are all owned
 by the restored capability-foundation; no window remains open. The successor
 STOP lock and immutable evidence remain retained; neither earlier entry can be
 reused for this new STOP. See the Failure Journal for the manifest and facts.
+
+
+The final Desired Identity rule in [ADR-0011](adr/0011-desired-identity-and-durable-handoff.md)
+supersedes this proposal's one-preceding-revision bound: published planned history
+is eligible only while complete source content and App spec remain continuously
+equal. Exact mutation fences and the historical execution result do not change.
