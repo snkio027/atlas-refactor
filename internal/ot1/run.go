@@ -17,6 +17,9 @@ type Driver interface {
 }
 
 func Run(ctx context.Context, plan Plan, approvedPlan string, dir string, desired map[string]observation.Object, driver Driver) error {
+	if plan.Continuation != nil {
+		return errors.New("use explicit SOURCE_RELEASED continuation")
+	}
 	if approvedPlan != observation.Digest(plan) {
 		return errors.New("exact bounded-plan SHA approval required")
 	}
@@ -24,8 +27,12 @@ func Run(ctx context.Context, plan Plan, approvedPlan string, dir string, desire
 	if e != nil {
 		return e
 	}
-	var baseline, previous *Snapshot
-	for i, phase := range plan.Phases {
+	return runStages(ctx, attempt, desired, driver, nil, nil, 0)
+}
+func runStages(ctx context.Context, attempt *Attempt, desired map[string]observation.Object, driver Driver, baseline, previous *Snapshot, start int) error {
+	plan, dir := attempt.Plan, attempt.Directory
+	for i := start; i < len(plan.Phases); i++ {
+		phase := plan.Phases[i]
 		stageCtx, cancel := context.WithTimeout(ctx, time.Duration(plan.MaxStageSeconds)*time.Second)
 		err := func() error {
 			if e := stageCtx.Err(); e != nil {

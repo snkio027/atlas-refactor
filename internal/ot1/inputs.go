@@ -57,6 +57,9 @@ func DesiredObjects(ctx context.Context, repo string, plan Plan) (map[string]obs
 // Replay evaluates a complete private input bundle into a NEW attempt. Missing
 // stages become a preserved STOP, never an implicit skip or automatic resume.
 func Replay(plan Plan, input, output string, desired map[string]observation.Object) (int, error) {
+	if plan.Continuation != nil {
+		return 2, errors.New("continuation replay requires predecessor bundle; baseline replay is forbidden")
+	}
 	a, e := NewAttempt(plan, output)
 	if e != nil {
 		return 2, e

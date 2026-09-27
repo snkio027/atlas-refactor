@@ -14,7 +14,7 @@ func Collect(ctx context.Context, reader Reader, expect Expectation) (Envelope, 
 	if err := expect.Validate(); err != nil {
 		return Envelope{}, err
 	}
-	out := Envelope{Schema: "atlas.observation/v1", Subject: expect.Subject, Target: expect.Target, ImplementationSHA: expect.ImplementationSHA, ExpectedRevision: expect.Revision, ExpectationSHA256: Digest(expect), StartedAt: time.Now().UTC(), Classification: Verified, Applications: []ApplicationFact{}, Resources: []ResourceFact{}, Raw: []Object{}}
+	out := Envelope{ProofVersion: ProofVersion, Schema: "atlas.observation/v1", Subject: expect.Subject, Target: expect.Target, ImplementationSHA: expect.ImplementationSHA, ExpectedRevision: expect.Revision, ExpectationSHA256: Digest(expect), StartedAt: time.Now().UTC(), Classification: Verified, Applications: []ApplicationFact{}, Resources: []ResourceFact{}, Raw: []Object{}}
 	finish := func() Envelope { out.FinishedAt = time.Now().UTC(); return out }
 	uid, err := reader.ClusterIdentity(ctx)
 	if err != nil || uid != expect.Target.ClusterUID {
@@ -26,7 +26,8 @@ func Collect(ctx context.Context, reader Reader, expect Expectation) (Envelope, 
 	sort.Slice(apps, func(i, j int) bool { return apps[i].Name < apps[j].Name })
 	resources := append([]ExpectedResource(nil), expect.Resources...)
 	sort.Slice(resources, func(i, j int) bool { return resources[i].Ref.Key() < resources[j].Ref.Key() })
-	versions := map[Ref]string{}
+	proofs := map[Ref]Object{}
+	rules := map[Ref]string{}
 	for _, a := range apps {
 		ref := Ref{"argoproj.io/v1alpha1", "Application", "argocd", a.Name}
 		o, e := reader.Read(ctx, ref)
@@ -35,7 +36,8 @@ func Collect(ctx context.Context, reader Reader, expect Expectation) (Envelope, 
 		out.Classification = worse(out.Classification, fact.Classification)
 		if o != nil && e == nil && Reference(o) == ref {
 			out.Raw = append(out.Raw, o)
-			versions[ref] = String(At(o, "metadata", "uid")) + "/" + String(At(o, "metadata", "resourceVersion"))
+			proofs[ref] = o
+			rules[ref] = "identity-content"
 		}
 	}
 	for _, r := range resources {
@@ -45,19 +47,23 @@ func Collect(ctx context.Context, reader Reader, expect Expectation) (Envelope, 
 		out.Classification = worse(out.Classification, fact.Classification)
 		if o != nil && e == nil && Reference(o) == r.Ref {
 			out.Raw = append(out.Raw, o)
-			versions[r.Ref] = String(At(o, "metadata", "uid")) + "/" + String(At(o, "metadata", "resourceVersion"))
+			proofs[r.Ref] = o
+			rules[r.Ref] = r.Readiness
 		}
 	}
 	// No Kubernetes multi-object transaction is claimed. A closing fence catches
-	// object churn during collection and produces UNKNOWN, never a repaired view.
+	// changes in proof facts during collection and produces UNKNOWN, never a repaired view.
 	refs := []Ref{}
-	for ref := range versions {
+	for ref := range proofs {
 		refs = append(refs, ref)
 	}
 	SortedRefs(refs)
 	for _, ref := range refs {
 		o, e := reader.Read(ctx, ref)
-		if e != nil || o == nil || Reference(o) != ref || String(At(o, "metadata", "uid"))+"/"+String(At(o, "metadata", "resourceVersion")) != versions[ref] {
+		if e == nil && o != nil {
+			out.ClosingRaw = append(out.ClosingRaw, o)
+		}
+		if e != nil || o == nil || Reference(o) != ref || !SameProof(proofs[ref], o, rules[ref]) {
 			out.Classification = Unknown
 			out.Reasons = append(out.Reasons, "SNAPSHOT_CHANGED_OR_UNAVAILABLE:"+ref.Key())
 		}

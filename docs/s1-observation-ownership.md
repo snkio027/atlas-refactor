@@ -10,7 +10,7 @@
 | internal/observation | 通用观察与 OT-1 共用 identity、revision、scope、operation 和 semantic 解释 |
 | atlas-platform observe / verify | 显式 expectation + SHA 的只读检查；旧 commit 的 Healthy 不能冒充本次成功 |
 | EvidenceEnvelope 与私有原始 GET | 保留事实、分类和来源，Markdown/终端只是投影；不能用一句 PASS 替代证据 |
-| 首尾 UID/RV、inventory、cluster/kubeconfig fence | 检出不可用读取和采集期间的并发变化；不声称 Kubernetes 多对象读取具有原子性 |
+| 首尾语义 proof、inventory、cluster/kubeconfig fence | 双读核对 identity/content/ownership/health/operation；仅允许列明的 bookkeeping 变化，不声称多对象事务；历史快照保持旧 UID/RV 规则 |
 | internal/developmentprofile | 在同一 engine 中隔离 OT-1 的 source、端口、substrate identity 和冻结快照 |
 | atlas-ot1 prepare-profile / plan | 从固定历史输入产生可复核旧布局、完整图和 7 个不可变阶段提交，避免手工拼装环境 |
 | 29 阶段 ownership checker | 固定部分回退与完整 1→3→1，分别验证预期 strict 拒绝、窗口接管和 strict 恢复 |
@@ -125,7 +125,7 @@ kubeconfig/context；Source 分支只允许计划内 fast-forward。每步前重
 
 一个阶段最多 300 秒；先以单次 Application list 检查已提交操作的可解释收敛，待就绪后
 才采集完整多对象证据。新建 owner 的 UID 绑定 create/sync 返回的身份；完整快照仍要求
-首尾 UID/RV 与 inventory 一致。Argo `omitempty` 省略的 `prune=false` 可被识别，但每次
+首尾 semantic proof 与 inventory 一致（见 ADR-0010；历史执行仍按旧 UID/RV 规则）。Argo `omitempty` 省略的 `prune=false` 可被识别，但每次
 operation 的 source/manifests/resources 等覆盖参数会被拒绝。等待只读，不重试 mutation。任何未知、
 意外条件、scope/spec/UID drift、额外对象、超时、中断或证据写失败都会停止。失败时 run lock、
 intent、响应摘要与现场先保留；不会自动关闭窗口、恢复 controller、rollback、删除集群或续跑。
@@ -172,3 +172,7 @@ run lock 阻止并发与未经审查的重入，terminal 记录运行终态。�
 13 对象作用域、failure classifier 或批准过的目标。
 
 当前完整 ceremony 尚未通过；第 8 阶段真实 mutation 后 STOP 的现场见 Failure Journal。此次 authority bundle 完整保留；最终 Gate PASS 报告尚不存在。
+
+## SOURCE_RELEASED continuation candidate
+
+[The bounded continuation contract](ot1-source-released-continuation.md) adds semantic double-read evidence and transitional source revision equivalence, while keeping mutation guards exact. It preserves the old STOP and seven desired commits, records a new anchor and begins at original index 2. Preparation/checking are read-only; live continuation still requires a new exact-plan execution decision.

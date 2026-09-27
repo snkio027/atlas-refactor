@@ -425,7 +425,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			return false, errors.New("unhealthy/unknown Application")
 		}
 		observed := observation.String(observation.At(o, "status", "sync", "revision"))
-		if observed != phase.Revision && (previous == nil || observed != previous.Revision) {
+		if observed != phase.Revision && (previous == nil || observed != previous.Revision) && !(plan.EvidenceModel == EvidenceModel && observed == precedingRevision(plan, index)) {
 			return false, errors.New("unexpected Application revision")
 		}
 
@@ -458,6 +458,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 		if old != nil {
 			check.UID = observation.String(observation.At(old, "metadata", "uid"))
 		}
+		check = transitionExpectation(plan, index, check, o, old)
 		fact := observation.ClassifyApplication(check, o, nil)
 		for _, reason := range fact.Reasons {
 			switch reason {
@@ -501,6 +502,12 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 }
 
 func (x *Executor) Preflight(ctx context.Context) error {
+	if x.Plan.Continuation != nil {
+		return errors.New("continuation requires explicit anchor and lock handoff")
+	}
+	return x.preflightAt(ctx, x.Plan.BaselineRevision)
+}
+func (x *Executor) preflightAt(ctx context.Context, revision string) error {
 	if x.Plan.Target.Cluster != "atlas-refactor-test-ot1" || x.Plan.Branch != "codex/ot1-desired-state" {
 		return errors.New("executor target outside OT-1")
 	}
@@ -509,14 +516,14 @@ func (x *Executor) Preflight(ctx context.Context) error {
 		if e != nil {
 			return e
 		}
-		if args[0] == "status" && len(b) != 0 || args[0] == "rev-parse" && strings.TrimSpace(string(b)) != x.Plan.BaselineRevision {
+		if args[0] == "status" && len(b) != 0 || args[0] == "rev-parse" && strings.TrimSpace(string(b)) != revision {
 			return errors.New("runtime checkout is not the clean reviewed baseline")
 		}
 	}
 	if e := VerifyRepositoryPlan(ctx, x.Repository, x.Plan); e != nil {
 		return e
 	}
-	return x.fence(ctx, x.Plan.BaselineRevision)
+	return x.fence(ctx, revision)
 }
 func (x *Executor) guardObjects(ctx context.Context, index int) error {
 	if index == 0 || x.baseline == nil {

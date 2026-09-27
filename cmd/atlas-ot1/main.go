@@ -30,15 +30,17 @@ func main() {
 }
 func run(ctx context.Context, args []string) (int, error) {
 	if len(args) == 0 {
-		return 2, errors.New("usage: atlas-ot1 prepare-profile|plan|inspect-plan|capture|verify-attempt|prepare-action|run [flags]")
+		return 2, errors.New("usage: atlas-ot1 prepare-profile|plan|inspect-plan|capture|verify-attempt|prepare-action|run|plan-continuation|check-continuation|continue [flags]")
 	}
 	verb := args[0]
 	switch verb {
-	case "prepare-profile", "plan", "inspect-plan", "capture", "verify-attempt", "prepare-action", "run":
+	case "prepare-profile", "plan", "inspect-plan", "capture", "verify-attempt", "prepare-action", "run", "plan-continuation", "check-continuation", "continue":
 	default:
 		return 2, errors.New("unknown OT-1 command")
 	}
 	f := flag.NewFlagSet("atlas-ot1 "+verb, flag.ContinueOnError)
+	bundle := f.String("predecessor-bundle", "", "immutable SOURCE_RELEASED authority bundle")
+	manifest := f.String("predecessor-manifest", "", "reviewed authority manifest SHA256")
 	root := f.String("root", ".", "implementation checkout")
 	runtimeRepo := f.String("runtime-repo", "", "private checkout that created the bound OT-1 cluster")
 	toolDir := f.String("tool-dir", "", "locked tool directory for bounded run")
@@ -77,6 +79,30 @@ func run(ctx context.Context, args []string) (int, error) {
 	ctx, cancel := context.WithTimeout(parent, 10*time.Minute)
 	defer cancel()
 	switch verb {
+	case "plan-continuation":
+		if *bundle == "" || *manifest == "" || *repo == "" || *out == "" {
+			return 2, errors.New("plan-continuation requires predecessor bundle/manifest, repo and output")
+		}
+		old, e := ot1.LoadPredecessor(ctx, abs, *repo, *bundle, *manifest)
+		if e != nil {
+			return 2, e
+		}
+		impl, e := observation.ExecutableIdentity()
+		if e != nil {
+			return 2, e
+		}
+		plan, e := ot1.PrepareContinuation(old, impl)
+		if e != nil {
+			return 2, e
+		}
+		if e = ot1.VerifyRepositoryPlan(ctx, *repo, plan); e != nil {
+			return 2, e
+		}
+		if e = ot1.SavePlan(*out, plan); e != nil {
+			return 2, e
+		}
+		fmt.Printf("Prepared SOURCE_RELEASED continuation SHA256: %s\nRuntime: NOT_RUN\n", observation.Digest(plan))
+		return 0, nil
 	case "prepare-profile":
 		if *out == "" {
 			return 2, errors.New("--output is required")
@@ -120,7 +146,7 @@ func run(ctx context.Context, args []string) (int, error) {
 	if e != nil {
 		return 2, e
 	}
-	if verb == "run" {
+	if verb == "run" || verb == "continue" {
 		cancel()
 		ctx, cancel = runContext(parent, started, plan)
 		defer cancel()
@@ -133,8 +159,8 @@ func run(ctx context.Context, args []string) (int, error) {
 	if e != nil {
 		return 2, e
 	}
-	if verb == "run" {
-		if *approval != observation.Digest(plan) || *out == "" || *runtimeRepo == "" || *toolDir == "" {
+	if verb == "run" || verb == "continue" || verb == "check-continuation" {
+		if (verb != "check-continuation" && *approval != observation.Digest(plan)) || *out == "" || *runtimeRepo == "" || *toolDir == "" {
 			return 2, errors.New("run requires exact --approve-plan, --output, --runtime-repo and --tool-dir")
 		}
 		impl, e := observation.ExecutableIdentity()
@@ -170,6 +196,34 @@ func run(ctx context.Context, args []string) (int, error) {
 		}
 		defer reader.Close()
 		executor := &ot1.Executor{Plan: plan, Repository: repoAbs, RuntimeRepository: runtimeAbs, ToolDirectory: *toolDir, EvidenceDirectory: *out, Reader: reader, Runner: atlas.ExecRunner{Root: runtimeAbs, ToolDir: *toolDir, DockerContext: "orbstack"}, Desired: desired}
+		if verb != "run" {
+			if *bundle == "" || *manifest == "" {
+				return 2, errors.New("continuation requires immutable predecessor bundle and manifest")
+			}
+			old, e := ot1.LoadPredecessor(ctx, abs, repoAbs, *bundle, *manifest)
+			if e != nil {
+				return 2, e
+			}
+			if e = old.CheckPlan(plan); e != nil {
+				return 2, e
+			}
+			if verb == "continue" {
+				e = executor.Continue(ctx, *approval, old)
+				return boolCode(e), e
+			}
+			snapshot, e := executor.ContinuationAnchor(ctx, old)
+			if e != nil {
+				if save := observation.CreatePrivate(filepath.Join(*out, "failed-anchor.json"), observation.Bytes(snapshot)); save != nil {
+					return 2, save
+				}
+				return 2, e
+			}
+			if e = ot1.SaveContinuationCheck(*out, plan, snapshot); e != nil {
+				return 2, e
+			}
+			fmt.Printf("CONTINUATION_ANCHOR_SOURCE_RELEASED VERIFIED; plan=%s; live mutation=0; STOP lock unchanged\n", observation.Digest(plan))
+			return 0, nil
+		}
 		if e = executor.Preflight(ctx); e != nil {
 			return 2, e
 		}

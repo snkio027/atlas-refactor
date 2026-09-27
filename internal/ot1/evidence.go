@@ -12,15 +12,18 @@ import (
 )
 
 type Snapshot struct {
-	Schema         int                  `json:"schema"`
-	PlanSHA256     string               `json:"planSHA256"`
-	Stage          string               `json:"stage"`
-	Revision       string               `json:"revision"`
-	Envelope       observation.Envelope `json:"observation"`
-	Applications   []observation.Object `json:"applications"`
-	Projects       []observation.Object `json:"projects"`
-	Nodes          []observation.Object `json:"nodes"`
-	InventoryError string               `json:"inventoryError,omitempty"`
+	ClosingApplications []observation.Object `json:"closingApplications,omitempty"`
+	ClosingProjects     []observation.Object `json:"closingProjects,omitempty"`
+	ClosingNodes        []observation.Object `json:"closingNodes,omitempty"`
+	Schema              int                  `json:"schema"`
+	PlanSHA256          string               `json:"planSHA256"`
+	Stage               string               `json:"stage"`
+	Revision            string               `json:"revision"`
+	Envelope            observation.Envelope `json:"observation"`
+	Applications        []observation.Object `json:"applications"`
+	Projects            []observation.Object `json:"projects"`
+	Nodes               []observation.Object `json:"nodes"`
+	InventoryError      string               `json:"inventoryError,omitempty"`
 }
 type Assessment struct {
 	Stage     string   `json:"stage"`
@@ -98,15 +101,26 @@ func Capture(ctx context.Context, reader observation.InventoryReader, plan Plan,
 		}
 		*collections[i] = items
 	}
+	// The inventory supplies observed revisions; raw GETs still must prove the
+	// same facts and UID. Persistent identity is also checked against baseline.
+	apps := rawIndex(out.Applications)
+	expect.Applications = append([]observation.ExpectedApplication(nil), expect.Applications...)
+	for i, want := range expect.Applications {
+		expect.Applications[i] = transitionExpectation(plan, index, want, apps[AppRef(want.Name).Key()], prior[AppRef(want.Name).Key()])
+	}
 	var e error
 	out.Envelope, e = observation.Collect(ctx, reader, expect)
 	if e != nil {
 		return out, e
 	}
 	out.Envelope.BinarySHA256 = plan.Implementation.BinarySHA256
+	closing := []*[]observation.Object{&out.ClosingApplications, &out.ClosingProjects, &out.ClosingNodes}
 	for i, kind := range kinds {
 		items, e := reader.List(ctx, kind)
-		if e != nil || inventoryFence(items) != inventoryFence(*collections[i]) {
+		*closing[i] = items
+		before, be := observation.InventoryProof(*collections[i], kind)
+		after, ae := observation.InventoryProof(items, kind)
+		if e != nil || be != nil || ae != nil || before != after {
 			out.InventoryError = "INVENTORY_CHANGED_OR_UNAVAILABLE"
 			break
 		}
@@ -114,7 +128,7 @@ func Capture(ctx context.Context, reader observation.InventoryReader, plan Plan,
 	// Each Application raw GET must agree with the list, not just its name.
 	raw := rawIndex(out.Envelope.Raw)
 	for _, app := range out.Applications {
-		if got := raw[observation.Reference(app).Key()]; got != nil && version(got) != version(app) {
+		if got := raw[observation.Reference(app).Key()]; got != nil && !observation.SameProof(got, app, "identity-content") {
 			out.InventoryError = "APPLICATION_CHANGED_DURING_CAPTURE"
 		}
 	}
@@ -235,6 +249,11 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 	if current.InventoryError != "" || len(current.Envelope.Reasons) != 0 {
 		fail("READ_UNAVAILABLE_OR_CONCURRENT_CHANGE")
 	}
+	if current.Envelope.ProofVersion != "" || plan.EvidenceModel != "" {
+		if e := validateSnapshotProof(current); e != nil {
+			fail("SEMANTIC_PROOF_INVALID:" + e.Error())
+		}
+	}
 	raw := rawIndex(current.Envelope.Raw)
 	base := raw
 	if baseline != nil {
@@ -278,7 +297,11 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 	for _, expect := range phase.Applications {
 		ref := AppRef(expect.Name)
 		app := apps[ref.Key()]
-		if observation.Digest(app) != observation.Digest(raw[ref.Key()]) {
+		same := observation.Digest(app) == observation.Digest(raw[ref.Key()])
+		if current.Envelope.ProofVersion == observation.ProofVersion {
+			same = observation.SameProof(app, raw[ref.Key()], "identity-content")
+		}
+		if !same {
 			fail("RAW_APPLICATION_INVENTORY_DISAGREES:" + expect.Name)
 		}
 		if app == nil {
@@ -289,6 +312,7 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 		if old := prevApps[ref.Key()]; old != nil {
 			expect.UID = observation.String(observation.At(old, "metadata", "uid"))
 		}
+		expect = transitionExpectation(plan, index, expect, app, prevApps[ref.Key()])
 		fact := observation.ClassifyApplication(expect, app, nil)
 		// Only a submitted ceremony sync needs operation-correlated evidence.
 		// A state gate may observe a newer revision than the last successful sync.
@@ -487,4 +511,30 @@ func approvedSyncRequest(request observation.Object, revision string, options an
 		}
 	}
 	return true
+}
+
+func validateSnapshotProof(s Snapshot) error {
+	rules := map[string]string{}
+	for _, o := range s.Envelope.Raw {
+		ref := observation.Reference(o)
+		rules[ref.Key()] = readiness(ref)
+	}
+	if e := observation.ValidateClosingProof(s.Envelope, rules); e != nil {
+		return e
+	}
+	for _, pair := range []struct {
+		kind observation.Ref
+		a, b []observation.Object
+	}{
+		{observation.Ref{APIVersion: "argoproj.io/v1alpha1", Kind: "Application", Namespace: "argocd"}, s.Applications, s.ClosingApplications},
+		{observation.Ref{APIVersion: "argoproj.io/v1alpha1", Kind: "AppProject", Namespace: "argocd"}, s.Projects, s.ClosingProjects},
+		{observation.Ref{APIVersion: "v1", Kind: "Node"}, s.Nodes, s.ClosingNodes},
+	} {
+		a, e := observation.InventoryProof(pair.a, pair.kind)
+		b, f := observation.InventoryProof(pair.b, pair.kind)
+		if e != nil || f != nil || a != b {
+			return errors.New("inventory proof mismatch")
+		}
+	}
+	return nil
 }

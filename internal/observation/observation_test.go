@@ -128,7 +128,7 @@ func TestCollectClosingFenceAndReadFailures(t *testing.T) {
 		change      int
 		unavailable bool
 		want        Classification
-	}{{"stable", 0, false, Verified}, {"changed", 3, false, Unknown}, {"unavailable", 0, true, Unknown}} {
+	}{{"stable", 0, false, Verified}, {"benign RV churn", 3, false, Verified}, {"unavailable", 0, true, Unknown}} {
 		t.Run(tc.name, func(t *testing.T) {
 			expect, reader := expectationFixture()
 			reader.changeAt = tc.change

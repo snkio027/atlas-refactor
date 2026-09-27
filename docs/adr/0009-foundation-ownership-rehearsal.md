@@ -197,3 +197,7 @@ Trust Root/凭据变化、影响不明的 STOP 与最终 Gate PASS 仍保留完�
 零影响、当前状态复核及用户授权后清理摘要匹配的旧锁。已发生 mutation 的恢复决定不变。
 
 历史混合状态、版本 fence、审计匹配修正及最新干净重建的 SOURCE_RELEASED 超时见 [Failure Journal](../s1-failures.md)。
+
+## Proposed evidence and continuation revision
+
+[ADR-0010](0010-semantic-evidence-and-source-released-continuation.md) proposes semantic double-read evidence, transitional source revision equivalence and one explicit SOURCE_RELEASED continuation. Historical attempts retain the exact-RV/exact-revision rules above and their immutable STOP outcomes. Mutation fences remain exact; this proposal does not approve live execution.

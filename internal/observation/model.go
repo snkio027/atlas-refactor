@@ -276,6 +276,8 @@ type ApplicationFact struct {
 	BlockingResources  []Ref     `json:"blockingResources,omitempty"`
 }
 type Envelope struct {
+	ProofVersion       string            `json:"proofVersion,omitempty"`
+	ClosingRaw         []Object          `json:"closingRaw,omitempty"`
 	BinarySHA256       string            `json:"binarySHA256,omitempty"`
 	LockedToolVersions map[string]string `json:"lockedToolVersions,omitempty"`
 	Schema             string            `json:"schema"`

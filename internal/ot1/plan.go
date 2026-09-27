@@ -49,6 +49,8 @@ type Phase struct {
 	Applications []observation.ExpectedApplication `json:"applications"`
 }
 type Plan struct {
+	EvidenceModel    string                     `json:"evidenceModel,omitempty"`
+	Continuation     *ContinuationBinding       `json:"continuation,omitempty"`
 	AuthorityInputs  map[string]string          `json:"authorityInputs"`
 	LockedTools      map[string]string          `json:"lockedTools"`
 	Schema           int                        `json:"schema"`
@@ -292,7 +294,7 @@ func CompilePlan(ctx context.Context, implementationRoot, baselineRepo, outputRe
 			return plan, errors.New("manual Application definition missing or changed in baseline Git")
 		}
 	}
-	plan = Plan{Schema: 1, Ceremony: "ot1-foundation-split/v1", Target: target, Implementation: impl, Repository: developmentprofile.Repository, Branch: developmentprofile.OT1Revision, ScopeSHA256: ScopeSHA256, StagesSHA256: StagesSHA256, MaxStageSeconds: 300, BaselineRevision: initial, Revisions: map[string]Revision{}, Scope: scope}
+	plan = Plan{EvidenceModel: EvidenceModel, Schema: 1, Ceremony: "ot1-foundation-split/v1", Target: target, Implementation: impl, Repository: developmentprofile.Repository, Branch: developmentprofile.OT1Revision, ScopeSHA256: ScopeSHA256, StagesSHA256: StagesSHA256, MaxStageSeconds: 300, BaselineRevision: initial, Revisions: map[string]Revision{}, Scope: scope}
 	plan.AuthorityInputs, plan.LockedTools, e = authorityInputs(ctx, outputRepo, initial)
 	if e != nil {
 		return plan, e
@@ -391,6 +393,17 @@ func revisionName(stage string) string {
 	return "detached-mixed"
 }
 func ValidatePlan(p Plan, stages []Stage, scope Scope) error {
+	if p.EvidenceModel != "" && p.EvidenceModel != EvidenceModel {
+		return errors.New("unknown evidence model")
+	}
+	if p.Continuation != nil {
+		if e := p.Continuation.Validate(); e != nil {
+			return e
+		}
+		if p.EvidenceModel != EvidenceModel {
+			return errors.New("continuation requires semantic evidence")
+		}
+	}
 	if p.Schema != 1 || p.Ceremony != "ot1-foundation-split/v1" || p.Target.Cluster != developmentprofile.OT1Cluster || p.Target.Context != "kind-"+developmentprofile.OT1Cluster || p.Repository != developmentprofile.Repository || p.Branch != developmentprofile.OT1Revision || p.ScopeSHA256 != ScopeSHA256 || p.StagesSHA256 != StagesSHA256 || p.MaxStageSeconds != 300 || p.Implementation.Dirty || !observation.FullSHA(p.Implementation.Revision) || !observation.Hash(p.Implementation.BinarySHA256) {
 		return errors.New("plan expands the approved OT-1 boundary")
 	}
@@ -422,6 +435,11 @@ func ValidatePlan(p Plan, stages []Stage, scope Scope) error {
 	return nil
 }
 func VerifyRepositoryPlan(ctx context.Context, repo string, p Plan) error {
+	if p.EvidenceModel == EvidenceModel {
+		if e := validateSourceClosures(ctx, repo, p); e != nil {
+			return e
+		}
+	}
 	// Only these two local generated inputs may vary after BASELINE_ADOPTED.
 	// The full project, credentials, frozen core and every resource stay byte-equal.
 	hashes, versions, e := authorityInputs(ctx, repo, p.BaselineRevision)
