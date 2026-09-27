@@ -175,3 +175,9 @@ func (p *Project) capabilityResourceModel(names []string) (*ResourceModel, error
 }
 
 func isString(v any) bool { _, ok := v.(string); return ok }
+
+// ObservationResourceModel shares the same locked GVK authority as permission
+// projection and rendering. It performs local reads only.
+func (p *Project) ObservationResourceModel() (*ResourceModel, error) {
+	return p.capabilityResourceModel(p.Capabilities.Active)
+}
