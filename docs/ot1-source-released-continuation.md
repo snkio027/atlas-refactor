@@ -91,3 +91,11 @@ The previous SOURCE_RELEASED entry cannot execute at the F12 state. The one-off
 [F12 experiment](../experiments/foundation-ownership/f12/README.md) is compiled
 separately, pins the later STOP manifest and starts only at index 7 with strict
 window closure. It adds no normal lifecycle command or evidence schema.
+
+The subsequent one-off F12 execution used 8994edf / 8aace8f1. It closed the window
+and passed indices 7..11 with the freshness fence. Index 12 stopped on the existing
+300-second exact-revision gate (F13), with five healthy Apps still at the prior
+revision. Later convergence is diagnostic only. Current resources are all owned
+by the restored capability-foundation; no window remains open. The successor
+STOP lock and immutable evidence remain retained; neither earlier entry can be
+reused for this new STOP. See the Failure Journal for the manifest and facts.

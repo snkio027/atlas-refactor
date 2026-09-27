@@ -20,6 +20,8 @@
 | F11 | Transitional gate imposed a global exact-revision barrier; six unchanged Apps delayed SOURCE_RELEASED | Git detach and orphan DELETE completed; 13 identities/content/tracking preserved; no window | ADR-0010: plan-proven source equivalence in transitions only; owners/platform-control/Atlas gates stay exact; 300 seconds unchanged | `TestTransitionalRevisionEquivalence`, `TestEquivalenceDoesNotExpandToOlderGitEpoch`, `TestLocalSourceClosureRejectsRemoteOrParentInput` |
 | F12 | Operation completion preceded its post-sync comparison; readiness conflated two controller loops | Current STOP has tracking 3/4/6 and only observability window open; 10 App requests, 10 Argo scope writes, zero Git publication | Separate operation proof from comparison; require reconciledAt >= finishedAt on both checkpoint reads, wait only for known progress; strict refusal unchanged | `TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint`, `TestPostOperationComparisonFreshness`; one-off recovery starts with strict closure at index 7 |
 
+| F13 | Full mixed-rollback gate timed out with five healthy Apps still reporting the previous Git revision | Owner was restored with all 13 unchanged resources and no open window; publication to 220a113 completed; STOP at index 12 before full capture/Gate-B | No code/budget/refresh change. Git revision propagation exceeded this run's 300-second budget; the source of the delay is not isolated. Later all 24 Apps converged, without retroactive PASS | Existing exact-current-SHA full-gate tests remain strict; immutable runtime bundle records the five lagging Apps |
+
 F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime 使用含 F9 修正的实现，但没有新增 Namespace 写入案例。F10/F11 的回归记录本轮新发现，未改变原执行器预算或 STOP 规则。
 
 ## 历史现场：首次 ownership mutation 后 STOP
@@ -122,3 +124,15 @@ F8/F11 have a Proposed semantic-evidence correction. The exact 53c82ce continuat
 - Private authority bundle: .state/authority/ot1-continuation-3e8db44c; 73 files, 51,388,491 bytes. Manifest SHA256: 57a0e0f74aaa11220a0f37625da0f2b0035060b5faf6e66d6259355534a7a806. Predecessor bundle is referenced, not copied.
 - Successor STOP lock preserved: f3c6b273117d2104869a43ef3f017ebedcba5135657edc3e75d03c78c6c95f47. No automatic rollback, window closure, retry or rebuild.
 - The F12 operation/comparison split has regression coverage, including the post-operation freshness fence. It does not authorize replaying the old SOURCE_RELEASED entry against this new state. No arbitrary-stage resume or additional evidence model is introduced. Full OT-1/reattach/rollback and remote CI/release gates remain unproven.
+
+## F12 root-fix execution and full-gate STOP
+
+- Implementation: 8994edf7aee7065142012604c7f38b9eef8d9c46; canonical plan: 8aace8f17eeed6736700f07b3e9c9c77258ba2c4f35a8790b45201a636f8b0a2.
+- Same cluster b886f730-ea3b-44b9-a904-8bd55ac345f2. Fresh anchor and lock handoff passed; first mutation closed observability strict. Original indices 7..11 produced five VERIFIED checkpoints. Successful post-operation comparison was proven at 7/10/11; strict refusal at 9 remained valid.
+- Index 12 MIXED_ROLLBACK_VERIFIED published 220a113, then stopped at 2026-09-27 15:47:04 UTC / exit 2 / 300 seconds before full capture and Gate-B. Five healthy Apps still reported b0768e7: cilium, envoy-gateway, monitoring-operator, platform-credentials, secrets-crds.
+- Later independent reads showed all 24 Apps at 220a113 and Synced/Healthy. They do not rewrite STOP or establish Gate-B. No refresh/retry/rollback/rebuild or additional continuation was executed.
+- Four nodes; four unchanged AppProjects and Bootstrap records; all 13 resource UIDs/content/Argo SSA preserved; tracking capability-foundation=13; zero transfer windows. Default kubeconfig unchanged.
+- Ten bounded kubectl mutations, one Git publication (three Git commands), all request exits zero. All 30 scoped resource writes in the retained audit were by Argo.
+- Immutable private bundle: .state/authority/ot1-f12-8aace8f1; 86 files, 68,659,530 bytes; manifest 3ada495c8740562e9b06fe4b855b245b6e062c2d48a9ec9c9f6c5c40d2d96f18. Predecessors are referenced rather than copied.
+- STOP lock retained: d7e4a9d78fc284f55b1e34b3aafe9b67998fd7789eb0201814cec2c280a7b1d2. This one-off F12 executable cannot re-enter the new STOP.
+- Locked task quality and tagged race/vet passed. F12 has real runtime evidence; full mixed rollback Gate-B, forward/reverse completion and final S1 acceptance remain unproven. Remote CI/release gates are separate.
