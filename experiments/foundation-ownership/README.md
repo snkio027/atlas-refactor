@@ -1,6 +1,6 @@
 # OT-1 — Foundation Ownership Split Rehearsal
 
-当前：历史跨 attempt 闭环通过；最新干净单次运行在 index 12 STOP（12/29）。
+当前：历史跨 attempt 闭环通过；最新干净单次运行在 index 2 因采集一致性 STOP（2/29）。
 见 [干净复验](../../docs/s1-clean-revalidation-20260928.md) 和
 [F15 发布—调谐修正](../../docs/s1-publication-reconciliation.md)。旧的首次记录保留历史含义。
 

@@ -300,3 +300,43 @@ func TestNormalRefreshPatchPreservesAnnotations(t *testing.T) {
 		t.Fatal("overwrote existing request")
 	}
 }
+
+// A publication can advance an ordinary leaf while a multi-object capture is
+// open. Both stable revisions may already satisfy Desired Identity; combining
+// their observations must still fail the existing coherence proof. Any future
+// bounded recapture must discard this sample rather than turn it into PASS.
+func TestPublicationLeafAdvanceRequiresFreshCoherentCapture(t *testing.T) {
+	p, desired, snapshots := revisionFixture(t)
+	copySnapshot := func(in Snapshot) Snapshot {
+		var out Snapshot
+		if e := observation.Decode(observation.Bytes(in), &out, true); e != nil {
+			t.Fatal(e)
+		}
+		return out
+	}
+	before := copySnapshot(snapshots[1])
+	for _, objects := range [][]observation.Object{before.Applications, before.Envelope.Raw} {
+		for _, o := range objects {
+			if observation.Reference(o) == AppRef("argocd-self") {
+				observation.Map(observation.At(o, "status", "sync"))["revision"] = p.BaselineRevision
+			}
+		}
+	}
+	before = proofSnapshot(before)
+	after := copySnapshot(snapshots[1])
+	for _, sample := range []Snapshot{before, after} {
+		ready, e := applicationProgress(p, 1, sample.Applications, &snapshots[0], "")
+		if e != nil || !ready {
+			t.Fatal("stable eligible sample rejected", ready, e)
+		}
+		if got := Assess(p, 1, sample, &snapshots[0], &snapshots[0], desired, nil); got.Ownership != "VERIFIED" {
+			t.Fatal(got)
+		}
+	}
+	mixed := copySnapshot(before)
+	mixed.ClosingApplications = after.ClosingApplications
+	mixed.Envelope.ClosingRaw = after.Envelope.ClosingRaw
+	if got := Assess(p, 1, mixed, &snapshots[0], &snapshots[0], desired, nil); got.Ownership != "STOP" {
+		t.Fatal("an incoherent sample was accepted", got)
+	}
+}
