@@ -24,7 +24,7 @@ FailOnSharedResource=false，ServerSideApply=true；由 Argo 正常同步相同 
 之后恢复 FailOnSharedResource=true 并再做一次显式同步。反向转移必须走同样的窗口。
 不手工修改/删除 tracking annotation，不使用 force apply、资源删除重建或自动 rollback。
 
-这是一项待批准、待实测的局部例外；不撤销 ADR-0007 对普通路径的 shared-resource 保护，
+该窗口须逐次明确批准，实测结论限于记录中的精确对象与环境；不撤销 ADR-0007 对普通路径的 shared-resource 保护，
 不在 atlas-platform select/render 或 Bootstrap 中增加迁移入口。窗口不是服务端自动过期租约；
 超过单阶段 5 分钟或任一断言失败都停止，保留现场。此时窗口可能仍开启，报告必须明确指出，
 不能为了输出“成功”而自动恢复/继续。后续人工处置需要针对实际状态重新审查。
@@ -77,3 +77,18 @@ argocd.argoproj.io/tracking-id；其他 label、annotation、data、spec、final
 OT-0 通过后仍须独立提出 OT-1：精确 13 对象、UID/内容保持、三个新 owner、正反向转移及保护恢复，
 并验证 AppProject、Bootstrap Identity、Root/Latch/Receipt/Signal 和重复 apply 零写入。
 本次不执行 OT-1，不扩展 A5/P1/W1/X1，不把 probe 成功外推为 dev02 迁移批准。
+
+## OT-0 实测记录（不扩展批准范围）
+
+2026-09-27，精确目标与两次异常续行分别获得用户明确批准后，9 个阶段全部通过。
+fixture/sync SHA 为 fe76dd5，Application 模式切换方法修正绑定 f45e9c5；A3 与反向 strict
+均因共享资源失败，Argo 在窗口内完成 A→B 和 B→A，恢复 strict 后无 warning 且同步成功。
+资源 UID/内容保持，AppProject 与集群 UID 保持；最终 owner-a strict/idle/Synced/Healthy。
+
+首次启动遗漏 settings ConfigMap 标签，以及 A4 的 Application create/SSA manager 冲突均
+导致真实停止，分别保存 attempt01/02；续行修正没有手工修改 probe tracking 或使用 force。
+Application 配置变化最终使用 UID/RV/spec 测试后的窄 JSON Patch，probe 资源仍只由 Argo SSA。
+详细证据见 [OT-0 报告](../evidence/ownership-transfer-ot0-20260927.json)。
+
+上述候选窗口现有 OT-0 runtime proof；本 ADR 继续 Proposed，OT-1 与 dev02 未授权、未执行。
+Bootstrap 身份/写权结论不可由此实验外推。

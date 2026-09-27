@@ -1,6 +1,6 @@
 # OT-0：两对象 Argo ownership transfer probe
 
-状态：标签修正后 A1–A3 已实测通过；A4 在 Application 配置写入时停止，尚无转移成功 proof。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
+状态：OT0_TRANSFER_WINDOW_VERIFIED。9 个阶段与后续只读观察通过；结论仅限两个 probe 对象。控制范围见 [Proposed ADR-0008](../../docs/adr/0008-ownership-transfer-probe.md)。
 这是一次性实验材料，不是普通 Bootstrap、recovery 或 capability migration 命令。
 
 ## 精确目标与启动门禁
@@ -11,7 +11,7 @@
 保留 dev02、所有旧状态和默认 kubeconfig；仅在新集群创建/修改 AppProject、Application 与实验 Seed。
 
 先固定并推送完整 Git SHA，完成本地检查，再审查输出 plan。创建集群与执行 A1–A6 需要用户对
-该 SHA、目标和双向 transfer window 的明确批准（仓库 AGENTS.md）。本材料不代表已获得批准。
+该 SHA、目标和双向 transfer window 的明确批准（仓库 AGENTS.md）。历史批准绑定已记录的执行，不能自动复用于新目标。
 
 ```bash
 # 在独立 atlas-refactor 仓库，clean checkout 且 HEAD=已审查 SHA
@@ -100,7 +100,7 @@ Seed、主动 restart 或修改 Secret。完成 readiness 后再创建 AppProjec
 标签修正已获单独批准并完成；同一集群以 fe76dd5 开始实验，A1、A2、A3 均通过。
 A4 尚未请求同步：从 create（managedFields operation=Update）切换到 SSA Apply 修改
 syncOptions 时，API 报与同名 ot0-ceremony manager 冲突。原实验错误地把 manager 字符串
-相同视为 Update/Apply 同一所有权。禁止 force-conflicts；owner-b 目前保持 strict，tracking 仍为 A。
+相同视为 Update/Apply 同一所有权。禁止 force-conflicts；当时 owner-b 保持 strict，tracking 仍为 A。
 失败与成功阶段证据见 [attempt02](../../docs/evidence/ownership-transfer-ot0-20260927-attempt02.json)。
 
 经再次续行批准后，仅修正 Application 配置变化的操作方法。实时 GET 当前 App，运行纯本地
@@ -119,3 +119,19 @@ python3 -B experiments/ownership-transfer/transition.py   --stage A4 --current "
 不改写 A1–A3 历史。新的操作方法另绑修正提交和 patch 摘要。续行从 A4 开始，保留 B 的 UID、
 两个 probe UID、AppProject UID、cluster UID；不重新跑 A1、不重建对象、不修改 tracking。
 A4、A5、A6-transfer、A6-restored 均使用相同受保护方式切换模式；任一新异常仍停止。
+
+## 完成结论
+
+经明确批准，从 A4 使用受保护的 Application 配置补丁续行，A4/A5 与完整 A6 均通过。
+A3 和 A6-strict 的共享冲突失败均为预期；A4 和 A6-transfer 由 Argo SSA 写入新 tracking；
+A5 与 A6-restored 恢复 strict 后再次成功同步。两个资源 UID 与内容哈希全程相同，
+AppProject 与集群 UID 保持，最终 owner-a strict/idle/Synced/Healthy、无共享告警，
+后续只读观察再次通过。两个集群及默认 kubeconfig 保留。
+
+fixture/sync SHA 全程为 fe76dd57034b82eaf9c0359292eae2394cadfb15；Application 操作修正
+为 f45e9c569cf1390dfc88c61b26639b16dc3812a4。完整结果见
+[OT-0 evidence](../../docs/evidence/ownership-transfer-ot0-20260927.json)。attempt01/02 保留失败事实，
+不改写为成功；attempt02 原命令日志前缀按原 SHA 固化在私有 attempt02-frozen 目录。
+
+这一结果证明限定窗口在当前两对象/固定版本上的正反向行为，不证明 OT-1、Bootstrap
+不变量或 dev02 迁移可执行。ADR-0008 继续 Proposed；本轮不继续扩大实验范围。
