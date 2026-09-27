@@ -224,7 +224,7 @@ func (p *Project) SelectCapabilities(ctx context.Context, requested []string) er
 		return e
 	}
 	// Render against the proposed closure (not the previous selection), so watch
-	// namespaces and Role partitions agree on the same desired state.
+	// namespaces and controller-owned RBAC agree on the same desired state.
 	cp := *p
 	caps := *p.Capabilities
 	caps.Active = names

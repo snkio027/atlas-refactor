@@ -50,7 +50,7 @@ UNKNOWN 不等于 ABSENT 或 HEALTHY。应用旧 commit 的 Healthy 不能替代
 | P1 | Project Contract v1 | tenant/namespace/quota/network 与 capability access 边界明确 |
 | W1 | Workload Contract v1 | 首个 Web/API 意图可重复编译，归属与产物分工可审查 |
 | B1 | Provider / Consumer Binding | S3 消费者凭据、网络和服务接口来自同一契约 |
-| X1 | metrics-server 候选 | 真实需求出现后验证 aggregation/TLS/权限；可保持未启用 |
+| X1 | metrics-server 候选 | 先完成离线 scopegen 的源 SHA 校验与 registry 字节一致性；再验证 aggregation/TLS/权限，可保持未启用 |
 | X2 | Loki / Alloy | 在 Project/Workload ownership 后定义日志归属与访问 |
 | X3 | PostgreSQL | 第一个业务需要时再设计数据生命周期、备份和凭据 |
 

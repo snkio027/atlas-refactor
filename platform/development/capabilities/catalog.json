@@ -155,26 +155,6 @@
           ]
         },
         {
-          "component": "observability-foundation",
-          "kinds": [
-            "Role",
-            "RoleBinding"
-          ],
-          "namespaces": [
-            "atlas-monitoring"
-          ]
-        },
-        {
-          "component": "storage-foundation",
-          "kinds": [
-            "Role",
-            "RoleBinding"
-          ],
-          "namespaces": [
-            "atlas-storage"
-          ]
-        },
-        {
           "component": "secrets-controller",
           "kinds": []
         }

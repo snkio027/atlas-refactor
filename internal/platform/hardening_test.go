@@ -182,6 +182,12 @@ func TestManualSelectionEditAndLegacyOwnerCannotHideRemoval(t *testing.T) {
 
 func TestPlanReportsRetirementAndSharedDomainAuthority(t *testing.T) {
 	p := candidate(t)
+	// Explicit full-selection fixture, independent of the deployment stage.
+	var err error
+	p.Capabilities.Active, err = p.ResolveCapabilities([]string{"storage-monitoring"})
+	if err != nil {
+		t.Fatal(err)
+	}
 	plan, e := p.CapabilityPlan([]string{"secrets-controller"})
 	if e != nil {
 		t.Fatal(e)
@@ -266,10 +272,7 @@ func TestFoundationsAreIndependentAndHaveUniqueOwners(t *testing.T) {
 		t.Fatal(names)
 	}
 	for _, name := range names {
-		objects, e := p.capabilityObjects(name)
-		if e != nil {
-			t.Fatal(e)
-		}
+		objects := resourceFile(t, capabilityDir+"/resources/"+name+".json")
 		for _, o := range objects {
 			ns := str(metadata(o)["namespace"])
 			if o["kind"] == "Namespace" {
@@ -291,11 +294,14 @@ func TestFoundationsAreIndependentAndHaveUniqueOwners(t *testing.T) {
 			if seen[id] != "" {
 				t.Fatal("duplicate foundation owner", id)
 			}
+			if o["kind"] == "Role" || o["kind"] == "RoleBinding" {
+				t.Fatal("foundation owns controller RBAC", id)
+			}
 			seen[id] = name
 		}
 	}
-	if len(seen) != 17 {
-		t.Fatal("expected 13 foundation resources plus 4 moved RBAC resources", len(seen))
+	if len(seen) != 13 {
+		t.Fatal("expected exactly 13 domain foundation objects", len(seen))
 	}
 	files, e := p.CapabilityActivation(p.Capabilities.Active)
 	if e != nil {
@@ -306,7 +312,7 @@ func TestFoundationsAreIndependentAndHaveUniqueOwners(t *testing.T) {
 	}
 }
 
-// Exercise the actual chart overrides and namespace partitions without touching
+// Exercise actual chart overrides and controller-owned namespace RBAC without touching
 // a cluster. The full chart candidate remains offline-renderable when disabled.
 func TestSealedSecretsNamespaceSelectionRealHelm(t *testing.T) {
 	helm := os.Getenv("ATLAS_TEST_HELM")
@@ -321,6 +327,11 @@ func TestSealedSecretsNamespaceSelectionRealHelm(t *testing.T) {
 		bound   int
 	}{
 		{[]string{"secrets-controller"}, "atlas-secrets,workload-web", 0},
+		{[]string{"secrets-controller", "observability-foundation"}, "atlas-secrets,atlas-monitoring,workload-web", 2},
+		{[]string{"secrets-controller", "storage-foundation"}, "atlas-secrets,atlas-storage,workload-web", 2},
+		// The disabled controller has a complete offline candidate; foundations
+		// must never receive its RBAC, even when only monitoring CRDs are active.
+		{[]string{"monitoring-crds"}, "atlas-secrets,atlas-monitoring,atlas-storage,workload-web", 4},
 		{[]string{"storage-monitoring"}, "atlas-secrets,atlas-monitoring,atlas-storage,workload-web", 4},
 	} {
 		names, e := p.ResolveCapabilities(tc.request)
@@ -352,15 +363,39 @@ func TestSealedSecretsNamespaceSelectionRealHelm(t *testing.T) {
 			t.Fatal("wrong watched namespace rollout", tc)
 		}
 		count := 0
+		for _, o := range objects {
+			ns := str(metadata(o)["namespace"])
+			if o["kind"] == "Role" || o["kind"] == "RoleBinding" {
+				if !strings.Contains(","+tc.watched+",", ","+ns+",") {
+					t.Fatal("controller RBAC outside watched namespaces", identity(o))
+				}
+				if ns == "atlas-monitoring" || ns == "atlas-storage" {
+					count++
+				}
+			}
+		}
 		for _, name := range []string{"observability-foundation", "storage-foundation"} {
-			objects, e := DecodeJSONManifests(files[p.Capabilities.Catalog.Components[name].Path+"/rendered.yaml"])
+			if _, exists := files[p.Capabilities.Catalog.Components[name].Path+"/rendered.yaml"]; exists {
+				t.Fatal("controller chart emitted foundation resources")
+			}
+		}
+		if reflect.DeepEqual(tc.request, []string{"monitoring-crds"}) {
+			activation, e := p.CapabilityActivation(names)
 			if e != nil {
 				t.Fatal(e)
 			}
-			count += len(objects)
+			apps, e := decodeObjects(activation[platformApplications])
+			if e != nil {
+				t.Fatal(e)
+			}
+			for _, app := range apps {
+				if metadata(app)["name"] == "secrets-controller" {
+					t.Fatal("monitoring CRDs activate secrets controller")
+				}
+			}
 		}
 		if count != tc.bound {
-			t.Fatal("wrong namespace RBAC partition", count, tc.bound)
+			t.Fatal("wrong controller-owned namespace RBAC", count, tc.bound)
 		}
 	}
 }

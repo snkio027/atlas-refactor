@@ -34,9 +34,8 @@ type Capability struct {
 	RequiredSecrets  []SecretRequirement `json:"requiredSecrets"`
 }
 type Partition struct {
-	Component  string   `json:"component"`
-	Kinds      []string `json:"kinds"`
-	Namespaces []string `json:"namespaces,omitempty"`
+	Component string   `json:"component"`
+	Kinds     []string `json:"kinds"`
 }
 type CapabilityJob struct {
 	NamespaceCapabilities  map[string]string `json:"namespaceCapabilities,omitempty"`
@@ -144,11 +143,6 @@ func (p *Project) loadCapabilities() error {
 			}
 		}
 		for _, part := range j.Outputs {
-			for _, ns := range part.Namespaces {
-				if !capabilityName.MatchString(ns) {
-					return errors.New("invalid partition namespace")
-				}
-			}
 			if _, ok := c.Catalog.Components[part.Component]; !ok || produced[part.Component] {
 				return errors.New("invalid/duplicate render owner")
 			}
@@ -438,13 +432,6 @@ func (p *Project) RenderCapabilities(ctx context.Context) (map[string][]byte, er
 				ok := len(part.Kinds) == 0
 				for _, k := range part.Kinds {
 					ok = ok || o["kind"] == k
-				}
-				if len(part.Namespaces) > 0 {
-					matchedNamespace := false
-					for _, ns := range part.Namespaces {
-						matchedNamespace = matchedNamespace || metadata(o)["namespace"] == ns
-					}
-					ok = ok && matchedNamespace
 				}
 				if ok {
 					owners[part.Component] = append(owners[part.Component], o)
