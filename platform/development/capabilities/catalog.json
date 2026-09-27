@@ -1,19 +1,60 @@
 {
-  "permissionDomains": {
-    "legacy": "platform-project"
-  },
   "schema": 2,
   "components": {
-    "capability-foundation": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/foundation/capabilities/overlays/development",
-      "namespace": "argocd",
-      "wave": -100,
-      "dependsOn": [],
-      "requiredSecrets": []
+    "secrets-crds": {
+      "path": "gitops/platform/management/sealed-secrets-crds/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -95,
+      "dependsOn": [
+        "secrets-foundation"
+      ],
+      "requiredSecrets": [],
+      "permissionDomain": "security"
+    },
+    "secrets-controller": {
+      "path": "gitops/platform/management/sealed-secrets/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -90,
+      "dependsOn": [
+        "secrets-crds"
+      ],
+      "requiredSecrets": [],
+      "permissionDomain": "security"
+    },
+    "platform-credentials": {
+      "path": "gitops/platform/management/platform-credentials/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -80,
+      "dependsOn": [
+        "secrets-controller",
+        "observability-foundation",
+        "storage-foundation"
+      ],
+      "requiredSecrets": [],
+      "permissionDomain": "security"
+    },
+    "monitoring-crds": {
+      "path": "gitops/platform/observability/crds/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -40,
+      "dependsOn": [
+        "observability-foundation"
+      ],
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
+    },
+    "monitoring-operator": {
+      "path": "gitops/platform/observability/operator/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -30,
+      "dependsOn": [
+        "monitoring-crds",
+        "core:cert-manager"
+      ],
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
     },
     "monitoring": {
-      "permissionDomain": "legacy",
       "path": "gitops/platform/observability/stack/overlays/development",
       "namespace": "atlas-monitoring",
       "wave": -10,
@@ -31,31 +72,10 @@
             "admin-password"
           ]
         }
-      ]
-    },
-    "monitoring-crds": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/observability/crds/overlays/development",
-      "namespace": "atlas-monitoring",
-      "wave": -40,
-      "dependsOn": [
-        "capability-foundation"
       ],
-      "requiredSecrets": []
-    },
-    "monitoring-operator": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/observability/operator/overlays/development",
-      "namespace": "atlas-monitoring",
-      "wave": -30,
-      "dependsOn": [
-        "monitoring-crds",
-        "core:cert-manager"
-      ],
-      "requiredSecrets": []
+      "permissionDomain": "observability"
     },
     "object-storage": {
-      "permissionDomain": "legacy",
       "path": "gitops/platform/storage/seaweedfs/overlays/development",
       "namespace": "atlas-storage",
       "wave": -10,
@@ -79,40 +99,10 @@
             "AWS_SECRET_ACCESS_KEY"
           ]
         }
-      ]
-    },
-    "platform-credentials": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/management/platform-credentials/overlays/development",
-      "namespace": "atlas-monitoring",
-      "wave": -80,
-      "dependsOn": [
-        "secrets-controller"
       ],
-      "requiredSecrets": []
-    },
-    "secrets-controller": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/management/sealed-secrets/overlays/development",
-      "namespace": "atlas-secrets",
-      "wave": -90,
-      "dependsOn": [
-        "secrets-crds"
-      ],
-      "requiredSecrets": []
-    },
-    "secrets-crds": {
-      "permissionDomain": "legacy",
-      "path": "gitops/platform/management/sealed-secrets-crds/overlays/development",
-      "namespace": "atlas-secrets",
-      "wave": -95,
-      "dependsOn": [
-        "capability-foundation"
-      ],
-      "requiredSecrets": []
+      "permissionDomain": "storage"
     },
     "storage-monitoring": {
-      "permissionDomain": "legacy",
       "path": "gitops/platform/observability/storage/overlays/development",
       "namespace": "atlas-monitoring",
       "wave": 0,
@@ -120,12 +110,36 @@
         "monitoring",
         "object-storage"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
+    },
+    "secrets-foundation": {
+      "path": "gitops/platform/foundation/secrets/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "security"
+    },
+    "observability-foundation": {
+      "path": "gitops/platform/foundation/observability/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
+    },
+    "storage-foundation": {
+      "path": "gitops/platform/foundation/storage/overlays/development",
+      "namespace": "atlas-storage",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "storage"
     }
   },
   "jobs": [
     {
-      "projectedTokenMonitors": null,
       "release": "sealed-secrets",
       "chart": "vendor/platform/sealed-secrets-2.20.0.tgz",
       "namespace": "atlas-secrets",
@@ -144,10 +158,15 @@
           "component": "secrets-controller",
           "kinds": []
         }
-      ]
+      ],
+      "namespaceCapabilities": {
+        "atlas-secrets": "secrets-foundation",
+        "atlas-monitoring": "observability-foundation",
+        "atlas-storage": "storage-foundation",
+        "workload-web": "core:foundation"
+      }
     },
     {
-      "projectedTokenMonitors": null,
       "release": "atlas-monitoring",
       "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
       "namespace": "atlas-monitoring",
@@ -170,10 +189,6 @@
       ]
     },
     {
-      "projectedTokenMonitors": [
-        "atlas-monitoring-kubelet",
-        "atlas-monitoring-apiserver"
-      ],
       "release": "atlas-monitoring",
       "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
       "namespace": "atlas-monitoring",
@@ -189,7 +204,16 @@
           "component": "monitoring",
           "kinds": []
         }
+      ],
+      "projectedTokenMonitors": [
+        "atlas-monitoring-kubelet",
+        "atlas-monitoring-apiserver"
       ]
     }
-  ]
+  ],
+  "permissionDomains": {
+    "security": "platform-project",
+    "observability": "platform-project",
+    "storage": "platform-project"
+  }
 }
