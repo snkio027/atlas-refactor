@@ -500,8 +500,8 @@ func TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint(t *test
 	if ready, e := applicationProgress(plan, index, pending.Applications, &snapshots[index-1], uid); ready || e != nil {
 		t.Fatal("correlated success must wait for comparison", ready, e)
 	}
-	if e := operationMatches(app, plan.Phases[index], pending.Stage, "success"); !errors.Is(e, errComparisonPending) {
-		t.Fatal("checkpoint readiness was weakened", e)
+	if e := operationMatches(app, plan.Phases[index], pending.Stage, "success"); e != nil {
+		t.Fatal("comparison must not invalidate operation proof", e)
 	}
 	if Assess(plan, index, pending, &snapshots[0], &snapshots[index-1], desired, nil).Ownership == "VERIFIED" {
 		t.Fatal("unconverged state became checkpoint")
@@ -519,6 +519,10 @@ func TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint(t *test
 		{"wrong result revision", func(o observation.Object) {
 			observation.Map(observation.At(o, "status", "operationState", "syncResult"))["revision"] = strings.Repeat("f", 40)
 		}},
+		{"wrong comparison revision", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "sync"))["revision"] = strings.Repeat("f", 40)
+		}},
+		{"spec drift", func(o observation.Object) { observation.Map(o["spec"])["project"] = "outside" }},
 		{"unexpected condition", func(o observation.Object) {
 			observation.Map(o["status"])["conditions"] = []any{observation.Object{"type": "ComparisonError"}}
 		}},
@@ -553,5 +557,70 @@ func TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint(t *test
 	})
 	if !errors.Is(e, context.DeadlineExceeded) || reads != 1 {
 		t.Fatal("pending comparison escaped deadline", reads, e)
+	}
+}
+
+func TestPostOperationComparisonFreshness(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	const index = 6
+	ref := AppRef("observability-foundation").Key()
+	for _, test := range []struct {
+		name           string
+		stamp          any
+		ready, invalid bool
+	}{
+		{"missing", nil, false, false},
+		{"older but green", "2026-09-26T23:59:59Z", false, false},
+		{"equal", "2026-09-27T00:00:00Z", true, false},
+		{"newer", "2026-09-27T00:00:01Z", true, false},
+		{"malformed", "not-time", false, true},
+		{"empty", "", false, true},
+		{"zero", "0001-01-01T00:00:00Z", false, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			s := cloneSnapshot(t, snapshots[index])
+			for _, group := range [][]observation.Object{s.Applications, s.Envelope.Raw} {
+				observation.Map(rawIndex(group)[ref]["status"])["reconciledAt"] = test.stamp
+			}
+			app := rawIndex(s.Applications)[ref]
+			uid := observation.String(observation.At(app, "metadata", "uid"))
+			ready, e := applicationProgress(plan, index, s.Applications, &snapshots[index-1], uid)
+			if ready != test.ready || (e != nil) != test.invalid {
+				t.Fatal(ready, e)
+			}
+			if (Assess(plan, index, s, &snapshots[0], &snapshots[index-1], desired, nil).Ownership == "VERIFIED") != test.ready {
+				t.Fatal("checkpoint freshness mismatch")
+			}
+			if _, e = ModePatch(app, uid, plan.Phases[index], plan.Phases[index+1]); (e == nil) != test.ready {
+				t.Fatal("mutation guard freshness mismatch", e)
+			}
+		})
+	}
+	// Both reads must be fresh even though the temporal fields are deliberately
+	// absent from the semantic equality digest. Advancing fresh time is harmless.
+	plan.EvidenceModel = EvidenceModel
+	for _, test := range []struct {
+		name, opening, closing string
+		ready                  bool
+	}{
+		{"opening stale", "2026-09-26T23:59:59Z", "2026-09-27T00:00:01Z", false},
+		{"closing stale", "2026-09-27T00:00:00Z", "2026-09-26T23:59:59Z", false},
+		{"both fresh", "2026-09-27T00:00:00Z", "2026-09-27T00:00:01Z", true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			s := cloneSnapshot(t, snapshots[index])
+			s.PlanSHA256 = observation.Digest(plan)
+			for _, group := range [][]observation.Object{s.Applications, s.Envelope.Raw} {
+				observation.Map(rawIndex(group)[ref]["status"])["reconciledAt"] = test.opening
+			}
+			s = proofSnapshot(s)
+			observation.Map(rawIndex(s.Envelope.ClosingRaw)[ref]["status"])["reconciledAt"] = test.closing
+			observation.Map(rawIndex(s.ClosingApplications)[ref]["status"])["reconciledAt"] = test.closing
+			assessment := Assess(plan, index, s, &snapshots[0], &snapshots[index-1], desired, nil)
+			if (assessment.Ownership == "VERIFIED") != test.ready {
+				t.Fatal(assessment)
+			}
+		})
 	}
 }

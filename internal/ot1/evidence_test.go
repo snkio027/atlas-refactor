@@ -113,6 +113,9 @@ func syntheticSnapshots(t *testing.T, plan Plan, desired map[string]observation.
 					observation.Map(status["sync"])["status"] = "OutOfSync"
 				}
 				status["operationState"] = op
+				if phase.Stage.Outcome != "blocked" {
+					status["reconciledAt"] = op["finishedAt"]
+				}
 			}
 			s.Applications = append(s.Applications, app)
 			s.Envelope.Raw = append(s.Envelope.Raw, app)

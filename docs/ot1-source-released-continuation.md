@@ -84,8 +84,10 @@ stages, then stopped at original index 6 on F12. The original source-release STO
 and the new post-mutation STOP are both retained. The observability window remains
 open; no automatic retry or closure occurred. See the Failure Journal for facts.
 
-The F12 fix only lets the existing readiness wait tolerate an exactly correlated
-Succeeded operation whose comparison has not yet converged. Checkpoints and
-mutation guards stay strict. No new resume boundary, schema or recovery interface
-is added. The previous SOURCE_RELEASED plan is not reusable at the new stage-6
-state; subsequent mutation requires a new specific execution decision.
+The F12 root fix separates operation proof from comparison. Successful syncs
+require `reconciledAt >= finishedAt` on both checkpoint reads; known comparison
+progress waits within the existing deadline. Strict refusal remains unchanged.
+The previous SOURCE_RELEASED entry cannot execute at the F12 state. The one-off
+[F12 experiment](../experiments/foundation-ownership/f12/README.md) is compiled
+separately, pins the later STOP manifest and starts only at index 7 with strict
+window closure. It adds no normal lifecycle command or evidence schema.

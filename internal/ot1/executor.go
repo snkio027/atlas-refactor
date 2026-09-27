@@ -481,13 +481,19 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 			}
 			if o["operation"] == nil && (op == "Succeeded" || op == "Failed") {
 				if e := operationMatches(o, phase, phase.Stage.Name, phase.Stage.Outcome); e != nil {
-					if !errors.Is(e, errComparisonPending) {
+					return false, e
+				}
+				if observed != phase.Revision {
+					return false, errors.New("owner comparison revision mismatch")
+				}
+				if phase.Stage.Outcome != "blocked" {
+					fresh, e := comparisonAfterOperation(o)
+					if e != nil {
 						return false, e
 					}
-					// Argo may persist Succeeded before clearing the previous
-					// comparison's OutOfSync/SharedResourceWarning. Wait for
-					// readiness within the existing deadline; never resubmit.
-					appReady = false
+					appReady = appReady && fresh
+				} else if e := refusalComparison(o, phase.Revision); e != nil {
+					return false, e
 				}
 				if phase.Stage.Outcome == "blocked" {
 					// A strict refusal is ready evidence, never generic health.

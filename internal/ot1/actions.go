@@ -84,6 +84,16 @@ func ModePatch(current observation.Object, uid string, previous, next Phase) ([]
 	if e = operationMatches(current, previous, previous.Stage.Name, previous.Stage.Outcome); e != nil {
 		return nil, e
 	}
+	if previous.Stage.Outcome == "blocked" {
+		if e = refusalComparison(current, previous.Revision); e != nil {
+			return nil, e
+		}
+	} else {
+		fresh, err := comparisonAfterOperation(current)
+		if err != nil || !fresh || len(observation.Slice(observation.At(current, "status", "conditions"))) != 0 || observation.String(observation.At(current, "status", "sync", "status")) != "Synced" || observation.String(observation.At(current, "status", "health", "status")) != "Healthy" {
+			return nil, errors.New("previous successful sync comparison not ready")
+		}
+	}
 	return append(patches, observation.Object{"op": "replace", "path": "/spec/syncPolicy/syncOptions", "value": Options(after == "strict")}), nil
 }
 func SyncPatch(current observation.Object, uid string, phase Phase) ([]observation.Object, error) {

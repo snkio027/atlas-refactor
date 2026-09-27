@@ -196,10 +196,7 @@ func baselineContent(o observation.Object) observation.Object {
 	return observation.Semantic(copy)
 }
 
-// A successful, exactly correlated operation can precede the comparison refresh.
-// This remains a failed checkpoint; only the read-only readiness wait may consume it.
-var errComparisonPending = errors.New("successful phase has not converged")
-
+// operationMatches verifies the submitted transition, independently of comparison.
 func operationMatches(app observation.Object, phase Phase, name, outcome string) error {
 	status := observation.Map(app["status"])
 	op := observation.Map(status["operationState"])
@@ -213,27 +210,52 @@ func operationMatches(app observation.Object, phase Phase, name, outcome string)
 	if outcome == "blocked" {
 		want = "Failed"
 	}
-	if observation.String(op["phase"]) != want || observation.String(observation.At(op, "syncResult", "revision")) != phase.Revision || observation.String(observation.At(status, "sync", "revision")) != phase.Revision {
+	if observation.String(op["phase"]) != want || observation.String(observation.At(op, "syncResult", "revision")) != phase.Revision {
 		return errors.New("operation outcome/revision mismatch")
 	}
 	request := observation.Map(op["operation"])
 	if !reflect.DeepEqual(observation.Slice(request["info"]), []any{observation.Object{"name": "ot1-stage", "value": name}}) || observation.String(observation.At(request, "sync", "revision")) != phase.Revision || !approvedSyncRequest(request, phase.Revision, observation.At(app, "spec", "syncPolicy", "syncOptions")) {
 		return errors.New("operation request does not bind this phase")
 	}
+	return nil
+}
+
+// Refusal uses the comparison that prevented sync; no post-failure freshness
+// or Healthy state is required. Resource non-mutation is checked by Assess.
+func refusalComparison(app observation.Object, revision string) error {
+	status := observation.Map(app["status"])
+	op := observation.Map(status["operationState"])
 	conditions := observation.Slice(status["conditions"])
-	if outcome == "blocked" {
-		if !strings.Contains(observation.String(op["message"]), "Shared resource found:") || len(conditions) == 0 {
-			return errors.New("not the expected shared-resource refusal")
+	if observation.String(observation.At(status, "sync", "revision")) != revision {
+		return errors.New("refusal comparison revision mismatch")
+	}
+	if !strings.Contains(observation.String(op["message"]), "Shared resource found:") || len(conditions) == 0 {
+		return errors.New("not the expected shared-resource refusal")
+	}
+	for _, c := range conditions {
+		if observation.String(observation.Map(c)["type"]) != "SharedResourceWarning" {
+			return errors.New("unrelated error condition")
 		}
-		for _, c := range conditions {
-			if observation.String(observation.Map(c)["type"]) != "SharedResourceWarning" {
-				return errors.New("unrelated error condition")
-			}
-		}
-	} else if len(conditions) != 0 || observation.String(observation.At(status, "sync", "status")) != "Synced" || observation.String(observation.At(status, "health", "status")) != "Healthy" {
-		return errComparisonPending
 	}
 	return nil
+}
+
+// Argo CD 3.5.1 waits for reconciledAt >= finishedAt after a successful sync.
+// Missing/older comparison is progress, not an invalid operation or a checkpoint.
+func comparisonAfterOperation(app observation.Object) (bool, error) {
+	finished, e := time.Parse(time.RFC3339, observation.String(observation.At(app, "status", "operationState", "finishedAt")))
+	if e != nil || finished.IsZero() {
+		return false, errors.New("invalid operation timestamp")
+	}
+	value := observation.At(app, "status", "reconciledAt")
+	if value == nil {
+		return false, nil
+	}
+	reconciled, e := time.Parse(time.RFC3339, observation.String(value))
+	if e != nil || reconciled.IsZero() {
+		return false, errors.New("invalid comparison timestamp")
+	}
+	return !reconciled.Before(finished), nil
 }
 
 // Assess checks ownership separately from the full Atlas gate. Gate-B evidence
@@ -343,6 +365,24 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 		if syncOwner {
 			if e := operationMatches(app, phase, phase.Stage.Name, phase.Stage.Outcome); e != nil {
 				fail("OPERATION_FENCE:" + expect.Name)
+			}
+			if phase.Stage.Outcome == "blocked" {
+				if e := refusalComparison(app, phase.Revision); e != nil {
+					fail("REFUSAL_COMPARISON:" + expect.Name)
+				}
+			} else {
+				// Absolute timestamps are excluded from semantic equality. Check
+				// this temporal relationship on every read used by the proof.
+				reads := []observation.Object{app, raw[ref.Key()]}
+				if current.Envelope.ProofVersion != "" {
+					reads = append(reads, rawIndex(current.Envelope.ClosingRaw)[ref.Key()], rawIndex(current.ClosingApplications)[ref.Key()])
+				}
+				for _, read := range reads {
+					if fresh, e := comparisonAfterOperation(read); e != nil || !fresh {
+						fail("POST_OPERATION_COMPARISON:" + expect.Name)
+						break
+					}
+				}
 			}
 		}
 		if phase.Stage.AtlasGate && destination(expect.Name) != "" && observation.String(observation.At(app, "metadata", "annotations", observation.TrackingAnnotation)) != observation.Tracking("platform-control", "argocd", ref) {

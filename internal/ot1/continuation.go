@@ -41,9 +41,10 @@ func (b ContinuationBinding) Validate() error {
 }
 
 type bundleManifest struct {
-	Schema     int    `json:"schema"`
-	PlanSHA256 string `json:"planSHA256"`
-	Files      map[string]struct {
+	PredecessorManifestSHA256 string `json:"predecessorManifestSHA256,omitempty"`
+	Schema                    int    `json:"schema"`
+	PlanSHA256                string `json:"planSHA256"`
+	Files                     map[string]struct {
 		SHA256 string `json:"sha256"`
 		Bytes  int64  `json:"bytes"`
 	} `json:"files"`
