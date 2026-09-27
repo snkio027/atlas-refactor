@@ -165,8 +165,8 @@ func TestDevelopmentInterruptionOnlyCompletesReceipt(t *testing.T) {
 		t.Fatal("Seed authority resumed", s.effects[n:])
 	}
 }
-func TestDevelopmentCiliumAndEveryApplicationRemainInGate(t *testing.T) {
-	for _, damage := range []string{"cilium-tracking", "cilium-manager", "controller-revision", "workload-health"} {
+func TestDevelopmentSeedOwnershipRemainsInAuthorityGate(t *testing.T) {
+	for _, damage := range []string{"cilium-tracking", "cilium-manager"} {
 		t.Run(damage, func(t *testing.T) {
 			a, s := developmentFixture(t)
 			apply(t, a)
@@ -176,10 +176,6 @@ func TestDevelopmentCiliumAndEveryApplicationRemainInGate(t *testing.T) {
 				delete(s.objects[key("DaemonSet", "kube-system", "cilium")]["metadata"].(Object), "annotations")
 			case "cilium-manager":
 				delete(s.objects[key("DaemonSet", "kube-system", "cilium")]["metadata"].(Object), "managedFields")
-			case "controller-revision":
-				s.objects[key("Application", "argocd", "envoy-gateway")]["status"].(Object)["sync"].(Object)["revision"] = strings.Repeat("b", 40)
-			case "workload-health":
-				s.objects[key("Application", "argocd", "web-smoke")]["status"].(Object)["health"].(Object)["status"] = "Degraded"
 			}
 			if r := a.Status(context.Background()); r.State != Degraded {
 				t.Fatal("false development adoption", r)
@@ -308,8 +304,8 @@ func TestDevelopmentCapabilityExtensionPreservesIdentityAndAuthority(t *testing.
 	if !bytes.Equal(before[developmentSignal], after[developmentSignal]) {
 		t.Fatal("extension changed initial Signal")
 	}
-	if got := next.Status(context.Background()); got.State != Degraded {
-		t.Fatalf("unsynced extension must remain degraded: %+v", got)
+	if got := next.Status(context.Background()); got.State != Adopted {
+		t.Fatalf("extension rollout changed durable handoff: %+v", got)
 	}
 	if len(s.effects) != n {
 		t.Fatal("catalog change revived Bootstrap writes")

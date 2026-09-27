@@ -38,6 +38,11 @@ func (x *Executor) AtlasGate(ctx context.Context, index int, snapshot Snapshot, 
 	if report.State != atlas.Adopted {
 		return snapshot, nil, fmt.Errorf("existing engine does not report ADOPTED: %s: %s", report.State, report.Detail)
 	}
+	// Runtime gates retain the full existing node image/role/taint/readiness
+	// checks independently of schema-3 durable authority status.
+	if e = app.VerifyNodes(ctx); e != nil {
+		return snapshot, nil, e
+	}
 	before, e := readAudit(x.RuntimeRepository)
 	if e != nil {
 		return snapshot, nil, e

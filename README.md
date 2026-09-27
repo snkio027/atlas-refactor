@@ -61,7 +61,10 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality
 （`0ef918801dac84ac913416f4c1756bf08045a485`）。目标与证据要求见
 [第四次集成 Gate](docs/integration-fourth-slice.md)。重跑须使用对应基线的干净 checkout；
 main 后续的文档提交不改变已测试的 GitOps revision。
-`status --check` 是严格退出码的显式写法。
+`status --check` 是严格退出码的显式写法。schema 3 在有效 Receipt 后，`ADOPTED`
+只证明持久交接与 Seed ownership；平台 rollout/runtime 需独立验证，不能仅看 status 退出码。
+现有 `atlas-dev verify` 仍独立验证开发 rollout 与节点；OT-1 完整验证使用 Gate-B，见
+[ADR-0011](docs/adr/0011-desired-identity-and-durable-handoff.md)。
 新建测试节点启用 Metadata-only API 写入审计，日志位于私有 `.state/audit/`；
 记录中不包含请求/响应正文。ADR 保持 Proposed。
 

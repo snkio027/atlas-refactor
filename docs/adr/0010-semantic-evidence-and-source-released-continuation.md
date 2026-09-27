@@ -20,6 +20,11 @@ All foundation owners, platform-control, changed source inputs and every Atlas
 Gate retain exact current revision. Unknown revisions are rejected. No timeout
 increase, refresh writes or changes to the original seven desired commits.
 
+F13's [ADR-0011](0011-desired-identity-and-durable-handoff.md) extends the same
+bounded source-equivalence proof to full read-only gates after initial adoption.
+It supersedes only the blanket full-gate exact-revision rule above; critical
+owners and all mutation fences remain exact. Historical STOPs remain STOPs.
+
 The sole continuation supported is an original attempt stopped in SOURCE_RELEASED
 after a verified BASELINE_ADOPTED and successful parent detach/orphan release.
 Bind the immutable predecessor manifest, plan, terminal, checkpoint, snapshot and

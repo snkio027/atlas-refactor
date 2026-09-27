@@ -132,7 +132,8 @@ Grafana 密码和本地 S3 凭据位于私有 `.state/capabilities/credentials.j
 ## 本地验证记录
 
 - `task quality` 包含 race tests、go vet、实际 Helm 渲染、Kustomize 与 CRD 结构子集验证。
-- 测试验证新增能力不改变原 Signal；未收敛时 ADOPTED_DEGRADED 且不恢复 Seed 权限；收敛后 ADOPTED。
+- 测试验证新增能力不改变原 Signal、不恢复 Seed 权限。F13/ADR-0011 后，schema 3 的
+  完整交接保持 ADOPTED；扩展是否收敛由独立 rollout/runtime 验证，不能以 ADOPTED 代替验收。
 - 真实 kubeseal 离线测试验证严格绑定、无明文泄漏、0600 文件与重复运行不轮换。仅使用一次性测试证书，未部署信任根。
 - 隔离 Docker 容器验证锁定 SeaweedFS 与清单参数的签名 CRUD、预签名、分段上传、匿名/跨桶 403、重启保留数据。
   初次重启探测因 Docker 动态端口改变而失败；修正测试器重新查询端口后通过，未修改存储数据掩盖结果。

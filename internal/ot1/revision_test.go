@@ -72,7 +72,7 @@ func TestTransitionalRevisionEquivalence(t *testing.T) {
 		{"platform-control stays exact", func(p *Plan, s Snapshot) {
 			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("platform-control").Key()], "status", "sync"))["revision"] = p.BaselineRevision
 		}, false},
-		{"Atlas Gate stays exact", func(p *Plan, _ Snapshot) { p.Phases[1].Stage.AtlasGate = true }, false},
+		{"Atlas Gate uses the same desired identity", func(p *Plan, _ Snapshot) { p.Phases[1].Stage.AtlasGate = true }, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			p, d, ss := revisionFixture(t)
@@ -96,6 +96,85 @@ func TestTransitionalRevisionEquivalence(t *testing.T) {
 		})
 	}
 }
+
+func TestFullGateDesiredIdentity(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		mutate func(*Plan, Snapshot)
+		want   bool
+	}{
+		{"unchanged previous source", func(*Plan, Snapshot) {}, true},
+		{"changed source", func(p *Plan, _ Snapshot) {
+			v := p.Revisions["mixed-restored"]
+			v.FilesSHA256 = map[string]string{"gitops/test/leaf/kustomization.yaml": strings.Repeat("1", 64), "gitops/test/leaf/rendered.yaml": strings.Repeat("3", 64)}
+			p.Revisions["mixed-restored"] = v
+		}, false},
+		{"unknown revision", func(_ *Plan, s Snapshot) {
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = strings.Repeat("a", 40)
+		}, false},
+		{"two epochs old", func(p *Plan, s Snapshot) {
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = p.BaselineRevision
+		}, false},
+		{"UID changed", func(_ *Plan, s Snapshot) {
+			observation.Map(rawIndex(s.Applications)[AppRef("argocd-self").Key()]["metadata"])["uid"] = "replacement"
+		}, false},
+		{"spec changed", func(_ *Plan, s Snapshot) {
+			observation.Map(rawIndex(s.Applications)[AppRef("argocd-self").Key()]["spec"])["project"] = "foreign"
+		}, false},
+		{"unhealthy", func(_ *Plan, s Snapshot) {
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "health"))["status"] = "Degraded"
+		}, false},
+		{"active operation", func(_ *Plan, s Snapshot) {
+			rawIndex(s.Applications)[AppRef("argocd-self").Key()]["operation"] = observation.Object{"sync": observation.Object{}}
+		}, false},
+		{"error condition", func(_ *Plan, s Snapshot) {
+			observation.Map(rawIndex(s.Applications)[AppRef("argocd-self").Key()]["status"])["conditions"] = []any{observation.Object{"type": "ComparisonError"}}
+		}, false},
+		{"platform-control stays exact", func(p *Plan, s Snapshot) {
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("platform-control").Key()], "status", "sync"))["revision"] = p.Phases[11].Revision
+		}, false},
+		{"foundation owner stays exact", func(p *Plan, s Snapshot) {
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef(Source).Key()], "status", "sync"))["revision"] = p.Phases[11].Revision
+		}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			p, d, _ := revisionFixture(t)
+			const index = 12
+			p.Phases[index].Revision = strings.Repeat("f", 40)
+			for j := range p.Phases[index].Applications {
+				p.Phases[index].Applications[j].Revision = p.Phases[index].Revision
+			}
+			p.Revisions["mixed-restored"] = Revision{Commit: p.Phases[index].Revision, FilesSHA256: p.Revisions["detached-mixed"].FilesSHA256}
+			ss := syntheticSnapshots(t, p, d)
+			s := ss[index]
+			observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = p.Phases[index-1].Revision
+			tc.mutate(&p, s)
+			s.PlanSHA256 = observation.Digest(p)
+			s = proofSnapshot(s)
+			gate := writeGateFixture(t, privateTemp(t), "full-gate", p, p.Phases[index], s)
+			got := Assess(p, index, s, &ss[0], &ss[index-1], d, gate)
+			if got.Passed() != tc.want {
+				t.Fatal(got)
+			}
+			ready, e := applicationProgress(p, index, s.Applications, &ss[index-1], "")
+			if tc.want != (ready && e == nil) {
+				t.Fatal("readiness disagrees with full gate", ready, e)
+			}
+		})
+	}
+}
+
+func TestInitialBaselineRejectsEarlierRevision(t *testing.T) {
+	p, d, ss := revisionFixture(t)
+	s := ss[0]
+	observation.Map(observation.At(rawIndex(s.Applications)[AppRef("argocd-self").Key()], "status", "sync"))["revision"] = p.Phases[1].Revision
+	s = proofSnapshot(s)
+	gate := writeGateFixture(t, privateTemp(t), "baseline", p, p.Phases[0], s)
+	if Assess(p, 0, s, nil, nil, d, gate).Passed() {
+		t.Fatal("initial adoption accepted source equivalence")
+	}
+}
+
 func TestEquivalenceDoesNotExpandToOlderGitEpoch(t *testing.T) {
 	p, _, ss := revisionFixture(t)
 	app := rawIndex(ss[2].Applications)[AppRef("argocd-self").Key()]

@@ -90,9 +90,10 @@ func validateSourceClosures(ctx context.Context, repo string, p Plan) error {
 }
 
 // transitionExpectation never alters raw observations or the phase's exact SHA.
-// It derives a narrowly equivalent expectation; ordinary health checks still run.
+// It derives desired-content identity at transitional and full rollout gates.
+// Initial adoption and authority-critical owners keep exact revision checks.
 func transitionExpectation(p Plan, index int, want observation.ExpectedApplication, app, prior observation.Object) observation.ExpectedApplication {
-	if p.EvidenceModel != EvidenceModel || index == 0 || p.Phases[index].Stage.AtlasGate || destination(want.Name) != "" || want.Name == "platform-control" || prior == nil {
+	if p.EvidenceModel != EvidenceModel || index == 0 || destination(want.Name) != "" || want.Name == "platform-control" || prior == nil {
 		return want
 	}
 	observed := observation.String(observation.At(app, "status", "sync", "revision"))

@@ -181,6 +181,18 @@ func TestGateEvidenceRejectsPartialAndChangedArtifacts(t *testing.T) {
 		}},
 		{"audit write", "audit-after.json", func(a *GateArtifact) { a.Data["kubectlMutationAuditIDs"] = []any{"synthetic-id", "another"} }},
 		{"audit truncation", "audit-after.json", func(a *GateArtifact) { a.Data["kubectlMutationAuditIDs"] = []any{} }},
+		{"ADOPTED with unready node", "runtime.json", func(a *GateArtifact) {
+			node := observation.Map(observation.Slice(a.Data["nodes"])[0])
+			observation.Map(node["status"])["conditions"] = []any{}
+		}},
+		{"ADOPTED with unready workload", "runtime.json", func(a *GateArtifact) {
+			for _, value := range observation.Slice(a.Data["pods"]) {
+				pod := observation.Map(value)
+				if observation.Reference(pod).Namespace == "workload-web" {
+					observation.Map(pod["status"])["conditions"] = []any{}
+				}
+			}
+		}},
 		{"TLS verification bypassed", "runtime.json", func(a *GateArtifact) { observation.Map(a.Data["https"])["tlsVerified"] = false }},
 		{"wrong gateway port", "runtime.json", func(a *GateArtifact) { observation.Map(a.Data["http"])["location"] = "https://web.atlas.test:8443/" }},
 	} {

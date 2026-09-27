@@ -301,6 +301,12 @@ func (w *workflow) verify(ctx context.Context) error {
 	if report.State != atlas.Adopted {
 		return fmt.Errorf("final Bootstrap state: %s: %s", report.State, report.Detail)
 	}
+	if e := w.app.VerifyNodes(ctx); e != nil {
+		return e
+	}
+	if e := w.app.VerifyDevelopmentRollout(ctx); e != nil {
+		return e
+	}
 	b, e := w.kube(ctx, "get", "nodes", "-o", "json")
 	if e != nil {
 		return e

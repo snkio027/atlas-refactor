@@ -154,9 +154,40 @@ func (a *App) prepareCilium(ctx context.Context, files map[string][]byte) error 
 	if _, e := a.kube(ctx, nil, "wait", "--for=condition=Ready", "nodes", "--all", "--timeout=180s"); e != nil {
 		return e
 	}
-	return a.verifyNodes(ctx)
+	return a.VerifyNodes(ctx)
 }
 func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
+	if adopted && a.Config.Schema == 3 {
+		return a.developmentAuthorityIntact(ctx, self, signal)
+	}
+	return a.developmentRolloutComplete(ctx, root, self, signal, adopted)
+}
+
+// VerifyDevelopmentRollout preserves atlas-dev verify's explicit rollout check.
+// Unlike OT-1 it has no reviewed multi-revision plan, so it stays exact-current.
+// It is read-only and is never called by post-Receipt status or normal apply.
+func (a *App) VerifyDevelopmentRollout(ctx context.Context) error {
+	if e := a.VerifyArtifacts(); e != nil {
+		return e
+	}
+	o, e := a.inspect(ctx)
+	if e != nil {
+		return e
+	}
+	if a.development == nil || o.report.State != Adopted {
+		return errors.New("development rollout requires intact durable handoff")
+	}
+	complete, e := a.developmentRolloutComplete(ctx, o.root, o.self, o.signal, true)
+	if e != nil {
+		return e
+	}
+	if !complete {
+		return errors.New("development rollout is not complete")
+	}
+	return nil
+}
+
+func (a *App) developmentRolloutComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
 	if signal == nil || !ready(root) || !ready(self) {
 		return false, nil
 	}
@@ -189,8 +220,6 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 	for name, path := range map[string]string{"argocd-self": developmentSeed, "cilium": ciliumSeed} {
 		proofCommit := commit
 		if adopted && a.Config.Schema == 3 {
-			// Receipt already proves first adoption. Argo may mark unchanged Git
-			// content Synced at a new commit without starting a new operation.
 			proofCommit = liveApps[name].Status.OperationState.SyncResult.Revision
 			if !regexp.MustCompile(`^[a-f0-9]{40}$`).MatchString(proofCommit) {
 				return false, nil
@@ -203,6 +232,30 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 	}
 	return true, nil
 }
+
+// Called only after inspect validates the immutable Receipt/Latch/Identity and
+// Root/self/Signal bindings. It checks continuing Seed ownership, not Git rollout.
+func (a *App) developmentAuthorityIntact(ctx context.Context, self, signal *Live) (bool, error) {
+	if self == nil || signal == nil {
+		return false, nil
+	}
+	cilium, e := a.get(ctx, "application", "argocd", "cilium")
+	if e != nil || !specMatches(cilium, a.development.apps["cilium"]) {
+		return false, e
+	}
+	for name, live := range map[string]*Live{"argocd-self": self, "cilium": cilium} {
+		path := developmentSeed
+		if name == "cilium" {
+			path = ciliumSeed
+		}
+		owned, e := a.seedPayloadOwnership(ctx, live, "", a.development.files[path], false)
+		if e != nil || !owned {
+			return false, e
+		}
+	}
+	return true, nil
+}
+
 func (a *App) developmentIdentity(d map[string]string) {
 	d["schema"] = "atlas-refactor/identity/v2-development"
 	d["substrateProfile"] = "kind-cilium-ipv4-development/v1"

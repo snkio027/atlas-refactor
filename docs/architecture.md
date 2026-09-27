@@ -52,7 +52,7 @@ latch 才是正常路径撤销 Seed 权限的边界；Receipt 记录观察到的
 使用 Application 的目标 namespace。Argo CD 3.5.1 不给 CRD 注入 tracking，
 因此 3 个 CRD 另需当前 Synced 清单、精确 commit 的成功同步结果，以及 Argo
 SSA 对 spec 的字段记录。CRD 仍在 Gate 内，不能仅凭对象存在或 Healthy 放行。
-这些条件在 Receipt 前后都必须成立。Helm hook 的短暂 Job 和辅助 RBAC/SA
+这些条件在 schema 1/2 的 Receipt 前后都必须成立；schema 3 的 Receipt 后规则见下文。Helm hook 的短暂 Job 和辅助 RBAC/SA
 不承担持久接管证据。清单解码使用 client dry-run，集群访问只读；无法解析 Git
 revision 或读取 ownership 时失败关闭。详见第二、三轮失败记录。
 
@@ -104,8 +104,18 @@ API 监听 loopback。Metadata-only 审计只记录写请求，不记录正文�
 
 schema 3 的配置、离线制品准备、首次接管与持续观察的区别见
 [Proposed ADR-0005](adr/0005-four-node-development-workflow.md)。上述 schema 1/2 历史 Gate
-保持原含义；schema 3 在有效 Receipt 后允许 CRD 最近成功同步 SHA 早于当前无资源差异的
-Git SHA，但仍检查当前 Sync/Health、资源清单与 SSA ownership，首次接管要求不变。
+保持原含义。F13 的 [Proposed ADR-0011](adr/0011-desired-identity-and-durable-handoff.md)
+将 schema 3 的有效 Receipt 后观察拆为 authority 与 rollout/runtime：ADOPTED 验证持久
+Identity/Latch/Receipt/Signal、Root/self 绑定与两个 Seed 的当前 tracking/SSA ownership，
+不再查询所有 leaf 的分支 HEAD、最近 operation 或节点健康。它不表示平台已就绪；未知
+或损坏的 authority/ownership 仍失败关闭，正常 apply 永远不恢复 Seed 权限。
+首次 Receipt 仍须精确 revision、Sync/Health 与完整 Seed 同步证明。
+
+当前 rollout 由 Observation 与完整 Gate-B 检查：普通持久 Application 仅可使用前一
+planned revision 且完整 source closure 字节相同的证明；UID/full spec、Synced/Healthy、
+idle、conditions 与资源证明仍须有效。platform-control、foundation/active owners 保持
+exact-current。Gate-B 另外检查节点、Pod、放置、PVC/PV 与 HTTPS。此变更没有新增恢复
+或 continuation；本轮只读验证不改变历史 STOP 或批准剩余阶段。
 
 ## 声明式平台扩展候选
 
