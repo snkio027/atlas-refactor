@@ -49,23 +49,24 @@ type Phase struct {
 	Applications []observation.ExpectedApplication `json:"applications"`
 }
 type Plan struct {
-	EvidenceModel    string                     `json:"evidenceModel,omitempty"`
-	Continuation     *ContinuationBinding       `json:"continuation,omitempty"`
-	AuthorityInputs  map[string]string          `json:"authorityInputs"`
-	LockedTools      map[string]string          `json:"lockedTools"`
-	Schema           int                        `json:"schema"`
-	Ceremony         string                     `json:"ceremony"`
-	Target           observation.Target         `json:"target"`
-	Implementation   observation.Implementation `json:"implementation"`
-	Repository       string                     `json:"repository"`
-	Branch           string                     `json:"branch"`
-	ScopeSHA256      string                     `json:"scopeSHA256"`
-	StagesSHA256     string                     `json:"stagesSHA256"`
-	MaxStageSeconds  int                        `json:"maxStageSeconds"`
-	BaselineRevision string                     `json:"baselineRevision"`
-	Revisions        map[string]Revision        `json:"revisions"`
-	Scope            Scope                      `json:"scope"`
-	Phases           []Phase                    `json:"phases"`
+	PublicationRefresh bool                       `json:"publicationRefresh,omitempty"`
+	EvidenceModel      string                     `json:"evidenceModel,omitempty"`
+	Continuation       *ContinuationBinding       `json:"continuation,omitempty"`
+	AuthorityInputs    map[string]string          `json:"authorityInputs"`
+	LockedTools        map[string]string          `json:"lockedTools"`
+	Schema             int                        `json:"schema"`
+	Ceremony           string                     `json:"ceremony"`
+	Target             observation.Target         `json:"target"`
+	Implementation     observation.Implementation `json:"implementation"`
+	Repository         string                     `json:"repository"`
+	Branch             string                     `json:"branch"`
+	ScopeSHA256        string                     `json:"scopeSHA256"`
+	StagesSHA256       string                     `json:"stagesSHA256"`
+	MaxStageSeconds    int                        `json:"maxStageSeconds"`
+	BaselineRevision   string                     `json:"baselineRevision"`
+	Revisions          map[string]Revision        `json:"revisions"`
+	Scope              Scope                      `json:"scope"`
+	Phases             []Phase                    `json:"phases"`
 }
 
 func LoadContracts(root string) (Scope, []Stage, error) {
@@ -294,7 +295,7 @@ func CompilePlan(ctx context.Context, implementationRoot, baselineRepo, outputRe
 			return plan, errors.New("manual Application definition missing or changed in baseline Git")
 		}
 	}
-	plan = Plan{EvidenceModel: EvidenceModel, Schema: 1, Ceremony: "ot1-foundation-split/v1", Target: target, Implementation: impl, Repository: developmentprofile.Repository, Branch: developmentprofile.OT1Revision, ScopeSHA256: ScopeSHA256, StagesSHA256: StagesSHA256, MaxStageSeconds: 300, BaselineRevision: initial, Revisions: map[string]Revision{}, Scope: scope}
+	plan = Plan{PublicationRefresh: true, EvidenceModel: EvidenceModel, Schema: 1, Ceremony: "ot1-foundation-split/v1", Target: target, Implementation: impl, Repository: developmentprofile.Repository, Branch: developmentprofile.OT1Revision, ScopeSHA256: ScopeSHA256, StagesSHA256: StagesSHA256, MaxStageSeconds: 300, BaselineRevision: initial, Revisions: map[string]Revision{}, Scope: scope}
 	plan.AuthorityInputs, plan.LockedTools, e = authorityInputs(ctx, outputRepo, initial)
 	if e != nil {
 		return plan, e
@@ -393,6 +394,9 @@ func revisionName(stage string) string {
 	return "detached-mixed"
 }
 func ValidatePlan(p Plan, stages []Stage, scope Scope) error {
+	if p.PublicationRefresh && (p.Continuation != nil || p.EvidenceModel != EvidenceModel) {
+		return errors.New("publication refresh requires a new normal semantic plan")
+	}
 	if p.EvidenceModel != "" && p.EvidenceModel != EvidenceModel {
 		return errors.New("unknown evidence model")
 	}

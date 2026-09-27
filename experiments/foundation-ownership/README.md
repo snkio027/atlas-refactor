@@ -1,7 +1,8 @@
 # OT-1 — Foundation Ownership Split Rehearsal
 
-当前为 **完整平台验收 PASS / OT-1 基线 STOP**，尚未发生所有权转移。见 [首次现场记录](../../docs/ot1-clean-rebuild-20260927.md)。共享 Go Observation、精确状态机、有限执行器、
-独立实例化 profile 与离线阶段 Git 编译在同一 PR #6 中审核。
+当前：历史跨 attempt 闭环通过；最新干净单次运行在 index 12 STOP（12/29）。
+见 [干净复验](../../docs/s1-clean-revalidation-20260928.md) 和
+[F15 发布—调谐修正](../../docs/s1-publication-reconciliation.md)。旧的首次记录保留历史含义。
 
 - 旧布局：b618dea24b7c46cd36fd11a568a72c9a88f2097a。
 - 新布局：b5d0562381f5b3989578d62e2677364d8c73710d。
@@ -26,7 +27,7 @@ quality 包含 Go vet/race、真实 Helm/Kustomize、348 资源的普通平台�
 观察或迁移。新的运行路径只使用 Go 的统一 GVK model 与 Observation；没有第二套 Python observer。
 合成测试不进入 docs/evidence，也不伪装成 OT-1A/OT-1B PASS。
 
-## 首次真实执行状态
+## 首次真实执行状态（历史记录，非当前状态）
 
 | 条件 | 状态 |
 | --- | --- |

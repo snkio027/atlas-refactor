@@ -7,14 +7,15 @@ import (
 )
 
 type Step struct {
-	Stage           string   `json:"stage"`
-	PublishRevision string   `json:"publishRevision,omitempty"`
-	Release         []string `json:"release,omitempty"`
-	Owner           string   `json:"owner,omitempty"`
-	Mode            string   `json:"mode,omitempty"`
-	Create          bool     `json:"create,omitempty"`
-	Sync            bool     `json:"sync,omitempty"`
-	AtlasGate       bool     `json:"atlasGate"`
+	RefreshApplications []string `json:"refreshApplications,omitempty"`
+	Stage               string   `json:"stage"`
+	PublishRevision     string   `json:"publishRevision,omitempty"`
+	Release             []string `json:"release,omitempty"`
+	Owner               string   `json:"owner,omitempty"`
+	Mode                string   `json:"mode,omitempty"`
+	Create              bool     `json:"create,omitempty"`
+	Sync                bool     `json:"sync,omitempty"`
+	AtlasGate           bool     `json:"atlasGate"`
 }
 
 // Steps is the complete finite request schedule. It has no shell commands,
@@ -22,7 +23,7 @@ type Step struct {
 func Steps(plan Plan) []Step {
 	steps := []Step{}
 	for i, p := range plan.Phases {
-		s := Step{Stage: p.Stage.Name, AtlasGate: p.Stage.AtlasGate}
+		s := Step{Stage: p.Stage.Name, AtlasGate: p.Stage.AtlasGate, RefreshApplications: publicationApps(plan, i)}
 		if i > 0 {
 			before := plan.Phases[i-1]
 			if before.Revision != p.Revision {

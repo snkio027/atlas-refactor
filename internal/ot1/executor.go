@@ -163,6 +163,9 @@ func (x *Executor) publish(ctx context.Context, index int, previous Snapshot) er
 			return e
 		}
 	}
+	if x.Plan.PublicationRefresh {
+		return x.requestNormalRefreshForPublishedRevision(ctx, index, previous)
+	}
 	return nil
 }
 func (x *Executor) Transition(ctx context.Context, index int, previous *Snapshot) error {
