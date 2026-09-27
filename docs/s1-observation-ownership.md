@@ -146,3 +146,5 @@ platform-project / workload-project，加这个 upstream 内建项目。校验�
 最终 [本地复验记录](s1-local-validation-20260927-final.json) 绑定实现 `a8ddf72bc86478f6c6a321c63417a29ad3f17d6c`，
 覆盖有界收敛等待、Argo operation 序列化与默认工具入口修正；五个 CLI 均为此 SHA 的
 clean build。前一份记录保持历史字节；新记录仍明确 `runtime=NOT_RUN`。
+
+F1/F2/F3 follow-up: [same-cluster preflight report](ot1-f123-preflight-20260927.md). Local quality and clean builds pass; the new plan remains NOT_RUN because hook status and empty-selector representation block the baseline. The original STOP and run lock remain intact.
