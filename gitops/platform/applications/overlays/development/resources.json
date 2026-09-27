@@ -357,41 +357,6 @@
       "metadata": {
         "annotations": {
           "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
-          "argocd.argoproj.io/sync-wave": "-100"
-        },
-        "name": "capability-foundation",
-        "namespace": "argocd"
-      },
-      "spec": {
-        "destination": {
-          "namespace": "argocd",
-          "server": "https://kubernetes.default.svc"
-        },
-        "project": "platform-project",
-        "source": {
-          "path": "gitops/platform/foundation/capabilities/overlays/development",
-          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/ot1-desired-state"
-        },
-        "syncPolicy": {
-          "automated": {
-            "enabled": true,
-            "prune": true,
-            "selfHeal": true
-          },
-          "syncOptions": [
-            "ServerSideApply=true",
-            "FailOnSharedResource=true"
-          ]
-        }
-      }
-    },
-    {
-      "apiVersion": "argoproj.io/v1alpha1",
-      "kind": "Application",
-      "metadata": {
-        "annotations": {
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
           "argocd.argoproj.io/sync-wave": "-95"
         },
         "name": "secrets-crds",
