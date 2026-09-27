@@ -1,6 +1,6 @@
 # SOURCE_RELEASED continuation candidate
 
-The current cluster is preserved: atlas-refactor-test-ot1,
+The existing cluster is preserved: atlas-refactor-test-ot1,
 UID b886f730-ea3b-44b9-a904-8bd55ac345f2. The old attempt remains 1/29, STOP
 at SOURCE_RELEASED. Its post-STOP observation is not a retroactive checkpoint.
 [ADR-0010](adr/0010-semantic-evidence-and-source-released-continuation.md)
@@ -78,7 +78,14 @@ not implemented, so predecessor and successor bundles must be reviewed together.
 ## Validation status
 
 Local regressions cover semantic drift, inventory loss, stale/changed sources,
-Atlas exact revision, lock conflicts, manifest tampering and a simulated
-27-stage continuation including STOP injection. Real continuation is NOT_RUN.
-The latest private REVIEW.md binds the clean implementation, binary, plan,
-read-only preflight and exact command for a separate execution decision.
+Atlas exact revision, lock conflicts, manifest tampering and simulated continuation.
+The exact 53c82ce / 3e8db44c execution passed anchor/lock handoff and four remaining
+stages, then stopped at original index 6 on F12. The original source-release STOP
+and the new post-mutation STOP are both retained. The observability window remains
+open; no automatic retry or closure occurred. See the Failure Journal for facts.
+
+The F12 fix only lets the existing readiness wait tolerate an exactly correlated
+Succeeded operation whose comparison has not yet converged. Checkpoints and
+mutation guards stay strict. No new resume boundary, schema or recovery interface
+is added. The previous SOURCE_RELEASED plan is not reusable at the new stage-6
+state; subsequent mutation requires a new specific execution decision.

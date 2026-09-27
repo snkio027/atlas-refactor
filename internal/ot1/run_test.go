@@ -484,3 +484,74 @@ func TestRuntimeGatewayUsesControllerNamespace(t *testing.T) {
 		t.Fatal("controller alone substituted for missing data plane")
 	}
 }
+
+// F12: live Argo 3.5.1 stored the requested window operation's success before
+// updating comparison status and stale SharedResourceWarning conditions.
+func TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	const index = 6
+	pending := cloneSnapshot(t, snapshots[index])
+	app := rawIndex(pending.Applications)[AppRef("observability-foundation").Key()]
+	status := observation.Map(app["status"])
+	observation.Map(status["sync"])["status"] = "OutOfSync"
+	status["conditions"] = []any{observation.Object{"type": "SharedResourceWarning", "message": "stale comparison from strict refusal"}}
+	uid := observation.String(observation.At(app, "metadata", "uid"))
+	if ready, e := applicationProgress(plan, index, pending.Applications, &snapshots[index-1], uid); ready || e != nil {
+		t.Fatal("correlated success must wait for comparison", ready, e)
+	}
+	if e := operationMatches(app, plan.Phases[index], pending.Stage, "success"); !errors.Is(e, errComparisonPending) {
+		t.Fatal("checkpoint readiness was weakened", e)
+	}
+	if Assess(plan, index, pending, &snapshots[0], &snapshots[index-1], desired, nil).Ownership == "VERIFIED" {
+		t.Fatal("unconverged state became checkpoint")
+	}
+	if ready, e := applicationProgress(plan, index, snapshots[index].Applications, &snapshots[index-1], uid); !ready || e != nil {
+		t.Fatal("converged state rejected", ready, e)
+	}
+	for _, test := range []struct {
+		name   string
+		change func(observation.Object)
+	}{
+		{"wrong operation marker", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "operationState", "operation"))["info"] = []any{observation.Object{"name": "ot1-stage", "value": "another-stage"}}
+		}},
+		{"wrong result revision", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "operationState", "syncResult"))["revision"] = strings.Repeat("f", 40)
+		}},
+		{"unexpected condition", func(o observation.Object) {
+			observation.Map(o["status"])["conditions"] = []any{observation.Object{"type": "ComparisonError"}}
+		}},
+		{"degraded", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "health"))["status"] = "Degraded"
+		}},
+		{"unknown sync", func(o observation.Object) { observation.Map(observation.At(o, "status", "sync"))["status"] = "Unknown" }},
+		{"failed operation", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "operationState"))["phase"] = "Failed"
+		}},
+		{"source override", func(o observation.Object) {
+			observation.Map(observation.At(o, "status", "operationState", "operation", "sync"))["source"] = observation.Object{"path": "outside"}
+		}},
+		{"replaced UID", func(o observation.Object) { observation.Map(o["metadata"])["uid"] = "replacement" }},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			bad := cloneSnapshot(t, pending)
+			test.change(rawIndex(bad.Applications)[AppRef("observability-foundation").Key()])
+			if _, e := applicationProgress(plan, index, bad.Applications, &snapshots[index-1], uid); e == nil {
+				t.Fatal("invalid operation treated as comparison progress")
+			}
+		})
+	}
+	// The readiness loop times out without issuing any operation or full capture.
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	reads := 0
+	x := Executor{}
+	e := x.wait(ctx, func() (bool, error) {
+		reads++
+		return applicationProgress(plan, index, pending.Applications, &snapshots[index-1], uid)
+	})
+	if !errors.Is(e, context.DeadlineExceeded) || reads != 1 {
+		t.Fatal("pending comparison escaped deadline", reads, e)
+	}
+}

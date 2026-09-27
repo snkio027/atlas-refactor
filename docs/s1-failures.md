@@ -18,6 +18,7 @@
 | F9 | Kubernetes Namespace 审计 objectRef.namespace 可等于 Namespace 自身名称，原身份拼接漏计 4 条 Namespace 写入 | 本次原始 14 条受测资源写入逐条确认均由 Argo 发起；原执行器只匹配其中 10 条，属审计覆盖缺口 | `7918c74`：仅将 Namespace 审计身份归一到集群作用域；与 name 冲突的 namespace 拒绝；未重新执行现场 | `TestAuditRejectsSideChannelWritesAndLostHistory/namespace-wire-side-channel`，覆盖 Argo、旁路写入、冲突字段和其他 namespaced resource |
 | F10 | 初次 API probe 在已有 26 个 targets 全 up 时提前结束等待，遗漏尚未被 Prometheus 发现的 SeaweedFS；随后自行发现第 27 个 target | 没有 ownership mutation；S3 测试对象已删除，Grafana 结果保留；仅补完监测验收，无集群修补 | 本地 probe 等待必需 storage target；可复用离线判定在 `experiments/foundation-ownership/platform_readiness.py` | `MonitoringReadinessTests`：缺失/重复/错 namespace/未知或 down 拒绝，27-target 真实快照通过 |
 | F11 | Transitional gate imposed a global exact-revision barrier; six unchanged Apps delayed SOURCE_RELEASED | Git detach and orphan DELETE completed; 13 identities/content/tracking preserved; no window | ADR-0010: plan-proven source equivalence in transitions only; owners/platform-control/Atlas gates stay exact; 300 seconds unchanged | `TestTransitionalRevisionEquivalence`, `TestEquivalenceDoesNotExpandToOlderGitEpoch`, `TestLocalSourceClosureRejectsRemoteOrParentInput` |
+| F12 | Argo 已写入本阶段 operation Succeeded，但 comparison 仍为 OutOfSync 并带旧 SharedResourceWarning；readiness precheck 把短暂未收敛当成 fatal | 精确 continuation 已通过 4/27；在原 index 6 STOP，10 次 owner App create/patch、10 次 Argo scope 写入、0 Git publish；observability 单窗口保留 | `errComparisonPending` 仅由既有只读 readiness wait 消费；UID/spec/revision/operation guard 与 checkpoint 要求不变；不重发请求、不扩展恢复入口 | `TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint`：等待/收敛/超时、错误 marker/revision/UID/condition/health/source 全覆盖 |
 
 F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime 使用含 F9 修正的实现，但没有新增 Namespace 写入案例。F10/F11 的回归记录本轮新发现，未改变原执行器预算或 STOP 规则。
 
@@ -108,4 +109,16 @@ F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime �
   都冻结完整 authority evidence；不能以“开发模式”自动续跑、回滚或清理。
 - 最终正式 Gate PASS 保存完整不可变 bundle。中间报告不再成为长期独立文档。
 
-F8/F11 now have a Proposed semantic-evidence correction. Original STOP outcomes and runtime evidence remain immutable; continuation is not yet executed.
+F8/F11 have a Proposed semantic-evidence correction. The exact 53c82ce continuation was executed once and stopped on F12; original STOP outcomes remain immutable. No new continuation/recovery mechanism is added.
+
+## Current exact continuation: F12 after live mutation
+
+- Executed implementation: 53c82cea9aa275c6e1e84f05a7e9351aa9da8870.
+- Plan: 3e8db44c2a6c56b52ff7268be628bb34089dfd7227fe996f5912b6e6cb92ed47.
+- Same cluster UID: b886f730-ea3b-44b9-a904-8bd55ac345f2.
+- 2026-09-27 14:55:41–14:56:57 UTC, exit 2. Fresh anchor and lock handoff passed; indices 2–5 produced VERIFIED checkpoints. Index 6 MIXED_OBSERVABILITY_ADOPTED_WINDOW remains STOP.
+- Post-STOP diagnostic reads: 25 Apps idle/Synced/Healthy at b0768e7; all 13 resource UIDs/content and Argo SSA preserved; tracking secrets=3, observability=4, old-stale=6. One observability window remains open. Bootstrap records and four projects unchanged. No retroactive checkpoint.
+- Audit: 10 bounded kubectl owner-App requests and 10 scope writes, all by Argo; no Git publication. One accepted double-read proof contained benign RV churn. Transitional prior-revision equivalence was not exercised by a new Git publication in this run.
+- Private authority bundle: .state/authority/ot1-continuation-3e8db44c; 73 files, 51,388,491 bytes. Manifest SHA256: 57a0e0f74aaa11220a0f37625da0f2b0035060b5faf6e66d6259355534a7a806. Predecessor bundle is referenced, not copied.
+- Successor STOP lock preserved: f3c6b273117d2104869a43ef3f017ebedcba5135657edc3e75d03c78c6c95f47. No automatic rollback, window closure, retry or rebuild.
+- The small F12 readiness fix has regression coverage. It does not authorize replaying the old SOURCE_RELEASED entry against this new state. No arbitrary-stage resume or additional evidence model is introduced. Full OT-1/reattach/rollback and remote CI/release gates remain unproven.

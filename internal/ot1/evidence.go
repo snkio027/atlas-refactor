@@ -196,6 +196,10 @@ func baselineContent(o observation.Object) observation.Object {
 	return observation.Semantic(copy)
 }
 
+// A successful, exactly correlated operation can precede the comparison refresh.
+// This remains a failed checkpoint; only the read-only readiness wait may consume it.
+var errComparisonPending = errors.New("successful phase has not converged")
+
 func operationMatches(app observation.Object, phase Phase, name, outcome string) error {
 	status := observation.Map(app["status"])
 	op := observation.Map(status["operationState"])
@@ -227,7 +231,7 @@ func operationMatches(app observation.Object, phase Phase, name, outcome string)
 			}
 		}
 	} else if len(conditions) != 0 || observation.String(observation.At(status, "sync", "status")) != "Synced" || observation.String(observation.At(status, "health", "status")) != "Healthy" {
-		return errors.New("successful phase has not converged")
+		return errComparisonPending
 	}
 	return nil
 }
