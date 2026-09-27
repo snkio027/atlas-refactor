@@ -14,18 +14,16 @@ import (
 
 func runtimeFixture(s Snapshot) observation.Object {
 	pods := []any{}
-	for _, ns := range []string{"kube-system", "argocd", "workload-web", "atlas-secrets", "atlas-monitoring", "atlas-storage", "envoy-gateway-system", "atlas-gateway"} {
+	for _, ns := range []string{"kube-system", "argocd", "workload-web", "atlas-secrets", "atlas-monitoring", "atlas-storage", "envoy-gateway-system"} {
 		name := "test-pod"
 		node := s.Envelope.Target.Cluster + "-worker2"
 		if ns == "workload-web" {
 			node = s.Envelope.Target.Cluster + "-worker3"
 		}
-		if ns == "atlas-gateway" {
-			node = s.Envelope.Target.Cluster + "-worker"
-			name = "envoy-atlas-gateway-proxy"
-		}
+
 		pods = append(pods, live(observation.Object{"apiVersion": "v1", "kind": "Pod", "metadata": observation.Object{"name": name, "namespace": ns}, "spec": observation.Object{"nodeName": node}, "status": observation.Object{"phase": "Running", "conditions": []any{observation.Object{"type": "Ready", "status": "True"}}}}, "pod-"+ns))
 	}
+	pods = append(pods, live(observation.Object{"apiVersion": "v1", "kind": "Pod", "metadata": observation.Object{"name": "envoy-atlas-gateway-proxy", "namespace": "envoy-gateway-system", "labels": observation.Object{"app.kubernetes.io/component": "proxy", "gateway.envoyproxy.io/owning-gateway-name": "development", "gateway.envoyproxy.io/owning-gateway-namespace": "atlas-gateway"}}, "spec": observation.Object{"nodeName": s.Envelope.Target.Cluster + "-worker"}, "status": observation.Object{"phase": "Running", "conditions": []any{observation.Object{"type": "Ready", "status": "True"}}}}, "gateway-proxy"))
 	return observation.Object{"nodes": asAny(s.Nodes), "pods": pods, "pvc": live(observation.Object{"apiVersion": "v1", "kind": "PersistentVolumeClaim", "metadata": observation.Object{"name": "web-data", "namespace": "workload-web"}, "status": observation.Object{"phase": "Bound"}, "spec": observation.Object{"volumeName": "test-pv"}}, "pvc"), "pv": live(observation.Object{"apiVersion": "v1", "kind": "PersistentVolume", "metadata": observation.Object{"name": "test-pv"}, "spec": observation.Object{"persistentVolumeReclaimPolicy": "Retain"}}, "pv"), "http": observation.Object{"status": 301, "location": "https://web.atlas.test:18443/"}, "https": observation.Object{"status": 200, "tlsVerified": true, "caSHA256": strings.Repeat("a", 64), "bodyPrefix": "Atlas development web:"}}
 }
 func writeGateFixture(t *testing.T, dir, stem string, plan Plan, phase Phase, s Snapshot) *GateProof {
@@ -375,5 +373,49 @@ func TestRunningHookRemainsNonReadyDuringConvergence(t *testing.T) {
 	hook["hookPhase"] = "Failed"
 	if _, err := applicationProgress(plan, 0, snapshot.Applications, nil, ""); err == nil {
 		t.Fatal("failed hook treated as expected convergence")
+	}
+}
+
+func TestRuntimeGatewayUsesControllerNamespace(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshot := syntheticSnapshots(t, plan, desired)[0]
+	valid := runtimeFixture(snapshot)
+	if err := runtimeEvidence(valid, plan.Target.Cluster); err != nil {
+		t.Fatal("locked Envoy deployment layout rejected:", err)
+	}
+	for _, tc := range []struct {
+		name   string
+		change func(observation.Object)
+	}{
+		{"wrong-namespace", func(p observation.Object) { observation.Map(p["metadata"])["namespace"] = "atlas-gateway" }},
+		{"wrong-node", func(p observation.Object) { observation.Map(p["spec"])["nodeName"] = plan.Target.Cluster + "-worker2" }},
+		{"wrong-gateway", func(p observation.Object) {
+			observation.Map(observation.At(p, "metadata", "labels"))["gateway.envoyproxy.io/owning-gateway-name"] = "other"
+		}},
+		{"wrong-gateway-namespace", func(p observation.Object) {
+			observation.Map(observation.At(p, "metadata", "labels"))["gateway.envoyproxy.io/owning-gateway-namespace"] = "other"
+		}},
+		{"wrong-component", func(p observation.Object) {
+			observation.Map(observation.At(p, "metadata", "labels"))["app.kubernetes.io/component"] = "controller"
+		}},
+		{"not-ready", func(p observation.Object) { observation.Map(p["status"])["conditions"] = []any{} }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data := runtimeFixture(snapshot)
+			for _, value := range observation.Slice(data["pods"]) {
+				pod := observation.Map(value)
+				if observation.String(observation.At(pod, "metadata", "name")) == "envoy-atlas-gateway-proxy" {
+					tc.change(pod)
+				}
+			}
+			if runtimeEvidence(data, plan.Target.Cluster) == nil {
+				t.Fatal("invalid gateway runtime passed")
+			}
+		})
+	}
+	data := runtimeFixture(snapshot)
+	data["pods"] = observation.Slice(data["pods"])[:len(observation.Slice(data["pods"]))-1]
+	if runtimeEvidence(data, plan.Target.Cluster) == nil {
+		t.Fatal("controller alone substituted for missing data plane")
 	}
 }

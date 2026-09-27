@@ -132,7 +132,7 @@ func runtimeEvidence(data observation.Object, cluster string) error {
 	if e := checkNodes(objects("nodes"), nil, cluster); e != nil {
 		return e
 	}
-	namespaces := map[string]bool{"kube-system": false, "argocd": false, "workload-web": false, "atlas-secrets": false, "atlas-monitoring": false, "atlas-storage": false, "envoy-gateway-system": false, "atlas-gateway": false}
+	namespaces := map[string]bool{"kube-system": false, "argocd": false, "workload-web": false, "atlas-secrets": false, "atlas-monitoring": false, "atlas-storage": false, "envoy-gateway-system": false}
 	web, gateway := false, false
 	for _, pod := range objects("pods") {
 		if observation.String(observation.At(pod, "status", "phase")) == "Succeeded" {
@@ -155,13 +155,16 @@ func runtimeEvidence(data observation.Object, cluster string) error {
 		if ref.Namespace == "workload-web" && observation.String(observation.At(pod, "spec", "nodeName")) == cluster+"-worker3" {
 			web = true
 		}
-		if ref.Namespace == "atlas-gateway" && strings.HasPrefix(ref.Name, "envoy-atlas-gateway-") && observation.String(observation.At(pod, "spec", "nodeName")) == cluster+"-worker" {
+		if ref.Namespace == "envoy-gateway-system" && strings.HasPrefix(ref.Name, "envoy-atlas-gateway-") &&
+			observation.String(observation.At(pod, "metadata", "labels", "app.kubernetes.io/component")) == "proxy" &&
+			observation.String(observation.At(pod, "metadata", "labels", "gateway.envoyproxy.io/owning-gateway-name")) == "development" &&
+			observation.String(observation.At(pod, "metadata", "labels", "gateway.envoyproxy.io/owning-gateway-namespace")) == "atlas-gateway" && observation.String(observation.At(pod, "spec", "nodeName")) == cluster+"-worker" {
 			gateway = true
 		}
 	}
-	for _, present := range namespaces {
+	for namespace, present := range namespaces {
 		if !present {
-			return errors.New("platform Pod inventory incomplete")
+			return fmt.Errorf("platform Pod inventory incomplete: %s", namespace)
 		}
 	}
 	if !web || !gateway {

@@ -12,10 +12,11 @@
 | F3 | 有效 run 错继承准备阶段的 10 分钟 deadline，完整计划可能提前中断 | 本地审查发现；未在现场触发 | `76f2cba`：从原始 parent 与开始时间推导 29×300 秒 + 15 分钟；保留调用者取消 | `TestRunDeadlineCoversPlanAndPreservesCallerControl` |
 | F4 | Argo CD 3.5.1 的 hook 比较条目可能省略普通 sync status；普通资源也可能带 hookPhase | 只读预检失败，0 mutation | `4ec6005`：仅接受 hook=true 且 status 缺失；有 HookType 的实际 hook outcome 独立分类 | `TestHookComparisonOmissionDoesNotHideFailure`、`TestHookOutcomeRequiresRecognizedType`、`TestRunningHookRemainsNonReadyDuringConvergence` |
 | F5 | API 编码省略空 LabelSelector.matchLabels map，Git/live 基线误报内容漂移 | 只读预检失败，0 mutation | `4ec6005`：仅在 NetworkPolicy 已知 selector 路径的首次基线比较中规范化空 map；selector 本身及后续 live semantic 不变 | `TestBaselineSelectorWireOmissionIsNarrow`、`TestNetworkPolicyEmptySelectorsKeepPeerAndPlacement` |
-| F6 | Gate-B 包装器拒绝正常 Seed inventory 的 stdin manifest GET，普通 CLI ADOPTED 而包装后 UNAVAILABLE | plan `c26950f5c7d6920fb1f6571db504e2bcfbe32bbdf98557480307578ecdf76452` 第 0 阶段 STOP；2026-09-27 12:25:43–12:26:12 UTC 审计 78 事件、0 kubectl mutation，0 请求 intent，未发布后续 Git | 本次修订：仅放行精确 `get -f - --ignore-not-found=true --show-managed-fields -o json`；Gate 错误携带实际 state/detail | `TestReadOnlySeedInventoryWithStdin`；修复后同集群只读 Status=ADOPTED，47 请求、0 denied |
+| F6 | Gate-B 包装器拒绝正常 Seed inventory 的 stdin manifest GET，普通 CLI ADOPTED 而包装后 UNAVAILABLE | plan `c26950f5c7d6920fb1f6571db504e2bcfbe32bbdf98557480307578ecdf76452` 第 0 阶段 STOP；2026-09-27 12:25:43–12:26:12 UTC 审计 78 事件、0 kubectl mutation，0 请求 intent，未发布后续 Git | `6880e76`：仅放行精确 `get -f - --ignore-not-found=true --show-managed-fields -o json`；Gate 错误携带实际 state/detail | `TestReadOnlySeedInventoryWithStdin`；修复后同集群只读 Status=ADOPTED，47 请求、0 denied |
+| F7 | Gate-B 把 Gateway 配置命名空间 atlas-gateway 当作 Envoy 数据面 Pod 的命名空间；实际控制器与代理均在 envoy-gateway-system | plan `dd0746f0c0dc41dacb181f8163eed0f21d02e36070f0dae4babd1c640b255a73` 第 0 阶段 STOP；审计 93 事件、0 kubectl mutation，0 请求 intent，未发布后续 Git | 本次修订：使用实际代理命名空间，并检查 development Gateway labels 与 gateway worker；不再要求仅含配置的 namespace 必须有 Pod | `TestRuntimeGatewayUsesControllerNamespace`：正确布局通过，错 namespace/node/Gateway labels、未就绪或缺失数据面均拒绝 |
 
-F1–F5 定向回归与完整 `task quality` 已通过。F6 定向回归及同集群只读复核已通过；
-完整质量检查和新的真实 ceremony 结果单独更新，不把预检成功等同于运行成功。
+F1–F6 定向回归与完整 `task quality` 已通过。F7 定向回归已通过；新真实 ceremony
+结果单独更新，不把预检成功等同于运行成功。
 
 ## 保留规则
 
