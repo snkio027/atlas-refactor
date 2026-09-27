@@ -119,3 +119,7 @@ S2 Project/Workload/Binding 与 S3 scopegen/runtime/CI 只更新路线图，未�
 会初始化 `default` AppProject。因此完整项目 inventory 固定为 Atlas 的 atlas-bootstrap /
 platform-project / workload-project，加这个 upstream 内建项目。校验器对内建 spec 使用
 该版本的精确投影，之后绑定 UID/完整 semantic；不会删除它、放宽它或把 Atlas App 指向它。
+
+本轮 [本地验证记录](s1-local-validation-20260927.json) 绑定 clean implementation commit
+`1fc71885b641668efcf27849de53d5428f8240c7`、实际工具版本、五个 binary hash 和独立 profile 渲染摘要。
+后续文档提交不改变这组本地验证的实现身份；它不包含现场 cluster UID 或 runtime PASS。
