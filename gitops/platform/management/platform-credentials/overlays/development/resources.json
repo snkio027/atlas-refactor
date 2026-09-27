@@ -1,5 +1,77 @@
 {
   "apiVersion": "v1",
-  "items": [],
+  "items": [
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "grafana-admin",
+        "namespace": "atlas-monitoring"
+      },
+      "spec": {
+        "encryptedData": {
+          "admin-password": "AgBhoMp8XB2x3593rrKKZ9tvcTH2Eoss/vp3s/S42pratDaKe1jMAT3yz9bow0Gktir0AqQiwRUo3hRigNRB+cmnlJjQ1teWddpXTLIy2loxyZl5lyF664SapaaRkn9deIoFNCy6gRO2vb26L6FOvRbzDVFZ2Ma5I719SSOlTmuO95S6AsPi26DaDc++LKmuOnxIxNQvohFmSw5BOOn5arR2JQUsZ4MFYG/OcseyuYGgCdyMMOGwfasQS9aNEZ9r/3S233M6ohzuM09KO6CFePYfxzG6FyJFYkXCKdOEHcfaqakHiLK+chVwraWGy588LQfS8LGDzXn2Qpn8nx5RrRSA+TL6YsNZ3R+y/pvrVfCfWJc0OaECqlC6Ciqco/qpYL4VMajomWpaz+EgKV+mz5tjam2v43Ms7n7/gvAsSNvGkk47lZDASyJvL31S/3tDKqT/Ak4H4bslpRe8LsJvyirMoY5rwkt8Blyni1i1x/01hnlVwakPTvFfkqGWFgYSNQgWLGuGDlhSqUdellz0R4t27eRzUK84L9K74Gu4+AjMNSwBnf8IpYivXJiR0nJkursw88BD8FzrC5VgOoT+CSjZcHCaETcx6vYG8RWrjzN5SUBF6ebkP+5QR+9HqUJth/tP2DFcwBRuHA8YnGdePswV5jT12Vae1qQslm+QHcSyw5Pj1z+6N6mb2vuWQ9NKeYVeqbhWiC4Huz/ujsPkWZCNYdj/Dt2tv5j1UQCwpCDIkpTSd7HJEDi70EZs",
+          "admin-user": "AgBnk85649DW51W6w1Bor5mdl/6yO8xCgjT87AGnmQArIoCWO+BI/WCJEYT/py0b68CJY6vqX7UkQkaSRnjkpbGkcwrYIGKynAGgACyxLHx/iTrypZFQEvO5zgwUzs7vbSUxCaAHqnR6H/CVwBG3dOlTf0rb2alYp1Ie4wlYxtJDkPwOANsUe1YZJidUsAZKfSPhvFcIQ2AeNKgue0qExX1V6QOa1zXV0JUFjway0D0FfhwbOKQNNex0OOEDp/qOMCQwm/uI8Khst2xnuE3J5CgaOXKOISHC+8E89eVLdPJQMUWHAC+CdoidrG2DgYtgXOimzCp1+aK1UCwOGv4o8jsm3+tasVxANIVOBluv/fZxAQxuAGOVvmTPTewrlrBN9hMrPYILa+uB32VDevyFKJM/nX0xswx+v4F6SfeUIQ8jaBaSJJzNFEanTThIxRCPhz0hRwFiMWcvYP/JiRw9Pip6PPtHhylEnomgvUGkRnrDoPKqoBxWSD56m7zShGwrfxMTaT2LowsRzHrjUAwL32myqGwzeIPmpQOOhavrlgYDALkKMg7OiKk2xQ8ApAyOu5OYiCvH4/yYIg9UXcff9grTWX5JCXOL5oekpbYDwHIr/NQ+qZOGzOjiX81Lt5XTZlASe31cQ7KMUmZIWV9YZBc/jxUq3EVC3QFBsCn3JD2OxLNNfJFhtTp8bKEZzTGietswChXbbw=="
+        },
+        "template": {
+          "metadata": {
+            "name": "grafana-admin",
+            "namespace": "atlas-monitoring"
+          },
+          "type": "Opaque"
+        }
+      }
+    },
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "seaweedfs-auth",
+        "namespace": "atlas-storage"
+      },
+      "spec": {
+        "encryptedData": {
+          "seaweedfs_s3_config": "AgAshhTFUUY88ySocVsuemWDN2vCSmAx8cxtOx7gFeEp+Bnw6h6c9x1XVVd39TnGOp9O714KQd7mFKZKv/2PqWM6N4sEWolGQx2Snx06Q0gxRByEZJA5Ax1ddQoXADK+VqU3OYGyRybw8Jyrb+5Fb35LLZeKIxi46MU/WIDU6KrwzjalPJGrWBGyHWnNfI2dzsyWHuYyjrCOpmn4oI1CexET6BMNt6ijyewkdgrYI44x/mrpg1UvlLlCR+VlfZ3lkx2ez03LN/UDQ9bOUoT+llP2EAMlFRzP/lcvZVFfyNu1x3M/8XqXgaBfUJOqjkKuVBK64GTXD+O60mKDnSHxZyUmnAXdxG2W07BlQU1zvpEEYJmz2hfRnvBo3osQVUmUz8AQNkfyfw/74eenwnaSjnRzCuh+NSYemqleD+4fVTWGRCqrTFE7QUbzssoYYqE91mMTG+EQHi1niVd/kgubY9lOXEfodS+AsPFEgDLyh6ckEs1QHV/aatb8G73uxLUaeYy1HGortw4oCxPsdCuckOvLXvNDBIOG1wVnfZmh0PMf+w/m4F+s3ZqQw3+KneVWetW2OYVgg/TjaqzEL13z99vj+k8T/9Wd/I7d03BZXTQ5SVKVCDfbrpbzQQZNs8WLHiDVkbtHKOFpeVtzJo7kMnx7bhJFiwwyRH6pU5HltSZoszCCDav4aMHczIayXjFxjTEnTlKe4RYwxztlxUnP46MOnnSVSK3br9SNk5jJL0k5a5K01BFQr9wxI86U3xaOGqRHzV2MmMVLklApapT933XpctfdmNCzl4v9YrzrFmmV0MjwYCigOFDuwE1l230ryGSuu41LS1czT+qW2DejF/k/q3RSwPbwoP4n4LMJNkKkqaMSf6/zIMJ5gPT4oUwtEEaB8i1bje9abOnwxDXhi/pVpRrLtSLKsAXiPRxfV9h3ulnAYrtDbmNCMPmyJ0uNr9CSo6s6RlXiUdzSIPV0omtZmbFnA9+R7QdV2GfOwxgJhk1y3kDuTJpz+Yxvg/+uV40eG+iUo1oDZUg="
+        },
+        "template": {
+          "metadata": {
+            "name": "seaweedfs-auth",
+            "namespace": "atlas-storage"
+          },
+          "type": "Opaque"
+        }
+      }
+    },
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "s3-client",
+        "namespace": "workload-web"
+      },
+      "spec": {
+        "encryptedData": {
+          "AWS_ACCESS_KEY_ID": "AgCN9BLZt7QhYwqc6DeCUnE1z37dfkGoTFuvvQNtabqxOubXkGn/VCv+F6HbNTrNI4Tbmb5xACYdmoch6u0EYkDPTxVdlx4c+cbSBNfjvRr2X9asEJhNDMOK3/7O0loeBHu4JL2p5c+tHPe7wu3A8vaKy+zYOtzFqnG0ZCrM0gTSvNw60zvMonJrSCfFHmrq8/kLmtGH9fJHjFLLQUVdARaRDoG8PTVFB6yMBM6bZTBf0xRYTlPuUwQzbC5gdP38g21VVzzTTwQuqNOqKmBOyetxIC2MFvC4DhVkce0SBnuP7OgsxGNxLHwr4mj044aDGAAg4KzbiuINpQxwpmK9j/MaejMbLj/71jaO9XgidTifBAdyiUaHCr6eZv7NdKZKta9qOH75524Ti8771OrB1L2xK+EY3kSx8XoA7gY0SXHVM0kQLxqmWIsBphJoEgP9/dkoVLgS+zRERseP4AIRWMqlUMFJ5xAHMEoPEU0OF5a/Z54/0sMGWVlSmFSTmv60M/3h/Yi/1dt0FUpkcH0oN9kzuthqa+uNfFoU7BDKGcJB4Jvp5pVHMdg1/BiCqRzr2UckT7YS0bDhFowXUl1o/1tNXvwbRzCWu+BaZVXJvcBztnEvivZM8nTSKWu8u0xsZwUxQgez0j17ebaPhue/upKbzsDhums/vvedS5uSgiLVYX3s4XsprO27gHUheLvCqM/puXfO+eBLC9p1Ixe9wXgbh4DmGheikU7ZJdfOO/Ax6AWwGgmcj712riiM",
+          "AWS_SECRET_ACCESS_KEY": "AgAeWvvmqW6tbySd3JNhz/zPcbqqpsJuuHkz3CHWkQ1m3I5KdBZ5udNgn/K7YC1cIHNE0qPiiCmIxdtpoJJDEr8M3k52lFZ18cgCoJLP+DYBIczDD+uYkhv2Z85pnCKOCK9MVeHlC1Eq4dJjd0R5vIRk0TtpKhbfppbf+Lu2dPTDuj/2CI0hkvx/fUe/Fujf87iyoY44v4h9urEOOYpYXUW0moMGy67+We/z3R11o6gE26i90JklddLMMVzO7ZEep4gTKEZFSWFpYH5W+ypr2SowOjBaFaKqwzVRIKT2ixiNyk0raxF15Nn8vXAKD9aParz7YooL/buE6FDm7XtD4qldK9F408xzqKrOm4Z8VqIK29Hu3rFy6x837qBingu0kg5k9t8VbyU5+tLsDQychENqkPWiJLrQ/oRzYbALYCLd605tgca+JpWEej/bJz2qQPT8bHrXO8fBVIHDjl3cRCAZsEYhrj09gcsgZBd2IG9iscP1Lp9uvob9eaR7YsOo/E6sv6Wlhb/smjAC5qS4AXG5v+SBP9WB+Vv6zugwi/apmDHxRsKeMz0dPfCpud0e3zxBbZaf0KCSrDr28/JXnwaFnkJ5j+gpzbQGk/siRGrpmuu8AvllNp0Vnefg0TN7eb/dLSG37GSDma5k/GWLFPDqZeXaFMwSN4NTJj0fZbiVE3ql5F4QblJY1W12m8tNkZiu81SSLGmo8A8IdB6DevnRpDsJmOfLJQAAe85WL0SwTEMksUvomzriwsBG"
+        },
+        "template": {
+          "metadata": {
+            "name": "s3-client",
+            "namespace": "workload-web"
+          },
+          "type": "Opaque"
+        }
+      }
+    }
+  ],
   "kind": "List"
 }

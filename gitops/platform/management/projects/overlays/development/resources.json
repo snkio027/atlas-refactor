@@ -104,6 +104,10 @@
           },
           {
             "group": "",
+            "kind": "PersistentVolumeClaim"
+          },
+          {
+            "group": "",
             "kind": "ResourceQuota"
           },
           {
@@ -135,6 +139,10 @@
             "kind": "Job"
           },
           {
+            "group": "bitnami.com",
+            "kind": "SealedSecret"
+          },
+          {
             "group": "cert-manager.io",
             "kind": "Certificate"
           },
@@ -153,6 +161,26 @@
           {
             "group": "gateway.networking.k8s.io",
             "kind": "Gateway"
+          },
+          {
+            "group": "monitoring.coreos.com",
+            "kind": "Alertmanager"
+          },
+          {
+            "group": "monitoring.coreos.com",
+            "kind": "AlertmanagerConfig"
+          },
+          {
+            "group": "monitoring.coreos.com",
+            "kind": "Prometheus"
+          },
+          {
+            "group": "monitoring.coreos.com",
+            "kind": "PrometheusRule"
+          },
+          {
+            "group": "monitoring.coreos.com",
+            "kind": "ServiceMonitor"
           },
           {
             "group": "networking.k8s.io",
