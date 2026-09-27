@@ -41,8 +41,8 @@ ceremony owner retain exact-current revision checks. Mutation requests retain
 exact current Git, UID, RV and full-spec fences. No timeout, plan/evidence schema,
 state graph, source revisions or public lifecycle interface changes.
 
-This narrowly supersedes ADR-0010's blanket exact-revision rule for every full
-Atlas gate. It does not generalize source equivalence to arbitrary Git history.
+This supersedes ADR-0010's one-preceding-revision bound and blanket exact-revision
+rule for every full Atlas gate. It does not generalize source equivalence to arbitrary Git history.
 
 ## Schema-3 authority after Receipt
 
@@ -87,8 +87,8 @@ once durable authority is verified; it is not a workload repair or rollout comma
 
 ## Verification and limits
 
-Regressions must prove full-gate unchanged prior source PASS; changed source,
-multiple unchanged planned revisions PASS; intermediate content/spec changes
+Regressions must prove full-gate equivalence across multiple continuously unchanged
+planned revisions PASS; changed source and intermediate content/spec changes
 (including change-and-revert), critical owners, future/unknown revisions, UID/spec
 drift and unhealthy/active leaves FAIL. Schema-3 tests must prove Receipt plus a later unrelated commit remains
 ADOPTED without querying branch HEAD; workload/runtime failures still fail the
@@ -136,3 +136,12 @@ On success freeze S1, preserve one final evidence bundle referencing historical
 STOPs, and finish architecture/ADR/PR review. ADR acceptance, CI and release gates
 remain distinct. This fixed entry is an experiment reference, not a new ordinary
 Atlas lifecycle interface or a general recovery framework.
+
+
+## Runtime disposition
+
+Implementation `c7a09b4` completed the exact finalization: fresh forward Gate-B,
+original 24..28, reverse/final Gate-B, REVERSE_VERIFIED / exit 0. Evidence and
+architecture consistency are recorded in [final validation](../s1-final-validation.md).
+S1 feature work is frozen. This record remains Proposed for owner disposition;
+no production/cutover or remote CI/release acceptance is implied.

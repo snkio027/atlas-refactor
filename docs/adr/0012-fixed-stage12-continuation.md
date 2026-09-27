@@ -80,4 +80,6 @@ zero open windows. No reverse or automatic recovery followed. Full evidence and
 F14's locally reproduced publication/progress mismatch are recorded in the
 [Failure Journal](../s1-failures.md#latest-execution-fixed-stage-12-continuation-stop-before-forward-gate-b).
 This record remains Proposed. The fixed entry cannot resume the new STOP;
-S1 completion and final ADR disposition remain open.
+That historical STOP remains unchanged. The later ADR-0011 fixed finalization
+completed the remaining runtime gates; see [final validation](../s1-final-validation.md).
+S1 feature work is frozen; final ADR disposition remains open.

@@ -4,7 +4,7 @@
 - Date: 2026-09-27
 - Parent: [ADR-0007](0007-platform-contract-hardening.md)、[ADR-0008](0008-ownership-transfer-probe.md)
 - Scope: 仅 atlas-refactor-test-ot1；13-object、1→3→1 实验，不批准 dev02 迁移
-- Implementation: S1 Observation/runtime substrate 已有干净重建与完整平台现场验证；首次 ownership 运行 7/29 checkpoint 后跨版本采集 STOP。最新固定 stage-12 continuation 已通过原 indices 13..22，完成 1→3 转移与 strict 恢复，随后在 index 23 发布后 STOP；forward Gate-B / reverse / 完整链仍 NOT PROVEN，当前现场见 [Failure Journal](../s1-failures.md)。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
+- Implementation: S1 干净平台基线、partial rollback、full forward/reverse 和最终 Gate-B 已通过；功能开发冻结。历史 STOP 全部保留，最终 runtime 绑定与审核边界见 [最终验证](../s1-final-validation.md)。此记录保持 Proposed。
 
 ## 决策目标与权责
 
@@ -183,8 +183,9 @@ operation phase、verifier exit、对象差异和无旁路写入证据。公开�
 非敏感结果；私有 GET 原文、kubeconfig、key/credentials 与日志留在 .state/Vault。
 
 当前已验证本地真实渲染、普通 Bootstrap 回归、共享观察器、合成阶段链及请求 guard；
-fresh Bootstrap 和完整平台已有现场证明。OT-1 已验证基线 Gate-B 与部分所有权转移，随后
-发生跨版本采集 STOP；完整 OT-1A/OT-1B、父级 reattach 与 rollback 仍未证明。不得据此接纳 ADR-0008 或迁移 dev02。
+fresh Bootstrap 和完整平台已有现场证明。完整 OT-1A/OT-1B、父级 reattach、partial
+rollback 与 full reverse 已在后续固定执行中通过，见最终验证。历史跨版本采集等 STOP
+保持不变；runtime 成功不自动接纳 ADR-0008，也不批准迁移 dev02。
 具体入口、plan/evidence 格式、授权边界及限制见 [S1 实现说明](../s1-observation-ownership.md)。
 
 ## 开发保留策略
@@ -196,7 +197,7 @@ Trust Root/凭据变化、影响不明的 STOP 与最终 Gate PASS 仍保留完�
 锁用于互斥和阻止未经审查的重入，不兼任永久档案；执行器失败仍留锁，调用者仅在明确
 零影响、当前状态复核及用户授权后清理摘要匹配的旧锁。已发生 mutation 的恢复决定不变。
 
-历史混合状态、版本 fence、审计匹配修正及最新干净重建的 SOURCE_RELEASED 超时见 [Failure Journal](../s1-failures.md)。
+历史混合状态、版本 fence、审计匹配修正及干净重建后的 SOURCE_RELEASED 超时见 [Failure Journal](../s1-failures.md)。
 
 ## Proposed evidence and continuation revision
 

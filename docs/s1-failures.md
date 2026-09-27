@@ -3,7 +3,8 @@
 失败知识保留在回归测试和本表中。这里的“零 mutation”指失败的 transfer/preflight
 未执行 ceremony 写请求、未发布后续 Git 阶段；不否认先前真实 Bootstrap 和平台创建。
 真实创建、凭据/Trust Root 的证据仍见 [首次现场记录](ot1-clean-rebuild-20260927.md)。
-最新精确 continuation 已通过原 indices 13..22，完成 1→3 转移与 strict 恢复；在 index 23 发布后 STOP，尚未通过 forward Gate-B 或执行 reverse。完整 S1 未完成，ADR-0009～0012 保持 Proposed。
+S1 最终 runtime 闭环已通过，功能开发冻结；最新结果见 [最终验证](s1-final-validation.md)。
+本页保留失败发生时的事实与修复知识，历史 STOP 不因后续成功而改写。ADR-0009～0012 保持 Proposed。
 
 | ID | 症状与原因 | 外部影响 | 修复 | 回归 |
 | --- | --- | --- | --- | --- |
@@ -212,3 +213,12 @@ The fixed finalization entry is bound to the current stage-23 STOP and must crea
 `CONTINUATION_ANCHOR_FORWARD_VERIFIED` through fresh Ownership/Gate-B before lock
 handoff and original 24..28. Preparation is not runtime completion; all earlier
 STOPs and private manifests remain unchanged.
+
+
+## S1 finalization outcome
+
+Implementation `c7a09b4` and plan `91dc1dfe…fc3e0b` passed the fresh forward anchor,
+then all original 24..28. Terminal REVERSE_VERIFIED / exit 0 at 2026-09-27 17:57:03
+UTC. F13/F14 are consolidated; full forward/reverse and final Gate-B now have
+runtime evidence. Historical STOPs remain unchanged. The [final validation](s1-final-validation.md)
+binds exact hashes, audit, limits and ADR disposition. S1 feature work is frozen.

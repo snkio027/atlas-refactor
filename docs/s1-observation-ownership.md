@@ -1,6 +1,6 @@
 # S1：Observation、Evidence 与 Ownership Rehearsal
 
-本次是同一 PR #6 的完整工程 Slice。干净重建与完整平台验收已有现场证据；最新精确 stage-12 continuation 通过原 indices 13..22，完成 1→3 ownership transfer 和 strict 恢复，随后在 index 23 发布后 STOP。forward Gate-B、reverse 与最终 S1 尚未完成。当前三个 owner 分别接管 3／4／6 个资源，开放窗口 0；详见 [Failure Journal 最新记录](s1-failures.md#latest-execution-fixed-stage-12-continuation-stop-before-forward-gate-b)。ADR-0009～0012 保持 Proposed。
+S1 的隔离 OT-1 runtime 闭环已通过，功能开发冻结，PR #6 进入收口审核。干净基线、partial rollback、forward 1→3、reverse 3→1 和最终 Gate-B 的证据及边界见 [最终验证](s1-final-validation.md)。历史 STOP 全部保留；ADR-0009～0012 仍为 Proposed。
 现有 Bootstrap integration 基线、OT-0 成功/失败证据与 dev02 desired 分支没有改写。
 
 ## 实现与目的
@@ -171,7 +171,7 @@ run lock 阻止并发与未经审查的重入，terminal 记录运行终态。�
 直到恢复/完成决定；禁止仅删锁后重放。此规则不改变任何 Kubernetes/Git 写权限、
 13 对象作用域、failure classifier 或批准过的目标。
 
-当前完整 ceremony 尚未通过；最新 index 23 STOP 及此前历史见 Failure Journal。真实 mutation 的 authority bundles 完整保留；最终 Gate PASS 报告尚不存在。
+完整 runtime 闭环已通过；最终 Gate PASS 与冻结范围见最终验证报告。Failure Journal 保留此前 STOP 及修复经验，authority bundles 不改写。
 
 ## SOURCE_RELEASED continuation candidate
 
@@ -197,3 +197,5 @@ The fixed `experiments/foundation-ownership/finalize` entry proves a fresh forwa
 Gate-B anchor for the current stage-23 STOP, then executes only original 24..28.
 Local tests and preparation are not runtime completion; the final result is
 recorded separately from immutable historical STOPs.
+
+最终固定入口已完成 forward anchor 和原 24..28，REVERSE_VERIFIED / exit 0；详见最终验证报告。普通 engine 未增加 recovery 权限。
