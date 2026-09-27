@@ -1,6 +1,6 @@
 # S1：Observation、Evidence 与 Ownership Rehearsal
 
-本次是同一 PR #6 的完整工程 Slice。首次干净重建和完整平台验收已通过；OT-1 在基线阶段 STOP，尚未发生所有权转移。见 [现场结果](ot1-clean-rebuild-20260927.md)；ADR-0009 保持 Proposed。
+本次是同一 PR #6 的完整工程 Slice。首次干净重建和完整平台验收已通过；本次真实 OT-1 通过 7/29 checkpoint（含基线独立 Gate-B），在第 8 阶段采集版本变化后 STOP，已经发生部分所有权转移。当前混合状态与完整证据见 [Failure Journal](s1-failures.md#当前现场真实-mutation-后-stop)；ADR-0009 保持 Proposed。
 现有 Bootstrap integration 基线、OT-0 成功/失败证据与 dev02 desired 分支没有改写。
 
 ## 实现与目的
@@ -171,4 +171,4 @@ run lock 阻止并发与未经审查的重入，terminal 记录运行终态。�
 直到恢复/完成决定；禁止仅删锁后重放。此规则不改变任何 Kubernetes/Git 写权限、
 13 对象作用域、failure classifier 或批准过的目标。
 
-当前完整 ceremony 尚未通过；最新零写入失败及修复见 Failure Journal。真实 Bootstrap 与平台创建证据继续保留，最终结果仅在完整 Gate 后记录。
+当前完整 ceremony 尚未通过；第 8 阶段真实 mutation 后 STOP 的现场见 Failure Journal。此次 authority bundle 完整保留；最终 Gate PASS 报告尚不存在。

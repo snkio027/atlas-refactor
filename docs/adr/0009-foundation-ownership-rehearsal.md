@@ -4,7 +4,7 @@
 - Date: 2026-09-27
 - Parent: [ADR-0007](0007-platform-contract-hardening.md)、[ADR-0008](0008-ownership-transfer-probe.md)
 - Scope: 仅 atlas-refactor-test-ot1；13-object、1→3→1 实验，不批准 dev02 迁移
-- Implementation: S1 Observation/runtime substrate 部分现场验证；OT-1 ownership 在 BASELINE_ADOPTED STOP，NOT PROVEN。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
+- Implementation: S1 Observation/runtime substrate 部分现场验证；OT-1 已通过 7/29 checkpoint（含基线 OT-1B），在 MIXED_OBSERVABILITY_STRICT_RESTORED 发生跨版本采集后 STOP，完整链仍 NOT PROVEN。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
 
 ## 决策目标与权责
 
@@ -183,8 +183,8 @@ operation phase、verifier exit、对象差异和无旁路写入证据。公开�
 非敏感结果；私有 GET 原文、kubeconfig、key/credentials 与日志留在 .state/Vault。
 
 当前已验证本地真实渲染、普通 Bootstrap 回归、共享观察器、合成阶段链及请求 guard；
-fresh Bootstrap 和完整平台已有现场证明。OT-1 在外部 mutation 前 STOP，完整
-OT-1A/OT-1B、父级 detach/reattach 与 rollback 仍未证明。不得据此接纳 ADR-0008 或迁移 dev02。
+fresh Bootstrap 和完整平台已有现场证明。OT-1 已验证基线 Gate-B 与部分所有权转移，随后
+发生跨版本采集 STOP；完整 OT-1A/OT-1B、父级 reattach 与 rollback 仍未证明。不得据此接纳 ADR-0008 或迁移 dev02。
 具体入口、plan/evidence 格式、授权边界及限制见 [S1 实现说明](../s1-observation-ownership.md)。
 
 ## 开发保留策略
@@ -195,3 +195,5 @@ create-only、SHA 绑定和不可覆盖终态用于实际 authority execution。
 Trust Root/凭据变化、影响不明的 STOP 与最终 Gate PASS 仍保留完整 authority evidence。
 锁用于互斥和阻止未经审查的重入，不兼任永久档案；执行器失败仍留锁，调用者仅在明确
 零影响、当前状态复核及用户授权后清理摘要匹配的旧锁。已发生 mutation 的恢复决定不变。
+
+最新已改变的混合状态、版本 fence 触发与审计匹配缺口见 [Failure Journal](../s1-failures.md)。
