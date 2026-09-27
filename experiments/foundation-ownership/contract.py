@@ -177,6 +177,10 @@ def check_sources():
     for name, items in [('source', old), *domains.items()]:
         actual = read_list((BASE / 'fixtures' / name / 'resources.json').read_bytes())
         require(index(actual) == index(items), 'fixture differs from reviewed Git: ' + name)
+        kustomization = json.loads((BASE / 'fixtures' / name / 'kustomization.yaml').read_text())
+        require(kustomization == {'apiVersion': 'kustomize.config.k8s.io/v1beta1',
+                'kind': 'Kustomization', 'resources': ['resources.json']},
+                'fixture Kustomization adds inputs or transformations: ' + name)
     require(json.loads((BASE / 'stages.json').read_text()) == stages(), 'stage graph changed')
     return {'result': 'OFFLINE_SCOPE_VERIFIED', 'liveProof': False, 'clusterOperations': 0,
             'objects': len(inventory), 'domainCounts': dict(zip(DOMAINS, COUNTS)),
