@@ -3,7 +3,7 @@
 失败知识保留在回归测试和本表中。这里的“零 mutation”指失败的 transfer/preflight
 未执行 ceremony 写请求、未发布后续 Git 阶段；不否认先前真实 Bootstrap 和平台创建。
 真实创建、凭据/Trust Root 的证据仍见 [首次现场记录](ot1-clean-rebuild-20260927.md)。
-最终完整 29 阶段及各交接点的 Gate-B 尚未全部通过，ADR-0009 保持 Proposed。
+最新精确 continuation 已通过原 indices 13..22，完成 1→3 转移与 strict 恢复；在 index 23 发布后 STOP，尚未通过 forward Gate-B 或执行 reverse。完整 S1 未完成，ADR-0009～0012 保持 Proposed。
 
 | ID | 症状与原因 | 外部影响 | 修复 | 回归 |
 | --- | --- | --- | --- | --- |
@@ -19,8 +19,8 @@
 | F10 | 初次 API probe 在已有 26 个 targets 全 up 时提前结束等待，遗漏尚未被 Prometheus 发现的 SeaweedFS；随后自行发现第 27 个 target | 没有 ownership mutation；S3 测试对象已删除，Grafana 结果保留；仅补完监测验收，无集群修补 | 本地 probe 等待必需 storage target；可复用离线判定在 `experiments/foundation-ownership/platform_readiness.py` | `MonitoringReadinessTests`：缺失/重复/错 namespace/未知或 down 拒绝，27-target 真实快照通过 |
 | F11 | Transitional gate imposed a global exact-revision barrier; six unchanged Apps delayed SOURCE_RELEASED | Git detach and orphan DELETE completed; 13 identities/content/tracking preserved; no window | ADR-0010: plan-proven source equivalence in transitions only; owners/platform-control/Atlas gates stay exact; 300 seconds unchanged | `TestTransitionalRevisionEquivalence`, `TestEquivalenceDoesNotExpandToOlderGitEpoch`, `TestLocalSourceClosureRejectsRemoteOrParentInput` |
 | F12 | Operation completion preceded its post-sync comparison; readiness conflated two controller loops | Current STOP has tracking 3/4/6 and only observability window open; 10 App requests, 10 Argo scope writes, zero Git publication | Separate operation proof from comparison; require reconciledAt >= finishedAt on both checkpoint reads, wait only for known progress; strict refusal unchanged | `TestSuccessfulOperationWaitsForComparisonWithoutWeakeningCheckpoint`, `TestPostOperationComparisonFreshness`; one-off recovery starts with strict closure at index 7 |
-
 | F13 | Full Atlas Gate used repository revision equality as leaf desired-state identity: five healthy unchanged Apps still reported b0768e7 after 220a113 | Only platform-control child projection changed; source closures for the five Apps were byte-identical. All 13 resources retained UID/content/SSA under the restored source; no window; STOP at 12 before full capture/Gate-B | ADR-0011: full gates reuse bounded preceding-planned source equivalence; critical owners remain exact. Schema-3 post-Receipt ADOPTED verifies durable authority/Seed ownership independently of rollout/runtime; initial adoption remains strict. No timeout/refresh/recovery change | `TestFullGateDesiredIdentity`, `TestInitialBaselineRejectsEarlierRevision`, `TestDurableHandoffDoesNotQueryBranchHeadOrLeafRollout`, `TestSchema3AuthorityDamageStillFailsClosed`, `TestFirstDevelopmentHandoffStillNeedsExactLeafRevision` |
+| F14 | A prior-revision leaf accepted at stage 22 becomes two revisions old immediately after stage 23 publication; `applicationProgress` rejects it instead of waiting for a known predecessor observation to converge | Original stages 13..22 passed; 19 guarded Application writes and two Git publications; STOP at 23 before forward Gate-B, no reverse | Not fixed. Frozen source-equivalence and unknown-revision rules unchanged; no timeout extension or new continuation | Private `TestStage23PublicationInvalidatesVerifiedPredecessor` replays retained stage-21/22 snapshots: stage 22 passes, stage 23 reproduces rejection; existing `TestEquivalenceDoesNotExpandToOlderGitEpoch` still enforces the acceptance boundary |
 
 F1–F7 与 F9 的定向回归和完整质量检查已通过；本轮 runtime 使用含 F9 修正的实现，但没有新增 Namespace 写入案例。F10/F11 的回归记录本轮新发现，未改变原执行器预算或 STOP 规则。
 
@@ -146,3 +146,51 @@ F8/F11 have a Proposed semantic-evidence correction. The exact 53c82ce continuat
 - Bootstrap ADOPTED; repeated apply 47 allowed requests, exit 0, zero denied writes and unchanged kubectl mutation audit IDs (93 -> 93). Existing node image/version/roles/taint checks, Pod readiness/placement, PVC Bound/PV Retain, HTTP 301 and CA-verified HTTPS 200 passed. This check did not rerun functional S3 CRUD or Prometheus API acceptance.
 - STOP lock `d7e4a9d78fc284f55b1e34b3aafe9b67998fd7789eb0201814cec2c280a7b1d2`, default kubeconfig and the previous immutable bundles are unchanged. The historical attempt remains STOP / NextIndex 12; no checkpoint, recovery, Git publication or ownership mutation was performed. Forward/reverse stages and final S1 acceptance remain unproven.
 - Retained read-only validation bundle: `.state/authority/ot1-f13-readonly-cf093d75`; manifest `67e13e2606a337eb0214bbe0cad6a167c20aa3940a15bd8dbb45a56ccd2be8b0`. Remote CI/release gates are still separate.
+
+## Latest execution: fixed stage-12 continuation, STOP before forward Gate-B
+
+- Explicitly approved implementation `3c7e9d3860fa2c8e655e4a864e20ccd6206e1e49`, binary
+  `0a44645f016bdd3cfcd79997046517547996c901e1c8094239d9b9ec04d7e348`, plan
+  `619e492be725fbfb7f3d24aba380479defd64cafad433a107738cf5ab1d65cff`.
+  Same OT-1 UID `b886f730-ea3b-44b9-a904-8bd55ac345f2`;
+  2026-09-27 17:10:23–17:16:54 UTC, exit 2.
+- Fresh stage-12 Ownership/Gate-B anchor VERIFIED, Bootstrap ADOPTED, repeated apply
+  zero writes (kubectl audit IDs 93 → 93). The exact predecessor lock was handed off;
+  historical stage-12 STOP was not rewritten and its publication was not replayed.
+- **Ten new checkpoints, original indices 13..22, passed.** Full 1→3 ownership transfer
+  completed with all three expected strict refusals, window adoptions and strict restores.
+  Index 23 published `6c1311ff9fa64a80973eb0ef4f4c3ba406ecac24`, then stopped after
+  approximately six seconds on `unexpected Application revision`, before full capture
+  or forward Gate-B. No index 24..28 request was executed.
+- The last verified stage-22 snapshot contains four unchanged healthy leaves at `220a113`:
+  argocd-self, envoy-gateway, monitoring-crds and workload-control. That revision is
+  eligible immediately before `849d4f8`, but becomes two planned revisions old after
+  publication of `6c1311f`. Their complete source closures are byte-identical across all
+  three commits. Replaying the recorded inputs through `applicationProgress` locally
+  reproduces the immediate rejection. The failing live list itself was not persisted;
+  later reads are diagnostic observations, not a substitute for that list or a checkpoint.
+- This is a publication/progress-classification gap, not a 300-second timeout. No rule
+  was relaxed to accept a two-revisions-old final state. The local reproduction is
+  diagnostic coverage, not a fix; any correction must preserve the final acceptance
+  boundary and the distinction between bounded waiting and a successful Gate.
+- Nineteen protected Application requests and two original Git publications (six Git
+  commands) all exited zero. The retained 1,916-event audit delta contains 19 matching
+  kubectl writes and 26 scoped resource writes, all by Argo, including six Namespace
+  writes. All 40,561 anchor audit IDs remain present; the full anchor audit plus the
+  delta avoids copying previous raw history again.
+- Post-STOP read-only check at 17:19:01 UTC: all 13 original UID/content/Argo SSA facts
+  intact; secrets=3, observability=4, storage=6; zero windows. Four Bootstrap records,
+  four AppProjects and Root/self identity/spec remain intact; four nodes Ready.
+  All 26 Apps were idle/Synced/Healthy at `849d4f8` while current Git was `6c1311f`.
+  This does **not** establish forward Gate-B; functional S3/monitoring checks were not rerun.
+- Successor STOP lock `959051a4bd141acdc59d1bf5373e3e360084ab02f2e508368affc8733f37cd36`
+  retained. Default kubeconfig and all predecessor evidence unchanged. No automatic
+  retry, refresh, sync, rollback, reverse, cluster rebuild or credential action followed STOP.
+- Immutable private bundle `.state/authority/ot1-stage12-619e492b`: 133 files,
+  199,481,885 bytes; manifest
+  `252baa12ed1d3b56d8c92690bf77981270e1f310c7b3ca915e3c427f62ecae68`.
+  Executed binary/plan, anchor, attempt, approval, audit and post-STOP facts retained;
+  duplicate read-only precheck removed. Runtime checkout and active lock stay in place.
+- Locked `task quality` and both fixed-entry tagged race/vet passed before execution.
+  Full forward Gate-B, reverse and final S1 acceptance remain unproven. PR #6 stays draft;
+  ADR-0009/0010/0011/0012 stay Proposed. Remote CI/status checks remain a separate gap.

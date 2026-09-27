@@ -4,7 +4,7 @@
 - Date: 2026-09-27
 - Parent: [ADR-0007](0007-platform-contract-hardening.md)、[ADR-0008](0008-ownership-transfer-probe.md)
 - Scope: 仅 atlas-refactor-test-ot1；13-object、1→3→1 实验，不批准 dev02 迁移
-- Implementation: S1 Observation/runtime substrate 已有干净重建与完整平台现场验证；首次 ownership 运行 7/29 checkpoint 后跨版本采集 STOP。最新新集群运行 1/29 checkpoint 后在 SOURCE_RELEASED 超时 STOP；完整链仍 NOT PROVEN，当前现场见 [Failure Journal](../s1-failures.md)。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
+- Implementation: S1 Observation/runtime substrate 已有干净重建与完整平台现场验证；首次 ownership 运行 7/29 checkpoint 后跨版本采集 STOP。最新固定 stage-12 continuation 已通过原 indices 13..22，完成 1→3 转移与 strict 恢复，随后在 index 23 发布后 STOP；forward Gate-B / reverse / 完整链仍 NOT PROVEN，当前现场见 [Failure Journal](../s1-failures.md)。首次执行与授权见 [现场记录](../ot1-clean-rebuild-20260927.md)；下文首次准备描述保留为提案背景。
 
 ## 决策目标与权责
 

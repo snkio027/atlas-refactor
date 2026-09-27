@@ -68,3 +68,16 @@ After forward and reverse Gate-B pass, stop S1 feature development. Consolidate
 final evidence, check architecture consistency and record ADR disposition for
 owner review. This does not approve production/cutover, merge, CI changes or S2.
 ADRs remain Proposed until an explicit disposition; remote CI is a separate gap.
+
+## Executed result (not acceptance)
+
+The owner approved implementation `3c7e9d3` and plan `619e492b…65cff`. On
+2026-09-27 UTC, the fresh anchor and exact lock handoff passed; original indices
+13..22 passed. Stage 23 published the original forward-restored Git SHA, then
+stopped before Gate-B on an unexpected Application revision. All 13 resources
+retain their original identities/content under the three strict owners, with
+zero open windows. No reverse or automatic recovery followed. Full evidence and
+F14's locally reproduced publication/progress mismatch are recorded in the
+[Failure Journal](../s1-failures.md#latest-execution-fixed-stage-12-continuation-stop-before-forward-gate-b).
+This record remains Proposed. The fixed entry cannot resume the new STOP;
+S1 completion and final ADR disposition remain open.

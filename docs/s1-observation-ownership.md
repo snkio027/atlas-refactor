@@ -1,6 +1,6 @@
 # S1：Observation、Evidence 与 Ownership Rehearsal
 
-本次是同一 PR #6 的完整工程 Slice。首次干净重建和完整平台验收已通过；本次真实 OT-1 通过 7/29 checkpoint（含基线独立 Gate-B），在第 8 阶段采集版本变化后 STOP，已经发生部分所有权转移。当前混合状态与完整证据见 [Failure Journal](s1-failures.md#当前现场真实-mutation-后-stop)；ADR-0009 保持 Proposed。
+本次是同一 PR #6 的完整工程 Slice。干净重建与完整平台验收已有现场证据；最新精确 stage-12 continuation 通过原 indices 13..22，完成 1→3 ownership transfer 和 strict 恢复，随后在 index 23 发布后 STOP。forward Gate-B、reverse 与最终 S1 尚未完成。当前三个 owner 分别接管 3／4／6 个资源，开放窗口 0；详见 [Failure Journal 最新记录](s1-failures.md#latest-execution-fixed-stage-12-continuation-stop-before-forward-gate-b)。ADR-0009～0012 保持 Proposed。
 现有 Bootstrap integration 基线、OT-0 成功/失败证据与 dev02 desired 分支没有改写。
 
 ## 实现与目的
@@ -171,8 +171,17 @@ run lock 阻止并发与未经审查的重入，terminal 记录运行终态。�
 直到恢复/完成决定；禁止仅删锁后重放。此规则不改变任何 Kubernetes/Git 写权限、
 13 对象作用域、failure classifier 或批准过的目标。
 
-当前完整 ceremony 尚未通过；第 8 阶段真实 mutation 后 STOP 的现场见 Failure Journal。此次 authority bundle 完整保留；最终 Gate PASS 报告尚不存在。
+当前完整 ceremony 尚未通过；最新 index 23 STOP 及此前历史见 Failure Journal。真实 mutation 的 authority bundles 完整保留；最终 Gate PASS 报告尚不存在。
 
 ## SOURCE_RELEASED continuation candidate
 
 [The bounded continuation contract](ot1-source-released-continuation.md) adds semantic double-read evidence and transitional source revision equivalence, while keeping mutation guards exact. It preserves the old STOP and seven desired commits, records a new anchor and begins at original index 2. Preparation/checking are read-only; live continuation still requires a new exact-plan execution decision.
+
+## Fixed stage-12 experiment entry
+
+[ADR-0012](adr/0012-fixed-stage12-continuation.md) defines the separately compiled,
+incident-bound entry under `experiments/foundation-ownership/stage12`. It rechecks
+one exact STOP/manifest/target/lock and starts only at original index 13; it is not
+a normal lifecycle or arbitrary-stage recovery interface. The approved execution
+stopped at index 23; this entry cannot be reused against the new STOP. No additional
+continuation or recovery capability was added after that failure.
