@@ -1,4 +1,6 @@
 {
   "schema": 1,
-  "capabilities": []
+  "capabilities": [
+    "secrets-controller"
+  ]
 }
