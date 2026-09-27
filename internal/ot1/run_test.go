@@ -362,3 +362,18 @@ func TestConvergeDoesNotCaptureAcrossItsRunningOperation(t *testing.T) {
 		t.Fatal("operation was resubmitted or full capture opened prematurely", reader.reads, reader.lists, runner.calls)
 	}
 }
+
+func TestRunningHookRemainsNonReadyDuringConvergence(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshot := syntheticSnapshots(t, plan, desired)[0]
+	app := rawIndex(snapshot.Applications)[AppRef("argocd-self").Key()]
+	hook := observation.Object{"kind": "Job", "name": "init", "hookType": "PreSync", "hookPhase": "Running"}
+	observation.Map(app["status"])["operationState"] = observation.Object{"phase": "Running", "syncResult": observation.Object{"resources": []any{hook}}}
+	if ready, err := applicationProgress(plan, 0, snapshot.Applications, nil, ""); ready || err != nil {
+		t.Fatalf("running hook must wait, not pass or escape the bounded wait: ready=%v err=%v", ready, err)
+	}
+	hook["hookPhase"] = "Failed"
+	if _, err := applicationProgress(plan, 0, snapshot.Applications, nil, ""); err == nil {
+		t.Fatal("failed hook treated as expected convergence")
+	}
+}

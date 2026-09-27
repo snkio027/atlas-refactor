@@ -34,6 +34,18 @@ outcome 和 syncOptions；同样的旧 operation 在 STRICT_RESTORED 必须失�
 然后仅补全成员中缺失的 apiVersion/kind。显式空值、null、类型错误和冲突值仍拒绝；后续
 namespace/name、scope 与重复 identity 校验不变。规范化不能隐藏语义分歧。
 
+在随后单独授权的兼容修订中，hook 比较仅允许 `hook=true` 且同步 `status` 字段缺失；
+显式空/null/Unknown/OutOfSync 和不健康资源仍阻塞。Application 的精确 revision、健康、idle、
+condition、完整 spec 检查保留；operationState 中已识别 hook 的执行结果另行分类：运行中等待、
+失败停止、未知类型/结果失败关闭。普通资源的 hookPhase 字段不会被误当 lifecycle hook。
+依据是 [Argo CD 3.5.1 的比较实现](https://github.com/argoproj/argo-cd/blob/v3.5.1/controller/state.go#L894-L899)。
+
+基线 Git/live 内容比较仅规范化 networking.k8s.io/v1 NetworkPolicy 已知 selector 路径内的
+空 matchLabels map。依据 [锁定 Kubernetes LabelSelector 编码](https://github.com/kubernetes/apimachinery/blob/v0.36.1/pkg/apis/meta/v1/types.go#L1209-L1222)，
+移除空 map 后保留 selector 本身；缺失/null selector、非空 label、expression、端口与策略差异
+仍可见。规范化只用于首次基线内容对比；原始 GET、冻结 scope hash 和后续 UID/semantic
+不变性检查保持原规则。
+
 ## 入口
 
 在仓库根目录使用锁定工具构建。`observe/capture/run` 要求 `go build` 的 clean VCS-stamped

@@ -254,12 +254,42 @@ func ClassifyApplication(expected ExpectedApplication, o Object, readErr error) 
 		r := Map(raw)
 		health := String(At(r, "health", "status"))
 		sync := String(r["status"])
-		if sync != "Synced" || health != "" && health != "Healthy" {
+		_, statusPresent := r["status"]
+		// Argo CD 3.5.1 deliberately omits sync status for lifecycle hooks
+		// (controller/state.go). Only that absent field is non-blocking; an
+		// explicit bad/null/empty status or unhealthy hook still blocks.
+		syncReady := sync == "Synced" || !statusPresent && r["hook"] == true
+		if !syncReady || health != "" && health != "Healthy" {
 			version := String(r["version"])
 			if group := String(r["group"]); group != "" {
 				version = group + "/" + version
 			}
 			f.BlockingResources = append(f.BlockingResources, Ref{version, String(r["kind"]), String(r["namespace"]), String(r["name"])})
+		}
+	}
+	// A hook's execution outcome belongs to operationState, not the resource
+	// comparison row. Do not let an overall success hide contradictory hook
+	// evidence. Ordinary resources may also have hookPhase=Running, so only
+	// results explicitly identified as hooks participate here.
+	for _, raw := range Slice(At(op, "syncResult", "resources")) {
+		r := Map(raw)
+		if _, present := r["hookType"]; !present {
+			continue
+		}
+		switch String(r["hookType"]) {
+		case "PreSync", "Sync", "PostSync", "SyncFail", "Skip":
+		default:
+			f.fail(Unknown, "HOOK_TYPE_UNKNOWN")
+			continue
+		}
+		switch String(r["hookPhase"]) {
+		case "Succeeded":
+		case "Running", "Terminating":
+			f.fail(Progressing, "HOOK_OPERATION_ACTIVE")
+		case "Failed", "Error":
+			f.fail(Degraded, "HOOK_OPERATION_FAILED")
+		default:
+			f.fail(Unknown, "HOOK_OUTCOME_UNKNOWN")
 		}
 	}
 	SortedRefs(f.BlockingResources)

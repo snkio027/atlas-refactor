@@ -454,3 +454,73 @@ func TestObservedStateDoesNotInventCeremonyOperation(t *testing.T) {
 		})
 	}
 }
+
+func TestBaselineSelectorWireOmissionIsNarrow(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshots := syntheticSnapshots(t, plan, desired)
+	ref := observation.Ref{APIVersion: "networking.k8s.io/v1", Kind: "NetworkPolicy", Namespace: "atlas-monitoring", Name: "monitoring-ingress"}
+	peer := func(o observation.Object) observation.Object {
+		rule := observation.Map(observation.Slice(observation.At(o, "spec", "ingress"))[0])
+		return observation.Map(observation.Slice(rule["from"])[0])
+	}
+	wire := cloneSnapshot(t, snapshots[0])
+	livePolicy := rawIndex(wire.Envelope.Raw)[ref.Key()]
+	delete(observation.Map(peer(livePolicy)["podSelector"]), "matchLabels")
+	before := observation.Digest(wire)
+	got := Assess(plan, 0, wire, nil, nil, desired, fixtureGate(plan, plan.Phases[0], wire))
+	if !got.Passed() || observation.Digest(wire) != before {
+		t.Fatalf("valid empty selector wire form rejected/evidence mutated: %+v", got)
+	}
+	for _, tc := range []struct {
+		name   string
+		mutate func(observation.Object)
+	}{
+		{"nonempty labels", func(o observation.Object) {
+			peer(o)["podSelector"] = observation.Object{"matchLabels": observation.Object{"changed": "true"}}
+		}},
+		{"label expressions", func(o observation.Object) {
+			peer(o)["podSelector"] = observation.Object{"matchExpressions": []any{observation.Object{"key": "tenant", "operator": "Exists"}}}
+		}},
+		{"selector absent", func(o observation.Object) { delete(peer(o), "podSelector") }},
+		{"selector null", func(o observation.Object) { peer(o)["podSelector"] = nil }},
+		{"labels null", func(o observation.Object) { peer(o)["podSelector"] = observation.Object{"matchLabels": nil} }},
+		{"labels wrong type", func(o observation.Object) { peer(o)["podSelector"] = observation.Object{"matchLabels": []any{}} }},
+		{"policy type", func(o observation.Object) { observation.Map(o["spec"])["policyTypes"] = []any{"Ingress", "Egress"} }},
+		{"ports", func(o observation.Object) {
+			observation.Map(observation.Slice(observation.At(o, "spec", "ingress"))[0])["ports"] = []any{observation.Object{"protocol": "TCP", "port": 1}}
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			bad := cloneSnapshot(t, wire)
+			tc.mutate(rawIndex(bad.Envelope.Raw)[ref.Key()])
+			got := Assess(plan, 0, bad, nil, nil, desired, fixtureGate(plan, plan.Phases[0], bad))
+			if got.Ownership != "STOP" || !strings.Contains(strings.Join(got.Reasons, ","), "BASELINE_CONTENT_NOT_GIT_DEFINED:"+ref.Key()) {
+				t.Fatalf("semantic change hidden: %+v", got)
+			}
+		})
+	}
+	original := desired[ref.Key()]
+	if observation.Digest(baselineContent(original)) != observation.Digest(baselineContent(livePolicy)) {
+		t.Fatal("equivalent representations differ")
+	}
+	outside := observation.Clone(original)
+	outside["apiVersion"] = "example.io/v1"
+	if observation.Digest(baselineContent(outside)) != observation.Digest(observation.Semantic(outside)) {
+		t.Fatal("normalization escaped known NetworkPolicy GVK")
+	}
+}
+
+func TestNetworkPolicyEmptySelectorsKeepPeerAndPlacement(t *testing.T) {
+	desired := observation.Object{"apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy", "metadata": observation.Object{"name": "policy", "namespace": "test"}, "spec": observation.Object{"podSelector": observation.Object{"matchLabels": observation.Object{}}, "egress": []any{observation.Object{"to": []any{observation.Object{"namespaceSelector": observation.Object{"matchLabels": observation.Object{}}, "podSelector": observation.Object{"matchLabels": observation.Object{"app": "db"}}}}}}}}
+	actual := observation.Clone(desired)
+	observation.Map(actual["spec"])["podSelector"] = observation.Object{}
+	peer := observation.Map(observation.Slice(observation.Map(observation.Slice(observation.At(actual, "spec", "egress"))[0])["to"])[0])
+	peer["namespaceSelector"] = observation.Object{}
+	if observation.Digest(baselineContent(desired)) != observation.Digest(baselineContent(actual)) {
+		t.Fatal("empty top-level/egress namespace selectors differ")
+	}
+	delete(peer, "namespaceSelector")
+	if observation.Digest(baselineContent(desired)) == observation.Digest(baselineContent(actual)) {
+		t.Fatal("absence of namespace selector was hidden")
+	}
+}

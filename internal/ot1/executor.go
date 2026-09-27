@@ -461,7 +461,7 @@ func applicationProgress(plan Plan, index int, applications []observation.Object
 		fact := observation.ClassifyApplication(check, o, nil)
 		for _, reason := range fact.Reasons {
 			switch reason {
-			case "REVISION_NOT_CONVERGED", "OUT_OF_SYNC", "HEALTH_NOT_READY", "OPERATION_ACTIVE", "BLOCKING_RESOURCES", "STALE_OBSERVED_GENERATION":
+			case "REVISION_NOT_CONVERGED", "OUT_OF_SYNC", "HEALTH_NOT_READY", "OPERATION_ACTIVE", "HOOK_OPERATION_ACTIVE", "BLOCKING_RESOURCES", "STALE_OBSERVED_GENERATION":
 			case "SHARED_RESOURCE", "LAST_OPERATION_FAILED":
 				if !syncOwner {
 					return false, errors.New("unrelated refusal while awaiting convergence")

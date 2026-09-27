@@ -196,3 +196,67 @@ func TestPrivateEvidenceCreateOnlyAndSymlinks(t *testing.T) {
 		t.Fatal("path escape")
 	}
 }
+
+func TestHookComparisonOmissionDoesNotHideFailure(t *testing.T) {
+	want, base := appFixture()
+	hook := Object{"group": "rbac.authorization.k8s.io", "version": "v1", "kind": "Role", "namespace": "argocd", "name": "hook-helper", "hook": true, "requiresPruning": true}
+	Map(base["status"])["resources"] = []any{hook}
+	if got := ClassifyApplication(want, base, nil); got.Classification != Verified || len(got.BlockingResources) != 0 {
+		t.Fatalf("valid Argo hook comparison rejected: %+v", got)
+	}
+	for _, value := range []any{nil, "", "Unknown", "OutOfSync", 42} {
+		o := Clone(base)
+		Map(Slice(At(o, "status", "resources"))[0])["status"] = value
+		if got := ClassifyApplication(want, o, nil); got.Classification == Verified || len(got.BlockingResources) != 1 {
+			t.Fatalf("explicit hook status %v ignored: %+v", value, got)
+		}
+	}
+	for _, value := range []any{nil, false, "true", Object{}} {
+		o := Clone(base)
+		Map(Slice(At(o, "status", "resources"))[0])["hook"] = value
+		if got := ClassifyApplication(want, o, nil); got.Classification == Verified {
+			t.Fatalf("missing sync on non-hook/malformed hook accepted: %v", value)
+		}
+	}
+	for _, phase := range []string{"Running", "Terminating", "Failed", "Error", "", "FuturePhase", "Succeeded"} {
+		o := Clone(base)
+		Map(At(o, "status", "operationState", "syncResult"))["resources"] = []any{Object{"kind": "Job", "name": "hook", "hookType": "PreSync", "hookPhase": phase}}
+		got := ClassifyApplication(want, o, nil)
+		if (got.Classification == Verified) != (phase == "Succeeded") {
+			t.Fatalf("hook outcome %s classified incorrectly: %+v", phase, got)
+		}
+	}
+	for _, mutate := range []func(Object){
+		func(o Object) { o["operation"] = Object{"sync": Object{}} },
+		func(o Object) { Map(At(o, "status", "operationState"))["phase"] = "Failed" },
+		func(o Object) { Map(At(o, "status", "sync"))["revision"] = strings.Repeat("b", 40) },
+		func(o Object) { Map(Slice(At(o, "status", "resources"))[0])["health"] = Object{"status": "Degraded"} },
+		func(o Object) {
+			Map(o["status"])["resources"] = append(Slice(At(o, "status", "resources")), Object{"kind": "Deployment", "name": "missing-workload", "version": "v1", "status": "OutOfSync", "health": Object{"status": "Missing"}})
+		},
+	} {
+		o := Clone(base)
+		mutate(o)
+		if got := ClassifyApplication(want, o, nil); got.Classification == Verified {
+			t.Fatalf("unhealthy/incomplete application accepted: %+v", got)
+		}
+	}
+	// Argo may record hookPhase=Running for a normal Deployment in a successful
+	// operation. This is not an active lifecycle hook unless hookType is present.
+	o := Clone(base)
+	Map(At(o, "status", "operationState", "syncResult"))["resources"] = []any{Object{"kind": "Deployment", "name": "envoy-gateway", "hookPhase": "Running", "status": "Synced"}}
+	if got := ClassifyApplication(want, o, nil); got.Classification != Verified {
+		t.Fatal(got)
+	}
+}
+
+func TestHookOutcomeRequiresRecognizedType(t *testing.T) {
+	want, base := appFixture()
+	for _, value := range []any{nil, "", "FutureHook", 1} {
+		o := Clone(base)
+		Map(At(o, "status", "operationState", "syncResult"))["resources"] = []any{Object{"hookType": value, "hookPhase": "Succeeded"}}
+		if got := ClassifyApplication(want, o, nil); got.Classification != Unknown {
+			t.Fatalf("unknown hook type accepted: %+v", got)
+		}
+	}
+}

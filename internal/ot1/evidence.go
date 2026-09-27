@@ -153,6 +153,35 @@ func LiveDesired(o observation.Object) observation.Object {
 	return copy
 }
 
+// baselineContent canonicalizes only a known Kubernetes wire omission for
+// networking.k8s.io/v1 LabelSelectors. Empty matchLabels maps are omitempty;
+// preserve the selector itself ({} differs from absent/null), expressions,
+// nonempty labels and every other policy field. Raw evidence and the frozen
+// scope inventory hashes are never rewritten by this baseline comparison.
+func baselineContent(o observation.Object) observation.Object {
+	copy := observation.Clone(o)
+	if copy["apiVersion"] == "networking.k8s.io/v1" && copy["kind"] == "NetworkPolicy" {
+		normalize := func(value any) {
+			selector := observation.Map(value)
+			if labels, ok := selector["matchLabels"].(map[string]any); ok && labels != nil && len(labels) == 0 {
+				delete(selector, "matchLabels")
+			}
+		}
+		spec := observation.Map(copy["spec"])
+		normalize(spec["podSelector"])
+		for _, path := range [][2]string{{"ingress", "from"}, {"egress", "to"}} {
+			for _, rule := range observation.Slice(spec[path[0]]) {
+				for _, peer := range observation.Slice(observation.Map(rule)[path[1]]) {
+					p := observation.Map(peer)
+					normalize(p["podSelector"])
+					normalize(p["namespaceSelector"])
+				}
+			}
+		}
+	}
+	return observation.Semantic(copy)
+}
+
 func operationMatches(app observation.Object, phase Phase, name, outcome string) error {
 	status := observation.Map(app["status"])
 	op := observation.Map(status["operationState"])
@@ -227,7 +256,7 @@ func Assess(plan Plan, index int, current Snapshot, baseline, previous *Snapshot
 			fail("RESOURCE_INVARIANT:" + ref.Key())
 		}
 		if index == 0 {
-			if git := desired[ref.Key()]; git == nil || observation.Digest(observation.Semantic(LiveDesired(git))) != observation.Digest(observation.Semantic(actual)) {
+			if git := desired[ref.Key()]; git == nil || observation.Digest(baselineContent(LiveDesired(git))) != observation.Digest(baselineContent(actual)) {
 				fail("BASELINE_CONTENT_NOT_GIT_DEFINED:" + ref.Key())
 			}
 		}
