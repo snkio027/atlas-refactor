@@ -120,9 +120,12 @@ func Capture(ctx context.Context, reader observation.InventoryReader, plan Plan,
 		*closing[i] = items
 		before, be := observation.InventoryProof(*collections[i], kind)
 		after, ae := observation.InventoryProof(items, kind)
-		if e != nil || be != nil || ae != nil || before != after {
-			out.InventoryError = "INVENTORY_CHANGED_OR_UNAVAILABLE"
-			break
+		if e != nil || be != nil || ae != nil {
+			out.InventoryError = "INVENTORY_UNAVAILABLE"
+			return out, nil
+		}
+		if before != after {
+			out.InventoryError = "INVENTORY_CHANGED"
 		}
 	}
 	// Each Application raw GET must agree with the list, not just its name.

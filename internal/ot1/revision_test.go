@@ -24,7 +24,7 @@ func proofSnapshot(s Snapshot) Snapshot {
 	s.ClosingNodes = clone(s.Nodes)
 	return s
 }
-func revisionFixture(t *testing.T) (Plan, map[string]observation.Object, []Snapshot) {
+func revisionPlanFixture(t *testing.T) (Plan, map[string]observation.Object) {
 	p, d := syntheticPlan(t)
 	p.EvidenceModel = EvidenceModel
 	base := strings.Repeat("e", 40)
@@ -42,6 +42,10 @@ func revisionFixture(t *testing.T) (Plan, map[string]observation.Object, []Snaps
 			}
 		}
 	}
+	return p, d
+}
+func revisionFixture(t *testing.T) (Plan, map[string]observation.Object, []Snapshot) {
+	p, d := revisionPlanFixture(t)
 	snapshots := syntheticSnapshots(t, p, d)
 	for i := range snapshots {
 		snapshots[i] = proofSnapshot(snapshots[i])

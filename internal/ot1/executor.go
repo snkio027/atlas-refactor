@@ -90,6 +90,9 @@ func (x *Executor) wait(ctx context.Context, fn func() (bool, error)) error {
 			return e
 		}
 		done, e := fn()
+		if e == nil {
+			e = ctx.Err()
+		}
 		if e != nil || done {
 			return e
 		}
@@ -186,7 +189,7 @@ func (x *Executor) Transition(ctx context.Context, index int, previous *Snapshot
 	if e := x.fence(ctx, previous.Revision); e != nil {
 		return e
 	}
-	fresh, e := Capture(ctx, x.Reader, x.Plan, index-1, x.baseline)
+	fresh, e := x.captureCoherent(ctx, index-1, x.baseline, previous)
 	if e != nil {
 		return e
 	}
@@ -298,12 +301,8 @@ func (x *Executor) Converge(ctx context.Context, index int, baseline, previous *
 		if e != nil || !ready {
 			return false, e
 		}
-		s, e := Capture(ctx, x.Reader, x.Plan, index, baseline)
+		s, e := x.captureCoherent(ctx, index, baseline, previous)
 		out = s
-		if index == 0 {
-			copy := s
-			x.baseline = &copy
-		}
 		if e != nil {
 			return false, e
 		}
@@ -317,6 +316,13 @@ func (x *Executor) Converge(ctx context.Context, index int, baseline, previous *
 		if assessed.Ownership == "VERIFIED" {
 			if e = x.auditScope(); e != nil {
 				return false, e
+			}
+			if e = ctx.Err(); e != nil {
+				return false, e
+			}
+			if index == 0 {
+				copy := s
+				x.baseline = &copy
 			}
 			return true, nil
 		}
@@ -348,12 +354,20 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 			return errors.New("terminal operation did not satisfy the full phase contract")
 		}
 	}
+	if _, e := applicationProgress(plan, index, s.Applications, previous, ""); e != nil {
+		return e
+	}
+	return convergenceSafety(plan, index, s.Envelope.Raw, s.Projects, baseline, previous, desired)
+}
+
+func convergenceSafety(plan Plan, index int, objects, projects []observation.Object, baseline, previous *Snapshot, desired map[string]observation.Object) error {
 	if baseline == nil {
 		return errors.New("baseline is not already fully verified")
 	}
+	phase := plan.Phases[index]
 	base := rawIndex(baseline.Envelope.Raw)
-	raw := rawIndex(s.Envelope.Raw)
-	if len(raw) != len(s.Envelope.Raw) || len(raw) != len(phase.Applications)+17 {
+	raw := rawIndex(objects)
+	if len(raw) != len(objects) || len(raw) != len(phase.Applications)+17 {
 		return errors.New("transient inventory differs from the plan")
 	}
 	for _, item := range plan.Scope.Objects {
@@ -382,11 +396,7 @@ func transientOnly(plan Plan, index int, s Snapshot, baseline, previous *Snapsho
 			return errors.New("Bootstrap invariant changed during convergence")
 		}
 	}
-	if e := checkProjects(s.Projects, baseline, desired); e != nil {
-		return e
-	}
-	_, e := applicationProgress(plan, index, s.Applications, previous, "")
-	return e
+	return checkProjects(projects, baseline, desired)
 }
 
 // applicationProgress checks one list snapshot without pretending that it is

@@ -63,9 +63,12 @@ func Collect(ctx context.Context, reader Reader, expect Expectation) (Envelope, 
 		if e == nil && o != nil {
 			out.ClosingRaw = append(out.ClosingRaw, o)
 		}
-		if e != nil || o == nil || Reference(o) != ref || !SameProof(proofs[ref], o, rules[ref]) {
+		if e != nil || o == nil || Reference(o) != ref {
 			out.Classification = Unknown
-			out.Reasons = append(out.Reasons, "SNAPSHOT_CHANGED_OR_UNAVAILABLE:"+ref.Key())
+			out.Reasons = append(out.Reasons, "CLOSING_READ_UNAVAILABLE:"+ref.Key())
+		} else if !SameProof(proofs[ref], o, rules[ref]) {
+			out.Classification = Unknown
+			out.Reasons = append(out.Reasons, "SNAPSHOT_CHANGED:"+ref.Key())
 		}
 	}
 	uid, err = reader.ClusterIdentity(ctx)

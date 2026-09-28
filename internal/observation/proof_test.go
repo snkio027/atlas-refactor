@@ -3,6 +3,7 @@ package observation
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 )
 
@@ -95,6 +96,18 @@ func TestCollectSemanticChangesAreUnknownWithoutResampling(t *testing.T) {
 		out, e := Collect(context.Background(), r, expect)
 		if e != nil || out.Classification != Unknown || reader.calls != 4 {
 			t.Fatal("must reject once, not resample", e, reader.calls, out.Classification)
+		}
+		prefix := "SNAPSHOT_CHANGED:"
+		if fail {
+			prefix = "CLOSING_READ_UNAVAILABLE:"
+		}
+		if len(out.Reasons) != 2 {
+			t.Fatal(out.Reasons)
+		}
+		for _, reason := range out.Reasons {
+			if !strings.HasPrefix(reason, prefix) {
+				t.Fatal("failure and race merged", out.Reasons)
+			}
 		}
 	}
 	expect, reader := expectationFixture()

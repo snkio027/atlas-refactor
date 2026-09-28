@@ -60,17 +60,6 @@ func (x *Executor) AtlasGate(ctx context.Context, index int, snapshot Snapshot, 
 	if e != nil {
 		return snapshot, nil, e
 	}
-	latest, e := Capture(ctx, x.Reader, x.Plan, index, baseline)
-	if e != nil {
-		return snapshot, nil, e
-	}
-	checked := Assess(x.Plan, index, latest, baseline, &snapshot, x.Desired, nil)
-	if checked.Ownership != "VERIFIED" || IdentityDigest(latest) != beforeIDs {
-		return latest, nil, errors.New("repeat apply changed identity or post-gate observation failed")
-	}
-	if e = x.fence(ctx, phase.Revision); e != nil {
-		return latest, nil, e
-	}
 	commands := []any{}
 	for _, q := range readonly.Requests {
 		args := []any{}
@@ -81,9 +70,29 @@ func (x *Executor) AtlasGate(ctx context.Context, index int, snapshot Snapshot, 
 	}
 	artifacts := map[string]observation.Object{
 		"status.json":       {"state": string(report.State), "detail": report.Detail},
-		"repeat-apply.json": {"exitCode": 0, "deniedWrites": readonly.Denied, "beforeIdentitySHA256": beforeIDs, "afterIdentitySHA256": IdentityDigest(latest), "requests": commands},
+		"repeat-apply.json": {"exitCode": 0, "deniedWrites": readonly.Denied, "beforeIdentitySHA256": beforeIDs, "afterIdentitySHA256": "", "requests": commands},
 		"audit-before.json": before, "audit-after.json": after, "runtime.json": runtime,
 	}
+	return x.closeAtlasGate(ctx, index, snapshot, baseline, dir, artifacts)
+}
+
+// Gate inputs (including repeat apply and runtime checks) are collected once.
+// Only this final read-only closure can resample; it cannot replay those inputs.
+func (x *Executor) closeAtlasGate(ctx context.Context, index int, snapshot Snapshot, baseline *Snapshot, dir string, artifacts map[string]observation.Object) (Snapshot, *GateProof, error) {
+	phase := x.Plan.Phases[index]
+	beforeIDs := IdentityDigest(snapshot)
+	latest, e := x.captureCoherent(ctx, index, baseline, &snapshot)
+	if e != nil {
+		return snapshot, nil, e
+	}
+	checked := Assess(x.Plan, index, latest, baseline, &snapshot, x.Desired, nil)
+	if checked.Ownership != "VERIFIED" || IdentityDigest(latest) != beforeIDs {
+		return latest, nil, errors.New("repeat apply changed identity or post-gate observation failed")
+	}
+	if e = x.fence(ctx, phase.Revision); e != nil {
+		return latest, nil, e
+	}
+	artifacts["repeat-apply.json"]["afterIdentitySHA256"] = IdentityDigest(latest)
 	stem := stageStem(index, phase.Stage.Name)
 	for _, name := range []string{"status.json", "repeat-apply.json", "audit-before.json", "audit-after.json", "runtime.json"} {
 		artifact := GateArtifact{Schema: 1, Kind: name, PlanSHA256: observation.Digest(x.Plan), Target: x.Plan.Target, Implementation: x.Plan.Implementation, Revision: phase.Revision, SnapshotSHA256: observation.Digest(latest), Data: artifacts[name]}

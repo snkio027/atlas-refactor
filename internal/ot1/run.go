@@ -58,6 +58,9 @@ func runStages(ctx context.Context, attempt *Attempt, desired map[string]observa
 					return e
 				}
 			}
+			if e := stageCtx.Err(); e != nil {
+				return e
+			}
 			checkpoint, e := attempt.Record(snapshot, desired, gate)
 			if e != nil {
 				return e

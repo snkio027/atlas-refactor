@@ -62,3 +62,36 @@ Only a fresh four-node normal run of 0..28, without manual refresh/spec repair o
 continuation, can establish single-attempt runtime completion. Preserve previous
 STOPs and final authority evidence. This ADR remains Proposed; runtime PASS is
 not production, cutover, merge or release approval.
+
+## Observation execution policy for the final S1 batch
+
+A rejected sample is not automatically a failed transition. The predecessor
+read before Transition, post-write Converge and Gate-B closing read share one
+internal bounded complete-recapture helper. It uses the original phase context;
+no action, notification, operation or outer Gate is repeated. Gate inputs are
+collected once before its closing read. An expired phase cannot accept a late
+read or create a checkpoint. Baseline is installed only after valid ownership
+and audit checks, never from a discarded sample.
+
+Unavailable reads and changed proof facts have distinct internal reasons. A
+race is discardable only after all reads succeeded and all four Application
+views, both resource views, AppProjects, nodes, target and audit remain safe.
+The additional explained difference is monotonic ordinary-leaf comparison
+within the existing continuously unchanged planned Desired Identity class.
+Every remaining proof fact must match: unknown status changes, operation changes,
+UID/spec/content/tracking/permission drift and critical-owner revision changes
+stop immediately, even if a later read would recover. Missing evidence also
+stops. Successive discarded samples cannot regress the observed comparison.
+
+Proof/SameProof, stored envelopes, the public state/schema and mutation guards
+are unchanged. Discarded samples cannot pass Assess. F12 freshness is checked
+on every Application view; a coherent sample can still be pending comparison.
+No globally atomic Kubernetes snapshot is claimed by this double-read protocol.
+
+Controlled-clock tests exercise all read boundaries for the six publications,
+all four Gates, predecessor/post-write/Gate closure, repeated valid races until
+the original deadline, F12 across all successful sync phases, simultaneous
+unsafe changes and unavailable reads. A complete scripted 29-stage execution
+uses the real Executor and asserts the same exact Git/Kubernetes action sequence
+with and without recapture. Bootstrap/TLS runtime inputs in that test are
+fixtures; only the approved fresh-cluster run can prove the runtime acceptance.
