@@ -156,6 +156,7 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 ## S1 Observation 与 Ownership Rehearsal
 
 [实现说明](docs/s1-observation-ownership.md) 介绍共享 Go 只读观察器、Evidence envelope、
-OT-1 独立 profile、29 阶段 plan/checker 与有限 run。代码在同一 Slice 中审核；真实 OT-1
-仍 NOT_RUN，ADR-0009 保持 Proposed。观察成功不授权 mutation，运行需精确 plan SHA 的
-独立批准；普通开发分支与历史 Bootstrap/OT-0 evidence 保持原含义。
+OT-1 独立 profile、29 阶段 plan/checker 与有限 run。`dff5a20` 已在干净四节点集群通过普通单次 29/29，S1 runtime 收口，功能冻结。
+见 [最终验证](docs/s1-final-validation.md) 和 [证据索引](docs/s1-evidence-index.md)。
+PR 审核、ADR Accepted、CI/发布与原 Atlas cutover 仍为独立 Gate；ADR 保持 Proposed。
+观察成功不授权 mutation，运行需完整精确计划的独立批准。

@@ -1,5 +1,9 @@
 # F15: publication and reconciliation
 
+Historical diagnosis and first notified STOP are retained below. The final `dff5a20`
+clean single run passed all six publication chains and 29 checkpoints; see
+[final validation](s1-final-validation.md).
+
 Implementation work is confined to OT-1 publication notification/completion.
 The prior [clean run](s1-clean-revalidation-20260928.md) remains STOP at index 12.
 Historical cross-attempt completion remains distinct from clean single-run PASS.

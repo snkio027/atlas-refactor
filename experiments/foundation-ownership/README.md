@@ -1,9 +1,9 @@
 # OT-1 — Foundation Ownership Split Rehearsal
 
-当前：历史跨 attempt 闭环通过；最新干净单次运行仍是 index 2 STOP（2/29）。
-本批实现三个入口的有界只读重采；必须在新集群普通入口单次 29/29 后才收口。
-见 [干净复验](../../docs/s1-clean-revalidation-20260928.md) 和
-[F15 发布—调谐修正](../../docs/s1-publication-reconciliation.md)。旧的首次记录保留历史含义。
+当前：`dff5a20` 在干净新四节点集群通过普通入口单次 **29/29**，终态
+REVERSE_VERIFIED / exit 0，S1 功能冻结并进入收口审核。
+见 [最终验证](../../docs/s1-final-validation.md)、[证据索引](../../docs/s1-evidence-index.md)
+和 [Failure Journal](../../docs/s1-failures.md)。历史 STOP 与首次记录保持历史含义。
 
 - 旧布局：b618dea24b7c46cd36fd11a568a72c9a88f2097a。
 - 新布局：b5d0562381f5b3989578d62e2677364d8c73710d。

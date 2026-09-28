@@ -1,6 +1,6 @@
 # S1：Observation、Evidence 与 Ownership Rehearsal
 
-S1 的隔离 OT-1 runtime 闭环已通过，功能开发冻结，PR #6 进入收口审核。干净基线、partial rollback、forward 1→3、reverse 3→1 和最终 Gate-B 的证据及边界见 [最终验证](s1-final-validation.md)。历史 STOP 全部保留；ADR-0009～0012 仍为 Proposed。
+S1 已以 `dff5a20` 在干净新集群通过普通入口单次 29/29，功能开发冻结，PR #6 进入收口审核。干净基线、partial rollback、forward 1→3、reverse 3→1 和最终 Gate-B 的证据及边界见 [最终验证](s1-final-validation.md)。历史 STOP 全部保留；ADR-0009～0013 仍为 Proposed。
 现有 Bootstrap integration 基线、OT-0 成功/失败证据与 dev02 desired 分支没有改写。
 
 ## 实现与目的
@@ -194,8 +194,8 @@ leaf revisions remain equivalent across the contiguous published history with
 unchanged complete source inputs and App spec. Content/spec changes terminate
 that class. Critical owners and mutation fences remain exact; F12 is unchanged.
 The fixed `experiments/foundation-ownership/finalize` entry proves a fresh forward
-Gate-B anchor for the current stage-23 STOP, then executes only original 24..28.
+Gate-B anchor for the historical stage-23 STOP, then executes only original 24..28.
 Local tests and preparation are not runtime completion; the final result is
 recorded separately from immutable historical STOPs.
 
-最终固定入口已完成 forward anchor 和原 24..28，REVERSE_VERIFIED / exit 0；详见最终验证报告。普通 engine 未增加 recovery 权限。
+历史固定入口完成过 forward anchor 和原 24..28；当前验收改由干净集群普通 run 单次完成原 0..28。详见最终验证报告。所有事故固定入口冻结为 reference，普通 engine 未增加 recovery 权限。

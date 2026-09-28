@@ -49,7 +49,7 @@ verify --revision 接口；没有观察 daemon、refresh annotation 或自动修
 
 | Slice | 一次交付 | 当前状态 |
 | --- | --- | --- |
-| S1 | Observation + Evidence + 精确 OT-1 状态机、有限 executor、实例化 profile | 同一 PR #6 本地实现与验证；真实 1→3→1、部分回退和 Atlas Gate 尚未运行 |
+| S1 | Observation + Evidence + 精确 OT-1 状态机、有限 executor、实例化 profile | PR #6：干净单次 29/29、1→3→1、部分回退和四次 Gate-B 已通过；功能冻结，审核/ADR/发布 Gate 独立 |
 | S2 | Project + Workload + CapabilityBinding + 首个消费 S3 的 Web/API 实例 | 路线图；没有新增 schema 或空壳 Operator |
 | S3 | 确定性 scopegen、metrics-server 候选、按预算/需求选择 Loki/Alloy、CI/release hardening | 路线图；CI required check 与 remote supply-chain proof 尚未建立 |
 
