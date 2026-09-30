@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -535,9 +536,17 @@ func TestLockedHelmRender(t *testing.T) {
 	if helm == "" {
 		t.Skip("set ATLAS_TEST_HELM to the preinstalled locked Helm binary for real render verification")
 	}
+	resolved, e := exec.LookPath(helm)
+	if e != nil {
+		t.Fatal(e)
+	}
+	resolved, e = filepath.Abs(resolved)
+	if e != nil {
+		t.Fatal(e)
+	}
 	a, _ := fixture(t)
 	dir := t.TempDir()
-	if e := os.Symlink(helm, filepath.Join(dir, "helm")); e != nil {
+	if e := os.Symlink(resolved, filepath.Join(dir, "helm")); e != nil {
 		t.Fatal(e)
 	}
 	a.Runner = ExecRunner{Root: a.Root, ToolDir: dir, DockerContext: "orbstack"}

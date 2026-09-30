@@ -1,6 +1,7 @@
 package atlas
 
 import (
+	"atlas-refactor/internal/developmentprofile"
 	"atlas-refactor/internal/platform"
 	"context"
 	"encoding/json"
@@ -76,7 +77,7 @@ func (a *App) prepareDevelopment() error {
 			return e
 		}
 	}
-	if e = validateDevelopmentKind(files["platform/development/bootstrap/kind.json"]); e != nil {
+	if e = validateDevelopmentKindFor(a.Config.Revision, files["platform/development/bootstrap/kind.json"]); e != nil {
 		return e
 	}
 	for _, path := range []string{"gitops/root/overlays/development/resources.json", "gitops/platform/applications/overlays/development/resources.json", "gitops/workloads/applications/overlays/development/resources.json"} {
@@ -153,9 +154,40 @@ func (a *App) prepareCilium(ctx context.Context, files map[string][]byte) error 
 	if _, e := a.kube(ctx, nil, "wait", "--for=condition=Ready", "nodes", "--all", "--timeout=180s"); e != nil {
 		return e
 	}
-	return a.verifyNodes(ctx)
+	return a.VerifyNodes(ctx)
 }
 func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
+	if adopted && a.Config.Schema == 3 {
+		return a.developmentAuthorityIntact(ctx, self, signal)
+	}
+	return a.developmentRolloutComplete(ctx, root, self, signal, adopted)
+}
+
+// VerifyDevelopmentRollout preserves atlas-dev verify's explicit rollout check.
+// Unlike OT-1 it has no reviewed multi-revision plan, so it stays exact-current.
+// It is read-only and is never called by post-Receipt status or normal apply.
+func (a *App) VerifyDevelopmentRollout(ctx context.Context) error {
+	if e := a.VerifyArtifacts(); e != nil {
+		return e
+	}
+	o, e := a.inspect(ctx)
+	if e != nil {
+		return e
+	}
+	if a.development == nil || o.report.State != Adopted {
+		return errors.New("development rollout requires intact durable handoff")
+	}
+	complete, e := a.developmentRolloutComplete(ctx, o.root, o.self, o.signal, true)
+	if e != nil {
+		return e
+	}
+	if !complete {
+		return errors.New("development rollout is not complete")
+	}
+	return nil
+}
+
+func (a *App) developmentRolloutComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
 	if signal == nil || !ready(root) || !ready(self) {
 		return false, nil
 	}
@@ -188,8 +220,6 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 	for name, path := range map[string]string{"argocd-self": developmentSeed, "cilium": ciliumSeed} {
 		proofCommit := commit
 		if adopted && a.Config.Schema == 3 {
-			// Receipt already proves first adoption. Argo may mark unchanged Git
-			// content Synced at a new commit without starting a new operation.
 			proofCommit = liveApps[name].Status.OperationState.SyncResult.Revision
 			if !regexp.MustCompile(`^[a-f0-9]{40}$`).MatchString(proofCommit) {
 				return false, nil
@@ -202,12 +232,39 @@ func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal
 	}
 	return true, nil
 }
+
+// Called only after inspect validates the immutable Receipt/Latch/Identity and
+// Root/self/Signal bindings. It checks continuing Seed ownership, not Git rollout.
+func (a *App) developmentAuthorityIntact(ctx context.Context, self, signal *Live) (bool, error) {
+	if self == nil || signal == nil {
+		return false, nil
+	}
+	cilium, e := a.get(ctx, "application", "argocd", "cilium")
+	if e != nil || !specMatches(cilium, a.development.apps["cilium"]) {
+		return false, e
+	}
+	for name, live := range map[string]*Live{"argocd-self": self, "cilium": cilium} {
+		path := developmentSeed
+		if name == "cilium" {
+			path = ciliumSeed
+		}
+		owned, e := a.seedPayloadOwnership(ctx, live, "", a.development.files[path], false)
+		if e != nil || !owned {
+			return false, e
+		}
+	}
+	return true, nil
+}
+
 func (a *App) developmentIdentity(d map[string]string) {
 	d["schema"] = "atlas-refactor/identity/v2-development"
 	d["substrateProfile"] = "kind-cilium-ipv4-development/v1"
 	if a.Config.Schema == 3 {
 		d["schema"] = "atlas-refactor/identity/v3-development"
 		d["substrateProfile"] = "kind-cilium-ipv4-four-node/v1"
+	}
+	if a.Config.Revision == developmentprofile.OT1Revision {
+		d["substrateProfile"] = "kind-cilium-ipv4-four-node-ot1/v1"
 	}
 	d["platformSHA256"] = a.development.baselineFingerprint
 }
@@ -226,6 +283,14 @@ func (a *App) artifactPath(path string) string {
 
 // Keep runtime substrate exposure within the reviewed four-node local profile.
 func validateDevelopmentKind(data []byte) error {
+	return validateDevelopmentKindFor(developmentprofile.DevelopmentRevision, data)
+}
+
+func validateDevelopmentKindFor(revision string, data []byte) error {
+	profile, err := developmentprofile.Lookup(revision)
+	if err != nil {
+		return err
+	}
 	const expected = `{"apiVersion":"kind.x-k8s.io/v1alpha4","kind":"Cluster","networking":{"ipFamily":"ipv4","apiServerAddress":"127.0.0.1","disableDefaultCNI":true,"kubeProxyMode":"iptables"},"nodes":[{"role":"control-plane"},{"role":"worker","labels":{"node-role.local/gateway":"true"},"extraPortMappings":[{"containerPort":30080,"hostPort":8080,"listenAddress":"127.0.0.1","protocol":"TCP"},{"containerPort":30443,"hostPort":8443,"listenAddress":"127.0.0.1","protocol":"TCP"}]},{"role":"worker","labels":{"node-role.local/compute":"true"}},{"role":"worker","labels":{"node-role.local/data":"true","topology.kubernetes.io/zone":"data-zone-1"},"kubeadmConfigPatches":["apiVersion: kubeadm.k8s.io/v1beta4\nkind: JoinConfiguration\nnodeRegistration:\n  taints:\n    - key: node-role.local/data\n      value: \"true\"\n      effect: NoSchedule\n"]}]}`
 	var got, want Object
 	if err := strictJSON(data, &got); err != nil {
@@ -234,6 +299,9 @@ func validateDevelopmentKind(data []byte) error {
 	if err := strictJSON([]byte(expected), &want); err != nil {
 		return err
 	}
+	mappings := want["nodes"].([]any)[1].(map[string]any)["extraPortMappings"].([]any)
+	mappings[0].(map[string]any)["hostPort"] = float64(profile.HTTPPort)
+	mappings[1].(map[string]any)["hostPort"] = float64(profile.HTTPSPort)
 	if !reflect.DeepEqual(got, want) {
 		return errors.New("development Kind configuration exceeds the reviewed local profile")
 	}
@@ -246,6 +314,7 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 	var baseline struct {
 		Schema       int               `json:"schema"`
 		Commit       string            `json:"commit"`
+		Projection   string            `json:"projection,omitempty"`
 		BundleHashes map[string]string `json:"bundleHashes"`
 	}
 	if err := strictJSON(files["platform/development/bootstrap/baseline.json"], &baseline); err != nil {
@@ -273,7 +342,11 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 	}
 	if schema == 3 {
 		snapshot := files["platform/development/bootstrap/baseline-v3.json"]
-		expected := "6971d4560e39e6148f6155f7f4263181e9b8df62c1c8706ba6a9f00761ae7ab9"
+		profile, err := developmentprofile.Lookup(a.Config.Revision)
+		if err != nil {
+			return "", err
+		}
+		expected := profile.SnapshotSHA256
 		if a.fixtureSnapshotDigest != "" {
 			expected = a.fixtureSnapshotDigest
 		}
@@ -282,6 +355,9 @@ func (a *App) validateDevelopmentBaseline(files map[string][]byte, schema int) (
 		}
 		if err := strictJSON(snapshot, &baseline); err != nil {
 			return "", err
+		}
+		if a.Config.Revision == developmentprofile.OT1Revision && (baseline.Commit != developmentprofile.OT1SourceCommit || baseline.Projection != developmentprofile.OT1Projection) {
+			return "", errors.New("OT-1 instantiation provenance changed")
 		}
 		contract := map[string][]byte{}
 		for _, path := range bound {

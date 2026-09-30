@@ -233,8 +233,12 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		return state(Drifted, "bootstrap project drift; no repair permitted")
 	}
 	if receipt != nil {
-		if e := a.verifyNodes(ctx); e != nil {
-			return state(Degraded, "adopted; node inventory or readiness invalid: "+e.Error())
+		// Schema 3 separates durable authority from current runtime health.
+		// Observation/Gate-B verifies nodes and workloads after handoff.
+		if a.Config.Schema != 3 {
+			if e := a.VerifyNodes(ctx); e != nil {
+				return state(Degraded, "adopted; node inventory or readiness invalid: "+e.Error())
+			}
 		}
 		if root.Metadata.UID != receipt.Data["rootUID"] || (self != nil && self.Metadata.UID != receipt.Data["selfUID"]) || (signal != nil && signal.Metadata.UID != receipt.Data["signalUID"]) {
 			return state(Drifted, "adoption UID contradiction")
@@ -246,7 +250,11 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 		if !complete {
 			return state(Degraded, "adopted; GitOps is degraded; Seed remains denied")
 		}
-		return state(Adopted, "GitOps owns reconciliation")
+		detail := "GitOps owns reconciliation"
+		if a.Config.Schema == 3 {
+			detail = "durable GitOps handoff verified; rollout is checked by Observation"
+		}
+		return observation{Report{Adopted, detail}, identity, root, self, signal}, nil
 	}
 	inventory := false
 	if self != nil {

@@ -4,6 +4,7 @@ package main
 
 import (
 	"atlas-refactor/internal/atlas"
+	"atlas-refactor/internal/developmentprofile"
 	"bufio"
 	"context"
 	"crypto/sha256"
@@ -22,6 +23,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -29,6 +31,7 @@ import (
 
 type workflow struct {
 	root, tools, dir, repo string
+	configFile             string
 	config                 atlas.Config
 	app                    *atlas.App
 	evidence               map[string]any
@@ -48,6 +51,7 @@ func run() error {
 	f := flag.NewFlagSet(command, flag.ContinueOnError)
 	root := f.String("root", ".", "source checkout")
 	tools := f.String("tool-dir", "", "locked tools")
+	configFile := f.String("config", "profiles/development.json", "reviewed repository-relative profile")
 	approved := f.String("approve-cluster", "", "exact creation target")
 	tier0 := f.Bool("approve-tier0", false, "approve existing Bootstrap engine's initial Tier-0 writes")
 	install := f.Bool("install-kubeconfig", false, "backup and merge validated access into default kubeconfig")
@@ -65,9 +69,12 @@ func run() error {
 	if e != nil {
 		return e
 	}
-	c, _, e := atlas.Load(abs, "profiles/development.json")
+	c, _, e := atlas.Load(abs, *configFile)
 	if e != nil {
 		return e
+	}
+	if c.Cluster == developmentprofile.OT1Cluster && *install {
+		return errors.New("OT-1 must keep its dedicated kubeconfig; default access installation is forbidden")
 	}
 	if c.Schema != 3 {
 		return errors.New("atlas-dev requires the four-node profile")
@@ -82,7 +89,7 @@ func run() error {
 	defer stop()
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Minute)
 	defer cancel()
-	w := workflow{root: abs, tools: *tools, config: c, evidence: map[string]any{"cluster": c.Cluster, "startedAt": time.Now().UTC().Format(time.RFC3339)}}
+	w := workflow{root: abs, tools: *tools, config: c, configFile: *configFile, evidence: map[string]any{"cluster": c.Cluster, "startedAt": time.Now().UTC().Format(time.RFC3339)}}
 	w.dir = filepath.Join(abs, ".state/development", c.Cluster)
 	w.repo = filepath.Join(w.dir, "repo")
 	if e = privateDir(w.dir); e != nil {
@@ -102,7 +109,7 @@ func run() error {
 			return e
 		}
 	}
-	c, l, e := atlas.Load(w.repo, "profiles/development.json")
+	c, l, e := atlas.Load(w.repo, w.configFile)
 	if e != nil {
 		return e
 	}
@@ -294,6 +301,12 @@ func (w *workflow) verify(ctx context.Context) error {
 	if report.State != atlas.Adopted {
 		return fmt.Errorf("final Bootstrap state: %s: %s", report.State, report.Detail)
 	}
+	if e := w.app.VerifyNodes(ctx); e != nil {
+		return e
+	}
+	if e := w.app.VerifyDevelopmentRollout(ctx); e != nil {
+		return e
+	}
 	b, e := w.kube(ctx, "get", "nodes", "-o", "json")
 	if e != nil {
 		return e
@@ -429,10 +442,14 @@ func (w *workflow) verify(ctx context.Context) error {
 		return (&net.Dialer{}).DialContext(ctx, "tcp4", net.JoinHostPort("127.0.0.1", port))
 	}}}
 	defer client.CloseIdleConnections()
+	profile, e := developmentprofile.Lookup(w.config.Revision)
+	if e != nil {
+		return e
+	}
 	for _, scheme := range []string{"http", "https"} {
-		port := "8080"
+		port := strconv.Itoa(profile.HTTPPort)
 		if scheme == "https" {
-			port = "8443"
+			port = strconv.Itoa(profile.HTTPSPort)
 		}
 		req, e := http.NewRequestWithContext(ctx, "GET", scheme+"://web.atlas.test:"+port+"/", nil)
 		if e != nil {
@@ -448,7 +465,7 @@ func (w *workflow) verify(ctx context.Context) error {
 			return e
 		}
 		if scheme == "http" {
-			if resp.StatusCode != 301 || resp.Header.Get("Location") != "https://web.atlas.test:8443/" {
+			if resp.StatusCode != 301 || resp.Header.Get("Location") != "https://web.atlas.test:"+strconv.Itoa(profile.HTTPSPort)+"/" {
 				return errors.New("HTTP redirect validation failed")
 			}
 		} else if resp.StatusCode != 200 || !strings.HasPrefix(string(body), "Atlas development web:") {

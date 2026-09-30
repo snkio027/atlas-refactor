@@ -16,16 +16,19 @@ tasks:
       - test -z "$(gofmt -l cmd internal)"
       - go vet ./...
   test:
+    env:
+      ATLAS_TEST_LUA: '{{.PLATFORM_LUA | default "lua"}}'
+      ATLAS_TEST_HELM: '{{.PLATFORM_HELM | default "helm"}}'
+      ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default "kubeseal"}}'
     cmds:
       - task: toolchain
       - go test -race ./...
   quality:
-    env:
-      ATLAS_TEST_LUA: '{{.PLATFORM_LUA | default "lua"}}'
     cmds:
       - task: check
       - task: test
       - task: platform:check
+      - task: ot1:contracts
   build:
     cmds:
       - task: toolchain
@@ -33,6 +36,8 @@ tasks:
       - env CGO_ENABLED=0 go build -trimpath -o bin/atlas ./cmd/atlas
       - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-dev ./cmd/atlas-dev
       - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-artifacts ./cmd/atlas-artifacts
+      - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-platform ./cmd/atlas-platform
+      - env CGO_ENABLED=0 go build -trimpath -o bin/atlas-ot1 ./cmd/atlas-ot1
   build:matrix:
     cmds:
       - task: toolchain
@@ -63,3 +68,10 @@ tasks:
     cmds:
       - task: toolchain
       - go run ./cmd/atlas-platform --helm '{{.PLATFORM_HELM | default "helm"}}' --kubectl '{{.PLATFORM_KUBECTL | default "kubectl"}}' --yq '{{.PLATFORM_YQ | default "yq"}}' check
+
+  ot1:contracts:
+    desc: Immutable OT-1 scope/stages and four local Kustomize fixtures; no cluster calls
+    cmds:
+      - env PYTHONDONTWRITEBYTECODE=1 python3 experiments/foundation-ownership/contract.py
+      - env PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s experiments/foundation-ownership -v
+      - for layout in source secrets observability storage; do {{.PLATFORM_KUBECTL | default "kubectl"}} kustomize "experiments/foundation-ownership/fixtures/$layout" >/dev/null || exit; done

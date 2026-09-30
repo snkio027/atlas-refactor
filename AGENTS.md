@@ -20,6 +20,12 @@ Design proposals and implementation status must remain distinguishable.
 - Cluster creation, Tier-0 writes, credential use, and cleanup require a
   separately reviewed exact target and explicit user authorization. Ordinary
   build/test work does not authorize those operations.
+- Use latest development evidence for local/read-only iteration. Preserve failures
+  as regression tests and the S1 failure journal, not duplicate runtime bundles.
+  Before discarding a stopped run, verify request intents, Git source, audit and
+  current target: external mutation or uncertain impact requires full immutable
+  evidence and a reviewed recovery decision. Never automatically clear a STOP lock.
+  Final Gate PASS and credential/Trust Root evidence remain fully retained.
 - Do not import old Atlas live state, credentials, approvals, or cluster names.
   Do not alter the old repository as part of work here.
 - Review changes to authority, configuration, deployment scope, or recovery in

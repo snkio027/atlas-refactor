@@ -160,6 +160,13 @@ func (a *App) seedOwnedByArgo(ctx context.Context, self *Live, commit string) (b
 }
 
 func (a *App) seedPayloadOwned(ctx context.Context, self *Live, commit string, seed []byte) (bool, error) {
+	return a.seedPayloadOwnership(ctx, self, commit, seed, true)
+}
+
+// Initial adoption needs correlated sync proof for untracked CRDs. After a valid
+// schema-3 Receipt, continuing authority uses live SSA ownership; the latest
+// operation and comparison belong to rollout verification instead.
+func (a *App) seedPayloadOwnership(ctx context.Context, self *Live, commit string, seed []byte, requireInitialSync bool) (bool, error) {
 	// This is local manifest decoding, not a create API request. It uses only
 	// discovery reads with the bound kubeconfig; server dry-run is not permitted.
 	b, e := a.kube(ctx, seed, "create", "--dry-run=client", "--validate=false", "-f", "-", "-o", "json")
@@ -199,7 +206,7 @@ func (a *App) seedPayloadOwned(ctx context.Context, self *Live, commit string, s
 		crd := want.APIVersion == "apiextensions.k8s.io/v1" && want.Kind == "CustomResourceDefinition"
 		tracking := actual.Metadata.Annotations["argocd.argoproj.io/tracking-id"]
 		if crd {
-			if tracking != "" || !crdReconciled(self, want, commit) {
+			if tracking != "" || requireInitialSync && !crdReconciled(self, want, commit) {
 				return false, nil
 			}
 		} else {

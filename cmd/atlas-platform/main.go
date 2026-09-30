@@ -1,4 +1,5 @@
-// atlas-platform is a local manifest tool, never a cluster mutation engine.
+// atlas-platform compiles local manifests and performs explicit read-only observation.
+// It has no cluster mutation authority.
 package main
 
 import (
@@ -14,6 +15,9 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "observe" || os.Args[1] == "verify") {
+		os.Exit(runObservation(os.Args[2:]))
+	}
 	fs := flag.NewFlagSet("atlas-platform", flag.ExitOnError)
 	root := fs.String("root", ".", "repository root")
 	helm := fs.String("helm", "helm", "locked Helm executable")

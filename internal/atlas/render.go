@@ -99,6 +99,9 @@ func (a *App) project(name string, platform bool) Object {
 }
 
 func (a *App) VerifyArtifacts() error {
+	if e := a.Config.Validate(); e != nil {
+		return e
+	}
 	if a.Config.developmentProfile() {
 		if e := a.prepareDevelopment(); e != nil {
 			return e

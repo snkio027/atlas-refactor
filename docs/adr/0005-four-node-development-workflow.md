@@ -25,6 +25,11 @@ baseline.json。摘要绑定 Root、AppProject、控制图、Kind、两份 Seed�
 最近成功操作来自较早 SHA，因为无资源差异的提交不会触发新同步操作。该例外不能用于
 首次接管，不能恢复 Seed 权限，不能接受未知 revision、缺失 tracking/SSA 或不健康对象。
 
+F13 的后续提案 [ADR-0011](0011-desired-identity-and-durable-handoff.md) 修订上述
+schema-3 Receipt 后规则：ADOPTED 只证明持久交接与继续有效的 Seed ownership；
+rollout/runtime 由独立 Observation/Gate-B 验证。首次交接与 schema 1/2 不变。
+该提案不改写此前验证记录，也不授权恢复或新部署。
+
 ## 工具分工
 
 `atlas-artifacts prepare` 是独立在线制品准备：只操作锁定镜像的本机 Docker cache 和

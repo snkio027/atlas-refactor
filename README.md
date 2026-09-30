@@ -61,7 +61,10 @@ ATLAS_TEST_HELM=/absolute/path/to/helm task quality
 （`0ef918801dac84ac913416f4c1756bf08045a485`）。目标与证据要求见
 [第四次集成 Gate](docs/integration-fourth-slice.md)。重跑须使用对应基线的干净 checkout；
 main 后续的文档提交不改变已测试的 GitOps revision。
-`status --check` 是严格退出码的显式写法。
+`status --check` 是严格退出码的显式写法。schema 3 在有效 Receipt 后，`ADOPTED`
+只证明持久交接与 Seed ownership；平台 rollout/runtime 需独立验证，不能仅看 status 退出码。
+现有 `atlas-dev verify` 仍独立验证开发 rollout 与节点；OT-1 完整验证使用 Gate-B，见
+[ADR-0011](docs/adr/0011-desired-identity-and-durable-handoff.md)。
 新建测试节点启用 Metadata-only API 写入审计，日志位于私有 `.state/audit/`；
 记录中不包含请求/响应正文。ADR 保持 Proposed。
 
@@ -149,3 +152,11 @@ Receipt 本身不能替代这些证据。Git 源或 ownership 读取不可用时
 
 平台能力扩展、监测与 S3 候选的本地命令和部署 Gate，见
 [平台能力扩展](docs/platform-capabilities.md)。
+
+## S1 Observation 与 Ownership Rehearsal
+
+[实现说明](docs/s1-observation-ownership.md) 介绍共享 Go 只读观察器、Evidence envelope、
+OT-1 独立 profile、29 阶段 plan/checker 与有限 run。`dff5a20` 已在干净四节点集群通过普通单次 29/29，S1 runtime 收口，功能冻结。
+见 [最终验证](docs/s1-final-validation.md) 和 [证据索引](docs/s1-evidence-index.md)。
+PR 审核、ADR Accepted、CI/发布与原 Atlas cutover 仍为独立 Gate；ADR 保持 Proposed。
+观察成功不授权 mutation，运行需完整精确计划的独立批准。

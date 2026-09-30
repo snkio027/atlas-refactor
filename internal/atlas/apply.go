@@ -176,7 +176,7 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 			return e
 		}
 	}
-	if e := a.verifyNodes(ctx); e != nil {
+	if e := a.VerifyNodes(ctx); e != nil {
 		return e
 	}
 	if a.development == nil {
@@ -240,7 +240,9 @@ func (a *App) seedAndHandoff(ctx context.Context, files map[string][]byte) error
 	return a.create(ctx, a.rootApplication())
 }
 
-func (a *App) verifyNodes(ctx context.Context) error { return a.verifySubstrate(ctx, true) }
+// VerifyNodes is a read-only substrate check for runtime gates. Durable schema-3
+// authority status deliberately does not imply node readiness or topology health.
+func (a *App) VerifyNodes(ctx context.Context) error { return a.verifySubstrate(ctx, true) }
 
 func (a *App) nodeNames() []string {
 	names := []string{a.Config.Cluster + "-control-plane"}

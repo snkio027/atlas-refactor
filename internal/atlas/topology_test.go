@@ -71,7 +71,7 @@ func TestReceiptAllowsUnchangedCRDAtNewGitCommit(t *testing.T) {
 	}
 }
 
-func TestFourNodeDriftFailsClosed(t *testing.T) {
+func TestFourNodeRuntimeDriftDoesNotChangeDurableAuthority(t *testing.T) {
 	for _, damage := range []string{"missing-worker", "wrong-role", "unready-data", "wrong-worker-image", "missing-data-taint"} {
 		t.Run(damage, func(t *testing.T) {
 			a, s := developmentFixture(t)
@@ -104,12 +104,13 @@ func TestFourNodeDriftFailsClosed(t *testing.T) {
 				}
 				return b, nil
 			})
-			if r := a.Status(t.Context()); r.State != Degraded {
-				t.Fatal(r)
+			if r := a.Status(t.Context()); r.State != Adopted {
+				t.Fatal("runtime drift changed handoff state", r)
 			}
-			if e := a.Apply(t.Context(), a.Config.Cluster, true); e == nil {
-				t.Fatal("accepted damaged substrate")
+			if e := a.VerifyNodes(t.Context()); e == nil {
+				t.Fatal("runtime verifier accepted damaged substrate")
 			}
+			apply(t, a) // Durable adoption is still a no-op, not runtime repair.
 			if len(s.effects) != n {
 				t.Fatal("mutated damaged substrate")
 			}
