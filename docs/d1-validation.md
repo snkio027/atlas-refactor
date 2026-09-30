@@ -26,6 +26,14 @@ Proposed.
 
 ## Local validation and lessons
 
+The first remote candidate (`v0.1.0-d1.1`, source `32b5322`) exposed a release
+checkout prerequisite before any installation began: Actions' default depth-1
+checkout omits the two immutable S1 commits read by `contract.py`. A depth-1
+local clone reproduced their absence; fetching full history restored the existing
+contract. The release checkout now requests full history. The first run was
+cancelled rather than weakening or skipping the frozen regression checks.
+
+
 Final local quality exit code: **0**. This ran Go vet and race tests, all
 348-resource Helm/Kustomize/conformance checks, eight Python contract tests,
 four frozen layout renders, and compilation/vet of the frozen experiment entry
