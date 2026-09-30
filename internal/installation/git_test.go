@@ -216,3 +216,21 @@ func TestPublicationUsesClosedTreeAndDirectParentWithRealGit(t *testing.T) {
 		t.Fatal("publication did not extend its exact parent", e)
 	}
 }
+
+func TestExistingBranchCannotBeRepurposedForFreshInstallation(t *testing.T) {
+	c := testConfig(t)
+	if e := privateDir(c.StateDirectory); e != nil {
+		t.Fatal(e)
+	}
+	f := &gitFixture{remote: strings.Repeat("e", 40)}
+	w := Workflow{Config: c, runCommand: f.run}
+	if w.checkGit(context.Background()) == nil {
+		t.Fatal("accepted existing remote branch")
+	}
+	if _, e := w.publish(context.Background(), "base", Files{"gitops/object.json": []byte("new")}, ""); e == nil {
+		t.Fatal("overwrote existing branch")
+	}
+	if f.commits != 0 || f.pushes != 0 {
+		t.Fatal("mutated existing branch")
+	}
+}

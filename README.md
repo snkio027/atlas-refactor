@@ -7,7 +7,9 @@
 进入 S2 前的代码与操作质量检查见 [工程审查](docs/pre-s2-engineering-review.md)。
 下一交付目标是 **D1 干净机器首装**，完成后才进入 S2。候选入口与验收边界见
 [首装文档](docs/first-install.md)、[D1 验收记录](docs/d1-validation.md) 和
-[Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。D1 尚未通过独立机器验收，不能视为已发布的可安装预览版。
+[Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。本轮按所有者决定，使用当前主机和当前仓库的新部署分支验收；不能称为独立机器验证。D1 运行与发布 Gate 尚未通过。
+
+项目代码采用 [MIT License](LICENSE)，第三方组件保留各自许可证。
 
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
 模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第四次真实运行已通过最小

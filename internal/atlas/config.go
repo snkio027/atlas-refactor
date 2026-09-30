@@ -184,7 +184,7 @@ func (c Config) Validate() error {
 		return errors.New("orbstack and a 30..1800 second timeout are required")
 	}
 	if c.Schema == 4 {
-		if u.Host != "github.com" || c.RepositoryURL == developmentprofile.Repository || c.GitOpsPath != developmentprofile.RootPath || strings.HasPrefix(c.Revision, "codex/") {
+		if u.Host != "github.com" || c.GitOpsPath != developmentprofile.RootPath || strings.HasPrefix(c.Revision, "codex/") {
 			return errors.New("invalid user deployment binding")
 		}
 	} else if c.developmentProfile() {

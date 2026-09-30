@@ -4,13 +4,15 @@ D1 acceptance is pending. Do not describe this branch as a released installer.
 Only Apple Silicon macOS and a running OrbStack are targeted. No Intel/Linux,
 production, upgrade, existing-cluster adoption or recovery support is claimed.
 The final support table must record the versions and capacities measured on the
-independent clean acceptance machine; it is deliberately not filled from guesses.
+selected acceptance machine; it is deliberately not filled from guesses.
 
 ## Host prerequisites
 
 Install and start OrbStack yourself. Install Git and GitHub CLI (`gh`), log in to
 GitHub with `gh auth login`, and ensure Docker CLI can reach the `orbstack`
-context; the OrbStack `orb` CLI must also be on PATH. Prepare a dedicated **public** GitHub repository with push permission.
+context; the OrbStack `orb` CLI must also be on PATH. Prepare a **public** GitHub repository with push permission and a new dedicated
+deployment branch. It may be the product repository; product and deployment
+commits remain distinct.
 The selected deployment branch must not exist. Atlas does not install OrbStack.
 Do not set `DOCKER_*` or `KIND_*` environment overrides. No Atlas source checkout,
 Go, Task, Python, Lua, Helm, kubectl, Kind or kubeseal installation is required.
@@ -41,7 +43,7 @@ or incomplete package is rejected before preparing or applying resources.
 ## Configure, prepare, review, install
 
 Copy `installation.example.json` to `installation.json`. Set your new `atlas-…`
-cluster name, dedicated repository/branch, distinct ports, canonical absolute
+cluster name, repository and new deployment branch, distinct ports, canonical absolute
 private state path and backup path. The fixed path inside Git is
 `gitops/root/overlays/development`; topology and platform components are fixed.
 Choose `backupIsolation: external` for physically separate media. An explicitly
@@ -109,8 +111,10 @@ This release does not provide automatic recovery or a general resume interface.
 
 ## Acceptance status
 
-The second-machine test, failure matrix, runtime timings/capacities and final
+The selected runtime test, failure matrix, timings/capacities and final
 archive digest are **NOT RUN** on this branch until recorded in
 `docs/d1-validation.md`. A successful build or an existing S1 cluster is not D1
 acceptance. The tested archive must be promoted unchanged, never rebuilt after
-acceptance. S2 begins only after this gate and the D1 review are complete.
+acceptance. The owner selected same-host validation for the current run; it does not prove
+second-machine or independent-user installation. S2 follows the selected runtime
+gate and D1 review. Atlas code is distributed under the bundled MIT LICENSE.

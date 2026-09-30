@@ -6,7 +6,9 @@ Status: Proposed
 
 D1 precedes S2. Ship one darwin/arm64 installation package for an Apple Silicon
 Mac with running OrbStack, Git and authenticated access to a dedicated public
-GitHub repository. Fix the topology at one control plane and gateway, compute,
+GitHub repository with a new dedicated deployment branch. The product and
+deployment may share a repository; their commits and roles remain separate.
+Never repurpose an existing branch. Fix the topology at one control plane and gateway, compute,
 data workers. Install the existing Web/TLS, retained local storage, monitoring,
 S3 and Sealed Secrets capabilities; add no controllers or recovery framework.
 Support versions and resource minima are acceptance results, not assumptions.
@@ -50,10 +52,25 @@ terminal evidence have distinct purposes; no S1 STOP lock is cleared by D1.
 A release contains the executable, runtime projections, pinned dependencies,
 checksums, provenance, documentation and license notices. GitHub attestation
 verification binds the expected repository and release workflow as well as the
-artifact digest. The archive accepted on the second machine is promoted unchanged.
+artifact digest. The archive used for the selected runtime acceptance is promoted unchanged.
 Local builds, simulations and the existing S1 cluster are insufficient for D1 PASS.
 
-D1 remains incomplete until the published acceptance matrix passes using that
-same archive on another supported clean machine, independent Git and credentials,
-with only public documentation and no maintainer repair commands. This decision
-neither authorizes production cutover nor introduces upgrade/retirement/recovery.
+On 2026-09-30 the owner selected the current Mac and current public repository
+for the next acceptance, and chose MIT for Atlas code. This run uses a new
+`atlas-d1` deployment branch, new `atlas-d1` four-node cluster, fresh installer
+state and independent credentials. Its result is explicitly same-host acceptance,
+not evidence of independent-user or second-machine reproducibility. Existing
+Docker image layers may be reused after digest checks; old Atlas runtime state
+and keys are not installation inputs.
+
+The owner separately approved the D1-only same-host backup exception at
+`/Users/nekoreb/Workspace/01_Vault/atlas-refactor-d1`. Record it as reduced
+isolation; do not call it physically isolated or inherit older exceptions.
+
+The selected runtime gate still requires the actual package, exact deployment
+identity, service access, repeat-install and failure checks, and retained final
+and Trust Root evidence. Release provenance remains a separate required check.
+Independent-machine testing remains unproven and must be named as a limitation,
+rather than silently claimed by deleting clusters on the development host.
+This decision neither authorizes production cutover nor introduces upgrade,
+retirement or recovery capabilities.

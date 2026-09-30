@@ -1,6 +1,6 @@
 # D1 acceptance record
 
-Status: LOCAL CANDIDATE; independent runtime acceptance pending. No new live
+Status: LOCAL CANDIDATE; owner-selected same-host runtime acceptance pending. No new live
 cluster, Trust Root, ciphertext publication, GitOps push or release has been
 executed for D1. S1 remains the last completed live milestone. ADR-0014 remains
 Proposed.
@@ -15,9 +15,9 @@ Proposed.
 | Git publication | Closed generated tree, exact-parent commit, unknown acknowledgement | Real local Git and controlled remote-response regression PASS |
 | Access process | Multiple readers; installation exclusion; lost connection exits | Process and OS-lock regression PASS; live service/browser NOT RUN |
 | Release provenance | Pinned Actions, locked quality, attested archive, draft promotion | Workflow implemented; NOT RUN remotely |
-| Independent clean machine | Actual macOS/OrbStack versions, capacities, empty state/cache | NOT RUN; second machine required |
-| Dedicated deployment | New public repository/branch and two generated commits | NOT RUN; repository required |
-| Live Trust Root | New controller key and declared independent backup destination | NOT RUN; backup destination required |
+| Independent clean machine | Actual macOS/OrbStack versions, capacities, empty state/cache | Deferred by owner; this run uses the current Mac and fresh state |
+| Dedicated deployment | New isolated deployment branch and two generated commits | Selected: snkio027/atlas-refactor, new atlas-d1 branch |
+| Live Trust Root | New controller key and declared independent backup destination | Selected: independent D1 directory; same-host exception explicitly approved |
 | Installation and services | Four nodes, ownership, Web/PVC/monitoring/S3 acceptance | NOT RUN |
 | Repeated install | Stable UIDs, credentials, ciphertext, Git; no unnecessary mutation | Local intent/credential reuse coverage; live NOT RUN |
 | Failure matrix | Artifact, ports, permissions, backup, interruption checkpoints | Selected local negatives PASS; full live matrix NOT RUN |
@@ -71,13 +71,23 @@ Git commit, cluster UID, certificate/ciphertext bindings, per-file render hashes
 and Application UID/Sync/Health. This evidence has not yet been produced by a
 real D1 installation.
 
-## Required independent acceptance
+## Owner-selected acceptance
 
-Provide the dedicated public GitHub repository, access to a second Apple Silicon
-Mac with running OrbStack, and this installation's backup destination/isolation
-choice. The owner must also choose the top-level license grant before public
-binary distribution. Old OT-1/dev02 backup exceptions and author credentials do
-not apply.
+On 2026-09-30 the owner selected the current host and current public repository,
+MIT licensing, and deletion of old local clusters. The new deployment branch and
+cluster are both named `atlas-d1`; neither adopts an old instance. New private
+state is outside the source checkout. The D1-only same-host backup exception is
+approved for `/Users/nekoreb/Workspace/01_Vault/atlas-refactor-d1`.
+
+The old `atlas-refactor-test-ot1` four-node cluster (UID
+`b80928e0-71fa-450c-b3f3-3db06c6c22a7`) was deleted after checking all 366 S1
+manifest entries and its key backup digest. S1 authority evidence and old backup
+remain retained. Default kubeconfig was unchanged; no Kind clusters remained.
+Private cleanup evidence is in `.state/latest/d1-cleanup/`.
+
+This is a same-host run; second-machine and independent-user installation remain
+unproven. Existing Docker layer cache may be reused, so it is not a whole-machine
+empty-cache test. MIT is now selected and bundled; third-party grants are unchanged.
 
 Run the documented procedure against an attested candidate archive, record the
 actual environment, timings/capacity and exact archive digest, and exercise the

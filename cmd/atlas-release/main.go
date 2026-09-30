@@ -126,7 +126,7 @@ func run() error {
 		return e
 	}
 	files := map[string][]byte{"atlas-install": executable, "runtime.json": manifest}
-	for _, f := range []struct{ from, to string }{{"docs/first-install.md", "README.md"}, {"packaging/installation.example.json", "installation.example.json"}, {"packaging/NOTICES.md", "NOTICES.md"}, {"vendor/platform/LICENSE-Apache-2.0", "licenses/Apache-2.0.txt"}} {
+	for _, f := range []struct{ from, to string }{{"LICENSE", "LICENSE"}, {"docs/first-install.md", "README.md"}, {"packaging/installation.example.json", "installation.example.json"}, {"packaging/NOTICES.md", "NOTICES.md"}, {"vendor/platform/LICENSE-Apache-2.0", "licenses/Apache-2.0.txt"}} {
 		b, e = os.ReadFile(filepath.Join(abs, f.from))
 		if e != nil {
 			return e

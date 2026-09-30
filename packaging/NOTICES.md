@@ -1,8 +1,8 @@
 # Preview package notices
 
-Atlas D1 is a development preview. The repository currently has no top-level
-license grant; this package does not invent or change one. Public distribution
-and the project's intended license must be reviewed before promoting a preview.
+Atlas Refactor is licensed under the MIT License included as `LICENSE`.
+Third-party components retain their original licenses and notices; the MIT grant
+does not relicense them. MIT license text: https://opensource.org/license/mit
 
 The binary statically links the Go standard library (Go BSD license, included).
 The runtime manifest includes Helm-rendered Kubernetes resources and the locked

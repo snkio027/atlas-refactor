@@ -45,7 +45,7 @@ jobs:
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: ${{ runner.temp }}/atlas-dist/*.tar.gz
-      - name: Create draft candidate; second-machine acceptance precedes promotion
+      - name: Create draft candidate; runtime acceptance precedes promotion
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

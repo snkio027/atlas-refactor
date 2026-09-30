@@ -42,8 +42,8 @@ func (c Config) Validate() error {
 	if c.Schema != 1 || !cluster.MatchString(c.Cluster) || strings.HasPrefix(c.Cluster, "atlas-refactor-test") {
 		return errors.New("D1 requires schema 1 and a new atlas-<name>; frozen test names are reserved")
 	}
-	if !repository.MatchString(c.Repository) || strings.EqualFold(c.Repository, SourceRepository) {
-		return errors.New("use a dedicated public GitHub HTTPS repository, not the product repository")
+	if !repository.MatchString(c.Repository) {
+		return errors.New("use a public GitHub HTTPS repository and a new dedicated deployment branch")
 	}
 	if !branch.MatchString(c.Branch) || strings.Contains(c.Branch, "//") || strings.HasSuffix(c.Branch, "/") || strings.HasPrefix(c.Branch, "codex/") {
 		return errors.New("use a dedicated deployment branch without reserved codex/ prefix")

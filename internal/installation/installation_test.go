@@ -48,7 +48,7 @@ func TestConfigRejectsBoundaryChanges(t *testing.T) {
 	if e := c.Validate(); e != nil {
 		t.Fatal(e)
 	}
-	for name, change := range map[string]func(*Config){"author repo": func(c *Config) { c.Repository = SourceRepository }, "old profile": func(c *Config) { c.Cluster = "atlas-refactor-test-ot1" }, "credential URL": func(c *Config) { c.Repository = "https://token@github.com/example/a.git" }, "non-GitHub": func(c *Config) { c.Repository = "https://example.com/a/a.git" }, "branch injection": func(c *Config) { c.Branch = "-main" }, "old branch": func(c *Config) { c.Branch = SourceRevision }, "same port": func(c *Config) { c.HTTPSPort = c.HTTPPort }, "backup in state": func(c *Config) { c.BackupDirectory = c.StateDirectory + "/backup" }, "no isolation decision": func(c *Config) { c.BackupIsolation = "" }} {
+	for name, change := range map[string]func(*Config){"old profile": func(c *Config) { c.Cluster = "atlas-refactor-test-ot1" }, "credential URL": func(c *Config) { c.Repository = "https://token@github.com/example/a.git" }, "non-GitHub": func(c *Config) { c.Repository = "https://example.com/a/a.git" }, "branch injection": func(c *Config) { c.Branch = "-main" }, "old branch": func(c *Config) { c.Branch = SourceRevision }, "same port": func(c *Config) { c.HTTPSPort = c.HTTPPort }, "backup in state": func(c *Config) { c.BackupDirectory = c.StateDirectory + "/backup" }, "no isolation decision": func(c *Config) { c.BackupIsolation = "" }} {
 		t.Run(name, func(t *testing.T) {
 			v := c
 			change(&v)
@@ -354,5 +354,22 @@ func TestIncompleteCompletedRecordIsRejected(t *testing.T) {
 	}
 	if w.Open(false) == nil {
 		t.Fatal("completion flag accepted without a deployment")
+	}
+}
+
+func TestProductRepositoryCanUseIndependentDeploymentBranch(t *testing.T) {
+	c := testConfig(t)
+	c.Repository = SourceRepository
+	c.Branch = "atlas-d1"
+	if e := c.Validate(); e != nil {
+		t.Fatal(e)
+	}
+	p := testProduct(t)
+	w := Workflow{Config: c, Product: p, ProductDigest: Digest(JSON(p)), BinaryDigest: strings.Repeat("f", 64)}
+	if e := w.Open(true); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := w.app(context.Background(), strings.Repeat("b", 40)); e != nil {
+		t.Fatal("product repository must not substitute for deployment commit", e)
 	}
 }

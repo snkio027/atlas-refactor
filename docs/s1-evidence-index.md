@@ -16,9 +16,14 @@
 - `final-checks/`：独立验证源码、29-stage 离线复核日志、最终 live/audit/timing 汇总。
 
 归档前执行路径为 `.state/latest/s1-final`；复查保存的辅助源码时，将其 evidence 路径映射到
-本 bundle。活动 runtime 仍位于 `.state/latest/s1-final/source/.state/development/atlas-refactor-test-ot1/repo`，
+本 bundle。历史 runtime 目录保留在 `.state/latest/s1-final/source/.state/development/atlas-refactor-test-ot1/repo`，
 其私有 kubeconfig、凭据和可写审计未迁入 bundle。私钥另存已批准的独立 w1 备份目录。
 原始失败样本和旧执行结果没有替换成新结果。
+
+2026-09-30 按所有者“删除本机旧集群”的指令，在重新核验上述 366 项证据和旧私钥备份后，
+已删除此四节点 Kind 集群（UID `b80928e0-71fa-450c-b3f3-3db06c6c22a7`）。
+归档、历史私有目录和外部备份仍保留；这里的 S1 PASS 是历史验收，不表示该集群仍在运行。
+清理回执位于 `.state/latest/d1-cleanup/result.json`，D1 的新实例另行绑定。
 
 ## 历史 authority evidence
 
