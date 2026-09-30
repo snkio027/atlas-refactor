@@ -14,6 +14,9 @@ import (
 )
 
 func (a *App) verifyRepository(ctx context.Context, files map[string][]byte) error {
+	if a.installation != nil {
+		return a.verifyInstallationRepository(ctx, files)
+	}
 	for p, want := range files {
 		actual, e := readFile(a.Root, a.artifactPath(p))
 		if e != nil {
@@ -58,6 +61,9 @@ func (a *App) acquire() (func(), error) {
 	}
 	if info.Mode().Perm()&0077 != 0 {
 		return nil, errors.New(".state must be owner-only")
+	}
+	if a.installation != nil {
+		return acquireInstallationLock(dir)
 	}
 	lock := filepath.Join(dir, "apply.lock")
 	if e = os.Mkdir(lock, 0700); e != nil {
@@ -246,7 +252,7 @@ func (a *App) VerifyNodes(ctx context.Context) error { return a.verifySubstrate(
 
 func (a *App) nodeNames() []string {
 	names := []string{a.Config.Cluster + "-control-plane"}
-	if a.Config.Schema == 3 {
+	if a.Config.fourNodeProfile() {
 		for _, suffix := range []string{"-worker", "-worker2", "-worker3"} {
 			names = append(names, a.Config.Cluster+suffix)
 		}
@@ -315,7 +321,7 @@ func (a *App) verifySubstrate(ctx context.Context, requireReady bool) error {
 		if info.Architecture != "arm64" || info.OperatingSystem != "linux" || info.KubeletVersion != "v"+a.Lock.Kubernetes {
 			return errors.New("Kubernetes node platform or version drift: " + name)
 		}
-		if a.Config.Schema == 3 {
+		if a.Config.fourNodeProfile() {
 			for _, role := range []string{"gateway", "compute", "data"} {
 				value, present := node.Metadata.Labels["node-role.local/"+role]
 				if (roles[name] == role && value != "true") || (roles[name] != role && present) {

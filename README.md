@@ -5,6 +5,9 @@
 最新完整运行结论是 [S1 单次 29/29 验收与冻结](docs/s1-final-validation.md)。
 下文的最小 Bootstrap 与 dev02 数字属于各自历史基线；不能据此判断当前本机集群。
 进入 S2 前的代码与操作质量检查见 [工程审查](docs/pre-s2-engineering-review.md)。
+下一交付目标是 **D1 干净机器首装**，完成后才进入 S2。候选入口与验收边界见
+[首装文档](docs/first-install.md)、[D1 验收记录](docs/d1-validation.md) 和
+[Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。D1 尚未通过独立机器验收，不能视为已发布的可安装预览版。
 
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
 模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第四次真实运行已通过最小

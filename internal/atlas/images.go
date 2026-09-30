@@ -14,7 +14,7 @@ import (
 // kind load docker-image imports --all-platforms and fails on those entries.
 // The archive is streamed from a private temporary file, never held in memory.
 func (a *App) loadNodeImage(ctx context.Context, image string) error {
-	if a.Config.Schema == 3 {
+	if a.Config.fourNodeProfile() {
 		path, e := a.imageArchive(image)
 		if e != nil {
 			return e

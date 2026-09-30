@@ -235,7 +235,7 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 	if receipt != nil {
 		// Schema 3 separates durable authority from current runtime health.
 		// Observation/Gate-B verifies nodes and workloads after handoff.
-		if a.Config.Schema != 3 {
+		if !a.Config.fourNodeProfile() {
 			if e := a.VerifyNodes(ctx); e != nil {
 				return state(Degraded, "adopted; node inventory or readiness invalid: "+e.Error())
 			}
@@ -251,7 +251,7 @@ func (a *App) inspect(ctx context.Context) (observation, error) {
 			return state(Degraded, "adopted; GitOps is degraded; Seed remains denied")
 		}
 		detail := "GitOps owns reconciliation"
-		if a.Config.Schema == 3 {
+		if a.Config.fourNodeProfile() {
 			detail = "durable GitOps handoff verified; rollout is checked by Observation"
 		}
 		return observation{Report{Adopted, detail}, identity, root, self, signal}, nil

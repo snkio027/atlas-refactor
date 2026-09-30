@@ -166,7 +166,11 @@ func (c Config) Validate() error {
 	if (c.Cluster == developmentprofile.OT1Cluster || c.Revision == developmentprofile.OT1Revision) && c.Schema != 3 {
 		return errors.New("OT-1 requires the isolated four-node profile")
 	}
-	if (c.Schema != 1 && c.Schema != 2 && c.Schema != 3) || !regexp.MustCompile(`^atlas-refactor-test(?:-[a-z0-9]{1,12})?$`).MatchString(c.Cluster) {
+	if c.Schema == 4 {
+		if !regexp.MustCompile(`^atlas-[a-z0-9](?:[a-z0-9-]{0,34}[a-z0-9])?$`).MatchString(c.Cluster) || strings.HasPrefix(c.Cluster, "atlas-refactor-test") {
+			return errors.New("invalid new installation cluster")
+		}
+	} else if (c.Schema != 1 && c.Schema != 2 && c.Schema != 3) || !regexp.MustCompile(`^atlas-refactor-test(?:-[a-z0-9]{1,12})?$`).MatchString(c.Cluster) {
 		return errors.New("schema 1, 2 or 3 and an atlas-refactor-test[-suffix] cluster are required")
 	}
 	u, e := url.Parse(c.RepositoryURL)
@@ -179,7 +183,11 @@ func (c Config) Validate() error {
 	if c.DockerContext != "orbstack" || c.TimeoutSeconds < 30 || c.TimeoutSeconds > 1800 {
 		return errors.New("orbstack and a 30..1800 second timeout are required")
 	}
-	if c.developmentProfile() {
+	if c.Schema == 4 {
+		if u.Host != "github.com" || c.RepositoryURL == developmentprofile.Repository || c.GitOpsPath != developmentprofile.RootPath || strings.HasPrefix(c.Revision, "codex/") {
+			return errors.New("invalid user deployment binding")
+		}
+	} else if c.developmentProfile() {
 		if e := developmentprofile.Validate(c.Schema, c.Cluster, c.RepositoryURL, c.Revision, c.GitOpsPath); e != nil {
 			return e
 		}

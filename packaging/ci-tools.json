@@ -1,0 +1,23 @@
+[
+  {
+    "name": "task",
+    "version": "3.53.1",
+    "url": "https://github.com/go-task/task/releases/download/v3.53.1/task_darwin_arm64.tar.gz",
+    "sha256": "85d2d96c2380b33d7855b07b3f7a20dc7ca0eda999a26efa0fb5f6f32b366cd7",
+    "member": "task"
+  },
+  {
+    "name": "yq",
+    "version": "4.53.6",
+    "url": "https://github.com/mikefarah/yq/releases/download/v4.53.6/yq_darwin_arm64",
+    "sha256": "cceb0b8d71ea5294334121f8429f33f92b920e7217d904a2f9f35443968ac424",
+    "member": ""
+  },
+  {
+    "name": "lua",
+    "version": "5.5.1",
+    "url": "https://www.lua.org/ftp/lua-5.5.1.tar.gz",
+    "sha256": "1c4b4068d67061f2a2231ad2b5422e77acea1487ea9890f6320af614f4373dce",
+    "member": ""
+  }
+]
