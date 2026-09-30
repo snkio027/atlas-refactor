@@ -2,12 +2,12 @@
 
 从 Atlas 的架构和失败经验出发，用 Go 独立实现 Bootstrap。
 
-最新完整运行结论是 [S1 单次 29/29 验收与冻结](docs/s1-final-validation.md)。
+已冻结的架构验证基线是 [S1 单次 29/29 验收与冻结](docs/s1-final-validation.md)。
 下文的最小 Bootstrap 与 dev02 数字属于各自历史基线；不能据此判断当前本机集群。
 进入 S2 前的代码与操作质量检查见 [工程审查](docs/pre-s2-engineering-review.md)。
-下一交付目标是 **D1 干净机器首装**，完成后才进入 S2。候选入口与验收边界见
+**D1 可安装预览版已通过本机全新首装验收**，当前候选包等待审核与发布，之后才进入 S2。入口与验收边界见
 [首装文档](docs/first-install.md)、[D1 验收记录](docs/d1-validation.md) 和
-[Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。本轮按所有者决定，使用当前主机和当前仓库的新部署分支验收；不能称为独立机器验证。D1 运行与发布 Gate 尚未通过。
+[Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。本轮按所有者决定，使用当前主机和当前仓库的新部署分支验收；不能称为独立机器验证。实际 CI 包已完成四节点首装、服务功能、访问和重复安装验证；发布 Gate 仍待审核。
 
 项目代码采用 [MIT License](LICENSE)，第三方组件保留各自许可证。
 

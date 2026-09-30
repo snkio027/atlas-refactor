@@ -1,162 +1,135 @@
 # D1 acceptance record
 
-Status: INITIAL RUNTIME STOP; correction awaiting a fresh attested-package run.
-The actual CI package `v0.1.0-d1.3` passed provenance, preparation and preflight
-negatives, and created its four-node target, but base GitOps handoff failed.
-No consumer credentials or ciphertexts were generated. The target, Git definition,
-audit and incident key backup are retained. D1 is not accepted; ADR-0014 remains
-Proposed.
+Status: **OWNER-SELECTED SAME-HOST RUNTIME PASS**. Engineering review and release
+promotion remain pending; ADR-0014 is Proposed. The actual attested CI archive
+completed a fresh installation, independent verification, supported access and
+repeat-install checks. No manual cluster repair was required.
 
-| Gate | Required evidence | Current status |
-| --- | --- | --- |
-| Product/deployment/instance separation | Strict inputs, fixed projection, exact deployment commit | Local regression PASS; source HEAD is not deployment authority |
-| Complete archive | Runtime resources, executable binding, notices, isolated execution | Local development archive PASS outside the checkout; changed manifest rejected |
-| Tool preparation | Official digests, private paths, interruption/corruption handling | Real pinned tool download/preparation PASS; simulated truncated HTTP body resumed and verified |
-| Go and repository quality | Vet, race tests, real Helm/Kustomize, frozen S1 fixtures | PASS, including the final run with newly prepared release tools |
-| Trust Root mechanics | Key/cert match, backup readback, actual seal/unseal | Synthetic 4096-bit key and locked kubeseal roundtrip PASS; namespace rebinding rejected |
-| Git publication | Closed generated tree, exact-parent commit, unknown acknowledgement | Real local Git and controlled remote-response regression PASS |
-| Access process | Multiple readers; installation exclusion; lost connection exits | Process and OS-lock regression PASS; live service/browser NOT RUN |
-| Release provenance | Pinned Actions, locked quality, attested archive, draft promotion | CI run 36730610488 PASS; archive and exact workflow/tag/source attestation verified |
-| Independent clean machine | Actual macOS/OrbStack versions, capacities, empty state/cache | Deferred by owner; this run uses the current Mac and fresh state |
-| Dedicated deployment | New isolated deployment branch and two generated commits | Base commit e34b68e8 published to atlas-d1; full consumer commit absent |
-| Live Trust Root | New controller key and declared independent backup destination | Controller generated a new key; private incident backup readback PASS; installer backup stage not reached |
-| Installation and services | Four nodes, ownership, Web/PVC/monitoring/S3 acceptance | Four nodes Ready; initial handoff STOP on missing namespace owners |
-| Repeated install | Stable UIDs, credentials, ciphertext, Git; no unnecessary mutation | Local intent/credential reuse coverage; live NOT RUN |
-| Failure matrix | Artifact, ports, permissions, backup, interruption checkpoints | Actual package rejected manifest/tool corruption, occupied port, unwritable backup and denied Git permission before publication; interrupted preparation reran with the same record |
-| User-only procedure | Second person using packaged README without repair commands | NOT RUN |
-| Final package | Accepted archive digest equals distributed archive digest | NOT RUN |
+The owner explicitly selected the current Apple Silicon Mac and current public
+repository, MIT licensing, old-cluster cleanup and an independent D1 backup
+subdirectory with a same-host development exception. This result does not prove
+second-machine, independent-user or empty-Docker-cache installation. S2 and
+production cutover are outside this change.
 
-## Local validation and lessons
+## Exact accepted runtime artifact and target
 
-The first remote candidate (`v0.1.0-d1.1`, source `32b5322`) exposed a release
-checkout prerequisite before any installation began: Actions' default depth-1
-checkout omits the two immutable S1 commits read by `contract.py`. A depth-1
-local clone reproduced their absence; fetching full history restored the existing
-contract. The release checkout now requests full history. The first run was
-cancelled rather than weakening or skipping the frozen regression checks.
+| Identity | Value |
+| --- | --- |
+| Candidate | `v0.1.0-d1.4`, darwin/arm64, Go 1.27.1, `developmentOnly=false` |
+| Product source | `6f22e66c00841d605f70eda8c0ea29b8ecd437df` |
+| Archive SHA256 | `e24077b4354f07634be441e2abf3caad2a441a7856a25638fbd2abb044378028` |
+| Binary SHA256 | `6e0cb9930633d1f4f834a26b0e1bb1cd708a80d0bc1063f218a155104bb00865` |
+| Product SHA256 | `ce28f76918b7b8d7be1dbfbf1d5e79911c6dfaf93ef00819965ff10863f09aec` |
+| Plan SHA256 | `f76d2a10c232ec2f7a959a8895bbf7a1b31a597c3c95ea89399298525f1ef47f` |
+| Installation ID | `facc0ecfb6484e814b92313d42324cf0` |
+| New cluster | `atlas-d1-r2`, one control plane and gateway/compute/data workers |
+| Cluster UID | `00d80d67-dde2-4941-abb7-86aa2c257eb4` |
+| Public deployment branch | `snkio027/atlas-refactor`, `atlas-d1-r2` |
+| Base deployment | `59bb45c3a6d98215766b5221cace8e31bad31075` |
+| Full deployment | `70147b26fddb356bfed6f1e3270baf0f35a855df` |
+| Certificate SHA256 | `4747a0b5f7fc8516deb3d8f0a9c668f1f48ee9c16b50fdc5d5ae2a0c8f375302` |
+| Sealed payload SHA256 | `bc4b90055b2aef4282457cd21bdb4b72d292b9adcd4b9d51dbe3a04ba4c63c21` |
 
-The second candidate (`v0.1.0-d1.2`, source `657eb19`) reached the remote
-race suite but `internal/ot1` exceeded Go's implicit ten-minute package timeout.
-The stack showed active JSON fixture construction, not a reported failed
-assertion. Quality now declares a bounded 25-minute package budget for the full
-race suite on hosted ARM runners. No tests are skipped and no live-operation
-deadline changes. A fresh candidate must pass the entire remote gate.
+[CI run 36739765209](https://github.com/snkio027/atlas-refactor/actions/runs/36739765209)
+passed in 18m14s. Archive checksum, all ten packaged files and GitHub attestation
+were verified against the exact repository, release workflow, tag and source SHA.
+The package ran outside the checkout with only Git, gh, Docker/OrbStack and system
+utilities on PATH; Go, Task, Lua and preinstalled Atlas runtime tools were absent
+from that PATH. A Python harness measured results; the installer did not call it.
 
+## Runtime gates
 
-Final local quality exit code: **0**. This ran Go vet and race tests, all
-348-resource Helm/Kustomize/conformance checks, eight Python contract tests,
-four frozen layout renders, and compilation/vet of the frozen experiment entry
-points. The new private CI tool set was passed explicitly to Task; no cluster
-commands were executed.
+| Gate | Observed result |
+| --- | --- |
+| Finite Bootstrap authority | PASS: Identity/Latch/Receipt, Seed adoption and four Ready nodes; no manual namespace/tracking/Seed repair |
+| GitOps | PASS: exact specs and 26 Applications at full commit, idle, Synced/Healthy |
+| Trust Root | PASS: fresh key, 0600 backup readback, key/certificate match and actual seal/unseal before consumer publication |
+| Credential publication | PASS: exactly grafana-admin, seaweedfs-auth and s3-client strict namespace/name SealedSecrets; no plaintext credentials/private key in the generated Git tree |
+| Web and storage | PASS: approved HTTP-to-HTTPS redirect, CA-verified HTTPS content, Pod placement, required PVCs Bound and PV Retain/claim-UID binding |
+| Monitoring | PASS: authenticated Grafana dashboards, anonymous rejection, required healthy targets/four-node metrics, Watchdog rule and delivery to Alertmanager |
+| Alert functional probe | PASS: per-install test alert posted, observed, and resolution request accepted; no external notification-channel claim |
+| S3 functional probe | PASS: authorized bucket access, anonymous/cross-bucket denial, object write/read/delete, presigned GET and multipart upload |
+| Independent verify | PASS / exit 0, 5.62 seconds |
+| Foreground access | PASS: Web, Grafana, Prometheus, Alertmanager and S3 concurrently reachable through product commands; all five closed with exit 0 |
+| Repeated install | PASS / exit 0, 4.17 seconds; 174 checked persistent object UIDs, Git, credentials, ciphertext, CA, kubeconfig and final evidence unchanged |
+| Repeated-install audit | PASS: zero resource writes by certificate-bound installer user kubernetes-admin; blocking Metadata audit covers create/update/patch/delete/deletecollection |
+| Host configuration | PASS: default kubeconfig and hosts unchanged; system trust was not modified |
 
-The tested local development archive was
-`atlas-v0.1.0-dev.d3-darwin-arm64.tar.gz`, SHA256
-`168b89217a0dafa6b4b4c62382e6a0c795d85d73863f634f69e992c9714b6b82`.
-It is explicitly marked `developmentOnly`, not a publishable candidate. Checksums,
-manifest/config validation and help worked outside the checkout with only
-`/usr/bin:/bin` on PATH; missing prepared state failed without creating state,
-and a modified runtime manifest failed before configuration was read.
+The install ran from 2026-09-30 16:34:03 UTC to 16:51:31 UTC, **1,048.47 seconds**.
+Fresh tool/image preparation took **209.57 seconds**. During initial convergence,
+Gateway API briefly reported Degraded; its CRDs and admission policy were valid,
+and normal Argo comparison/retry recovered without operator writes. No health
+predicate was relaxed. The installation continued through the complete functional
+probe and wrote its final evidence before marking itself complete.
 
-The local host is macOS 26.7 (25G229), Apple Silicon, OrbStack 2.2.3 (2020300).
-These are development measurements, not the independent acceptance support table.
-Go 1.27.1 and all runtime/build dependencies are pinned. The newly prepared CI
-set contains Helm 4.2.3, Kind 0.32.0, kubectl 1.36.3, kubeseal 0.40.0,
-Task 3.53.1, yq 4.53.6 and Lua 5.5.1. Preparation reused already verified Helm
-and Kind archives; it is not a clean-machine acceptance claim.
+The successful run did not inject interruptions around Kind creation, Root/latch,
+key backup or full publication. Those live interruption checkpoints remain
+unproven; targeted local publication/credential regressions and the earlier real
+interrupted preparation are separate evidence. A current-host PASS does not erase
+that limit or establish automatic recovery support.
 
-- A slow official download exceeded the single-request timeout. Preparation now
-  retains a non-executable partial file, requires an exact HTTP range, and checks
-  the entire locked digest before extraction. Interrupted and corrupt-response
-  cases are regression tests in `internal/installation/download_test.go`.
-- A full Git push can succeed before the local record is saved. Reconciliation
-  checks the saved full-publication intent before considering base Bootstrap;
-  it does not regenerate credentials or another commit. Covered by
-  `TestFullPublishAcknowledgementPrecedesBootstrapReentry`.
-- Foreground access needs shared read locks. It now allows multiple services
-  while excluding installation, and reports a port-forward process exit.
-  Covered by `TestAccessReadersShareButExcludeInstallation` and
-  `TestForwardProcess`.
+## Measured environment
 
-The package does not carry an Atlas checkout, author ciphertexts or Go/Task/
-Python/Lua prerequisites. Its 63-file base and 63-file full templates carry
-25 digest-locked platform images. These counts describe package contents, not
-live resource or service readiness.
+| Fact | Measurement |
+| --- | --- |
+| Host | Apple Silicon, macOS 26.7 (25G229), 32 GiB RAM |
+| OrbStack | 2.2.3 (2020300) |
+| Docker | 29.4.0; 10 CPUs and 16,819,609,600 bytes reported VM memory |
+| Disk at plan | 342,899,437,568 bytes available / 994,610,155,520 total |
+| Runtime tools | Helm 4.2.3, Kind 0.32.0, kubectl 1.36.3, kubeseal 0.40.0 |
+| Kubernetes / Argo CD | 1.36.1 / 3.5.1 |
+| Local ingress | 127.0.0.1:8080 / 8443 |
 
-The first successful preflight saves measured host versions and capacities.
-Final authority evidence includes product/binary/source identities, plan and
-Git commit, cluster UID, certificate/ciphertext bindings, per-file render hashes,
-and Application UID/Sync/Health. Final PASS evidence has not been produced; the failed installation has a separate
-retained authority bundle.
+These are observations, not minimum requirements. Existing digest-verified Docker
+layers were reused. No old installation record, kubeconfig, key or ciphertext was
+an input. The base/full package projections each contain 63 files and lock 25
+images; the published full Git tree contains 59 files under gitops/ only.
 
-## Owner-selected acceptance
+## Failure checks and lessons
 
-On 2026-09-30 the owner selected the current host and current public repository,
-MIT licensing, and deletion of old local clusters. The new deployment branch and
-cluster are both named `atlas-d1`; neither adopts an old instance. New private
-state is outside the source checkout. The D1-only same-host backup exception is
-approved for `/Users/nekoreb/Workspace/01_Vault/atlas-refactor-d1`.
+The same D1.4 archive rejected a modified manifest, damaged runtime tool, occupied
+ingress, repository without push permission and unwritable isolated backup
+fixture before publication. The tool was restored byte-for-byte; no Trust Root
+backup directory was altered for a negative test. D1.3 preparation was interrupted
+during a real download and rerun with the same installation identity and complete
+digest verification. It is not represented as a new D1.4 interruption run.
 
-The old `atlas-refactor-test-ot1` four-node cluster (UID
-`b80928e0-71fa-450c-b3f3-3db06c6c22a7`) was deleted after checking all 366 S1
-manifest entries and its key backup digest. S1 authority evidence and old backup
-remain retained. Default kubeconfig was unchanged; no Kind clusters remained.
-Private cleanup evidence is in `.state/latest/d1-cleanup/`.
+| Finding | Durable lesson / regression |
+| --- | --- |
+| Release shallow checkout omitted frozen S1 commits | fetch-depth 0; preserve historical contract checks (`657eb19`) |
+| Hosted ARM race suite exceeded Go's default ten-minute timeout | explicit bounded 25-minute package budget; no skipped checks (`4cb6354`) |
+| First live base omitted namespace owners required by fixed controller RBAC | activate observability/storage foundations and order core before domain consumers; TestActivePhasePayloadNamespaceClosure (`6f22e66`) |
+| Parent Progressing hid terminal descendant sync failure | D1-only read guard; TestInstallationHandoffStopsOnCurrentTerminalSyncFailure and TestInstallationHandoffUnknownReadFailsClosed (`6f22e66`) |
+| Lost full-publication acknowledgement could reenter base Bootstrap | reconcile saved exact intent first; TestFullPublishAcknowledgementPrecedesBootstrapReentry |
+| Access readers and installer exclusion | shared read locks and connection termination; TestAccessReadersShareButExcludeInstallation / TestForwardProcess |
 
-This is a same-host run; second-machine and independent-user installation remain
-unproven. Existing Docker layer cache may be reused, so it is not a whole-machine
-empty-cache test. MIT is now selected and bundled; third-party grants are unchanged.
+Local locked task quality and remote quality passed, including Go vet/race, real
+Helm/Kustomize/conformance, frozen S1 contracts and experiment entrypoints. CI's
+installation race package took 378.448 seconds; OT-1 took 947.907 seconds.
 
-The next attempt must use the corrected attested archive, a fresh installation
-identity and an explicitly reviewed cleanup/rebuild target. Do not change the
-failed installation's product binding or hand-create missing namespaces to bypass
-the package defect. Record the same runtime, repeat and failure checks. In particular, interruptions around Kind creation, Root/latch
-creation, key backup and consumer publication remain live acceptance cases;
-local tests do not prove their complete behavior. Uncertain or contradictory
-Bootstrap identity still stops and cannot be repaired by deleting state files.
+The first live D1.3 target atlas-d1 stopped before consumer credential generation
+or publication. Its UID was 9080d70e-176b-4048-8bd7-2ba5843da6d2 and base commit
+was e34b68e8a593608bf516105ac0186581ba80a3fc. It was deleted only after exact
+Git/Root/Identity/Latch, audit continuity, absent PVC/consumer state and verified
+incident key backup checks. Its 19-entry failure bundle, archive, Git branch and
+backup remain retained. The earlier S1 cluster was separately retired after all
+366 evidence entries and its backup were checked; S1 evidence is unchanged.
 
-Promote that same archive only after acceptance; do not rebuild it. Do not call
-D1 complete or proceed to S2 on the strength of local tests or an S1 cluster.
+## Retention and release decision
 
-Implementation: `internal/installation` coordinates fixed phases;
-`internal/atlas` retains Seed/Latch/Receipt and schemas 1–3; `cmd/atlas-release`
-builds the complete archive; `cmd/atlas-install` loads authenticated adjacent
-runtime data without a source checkout.
+Final private bundle: /Users/nekoreb/Atlas/d1-r2/evidence/final-authority/.
+Its 47 entries were read back and hashed; MANIFEST.json SHA256:
+`ff66daa09330d0f78b2e239883ce7af1dce412e667e57838a8dd8715cefa0b55`.
+It binds archive/provenance, plan and owner decision, Git bundle, runtime snapshots,
+authority records, blocking audit, functional install result, independent verify,
+access, repeat checks and negative tests. No private values are committed here.
 
-## First actual package run: namespace closure failure
+The independent backup is under the approved D1 vault root / installation ID.
+Its receipt declares same-host-development-exception and records the round trip;
+this is not physically isolated backup or a disaster-recovery exercise.
 
-- CI source: `4cb635486b847b89ac36e8aefc300a4696a69c8f`; tag `v0.1.0-d1.3`.
-- [CI run](https://github.com/snkio027/atlas-refactor/actions/runs/36730610488): all gates PASS;
-  hosted ARM OT-1 race suite 983.142 seconds.
-- Actual archive SHA256: `e2722020ada9a1bd2a580749e6e913fb544e6bb180dfc25be064672f5477b668`.
-- Manifest/binary/internal checksums and GitHub repository/workflow/tag/source
-  attestation PASS; MIT LICENSE included. Runtime PATH excluded Go/Task/Lua and
-  preinstalled Atlas tools, outside the source checkout.
-- Preparation was interrupted during a real tool download, then completed in
-  395.85 seconds with the same installation record. Four tools and 25 OCI
-  archives verified; existing Docker layers reused. Same-host evidence only.
-- Base deployment: `e34b68e8a593608bf516105ac0186581ba80a3fc` on `atlas-d1`.
-  Cluster UID: `9080d70e-176b-4048-8bd7-2ba5843da6d2`; four nodes Ready.
-- STOP: secrets-controller exhausted sync retries because its Role/RoleBinding
-  targets atlas-monitoring and atlas-storage, whose namespace owners were absent
-  from the base Application catalog. Parents remained Progressing. The operator
-  sent SIGINT to the exact installer after observing this terminal child failure;
-  installer exit 1. No full commit, Grafana/S3 credentials or ciphertext publication.
-- Cause: D1 retained the full fixed controller payload but selected only the
-  secrets-controller activation closure. Dormant Namespace files in the package
-  did not make their owners active. The correction activates both domain namespace
-  owners before the controller, while keeping consumer applications deferred.
-- A reachable-source regression also exposed storage foundation's workload-web
-  NetworkPolicy dependency. The D1 core foundation now precedes domain foundations;
-  schema 1–3 catalogs and the S1 authority bundle are unchanged.
-- Regression: `TestActivePhasePayloadNamespaceClosure` resolves active Application
-  sources and checks namespace ownership/order for both phases;
-  `TestInstallationHandoffStopsOnCurrentTerminalSyncFailure` and
-  `TestInstallationHandoffUnknownReadFailsClosed` cover immediate D1 error reporting
-  without new writes or changed historical observation rules.
-
-Private evidence: `/Users/nekoreb/Atlas/d1/evidence/failed-install-authority/`.
-The executed archive, plan, deployment bundle, dedicated kubeconfig, live snapshots
-and Metadata-only audit are retained. The already generated controller key was
-backed up under the approved D1 vault directory as **incident preservation**, not
-as a successful installer backup/roundtrip gate. No private material enters Git.
-The failed target must not be overwritten or adopted by a different product digest.
+The candidate remains a draft pending owner review. Promote only the archive with
+the digest above; do not rebuild or replace it. The immutable archive's embedded
+README was written before acceptance; this record supplies its subsequent runtime
+result. Second-machine/user validation, unexercised live interruption checkpoints,
+upgrade/recovery and production readiness remain outside the proven result.

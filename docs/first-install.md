@@ -1,10 +1,14 @@
-# D1 first installation — candidate, not yet accepted
+# D1 first installation — current-host validation passed
 
-D1 acceptance is pending. Do not describe this branch as a released installer.
-Only Apple Silicon macOS and a running OrbStack are targeted. No Intel/Linux,
+The owner-selected same-host runtime acceptance passed for `v0.1.0-d1.4`;
+review and release promotion remain pending. Do not describe a draft as a public
+release. The measured host was Apple Silicon macOS 26.7 (25G229), OrbStack
+2.2.3, 32 GiB host RAM, with Docker reporting 10 CPUs and about 15.66 GiB VM
+memory. These measurements are not minimum requirements. Only Apple Silicon
+macOS and a running OrbStack are targeted. No Intel/Linux,
 production, upgrade, existing-cluster adoption or recovery support is claimed.
-The final support table must record the versions and capacities measured on the
-selected acceptance machine; it is deliberately not filled from guesses.
+Exact artifact identity, measured capacities, timings and evidence are in
+[D1 acceptance](d1-validation.md).
 
 ## Host prerequisites
 
@@ -111,10 +115,15 @@ This release does not provide automatic recovery or a general resume interface.
 
 ## Acceptance status
 
-The selected runtime test, failure matrix, timings/capacities and final
-archive digest are **NOT RUN** on this branch until recorded in
-`docs/d1-validation.md`. A successful build or an existing S1 cluster is not D1
-acceptance. The tested archive must be promoted unchanged, never rebuilt after
-acceptance. The owner selected same-host validation for the current run; it does not prove
-second-machine or independent-user installation. S2 follows the selected runtime
-gate and D1 review. Atlas code is distributed under the bundled MIT LICENSE.
+The actual attested `v0.1.0-d1.4` package passed the selected current-host run:
+17m28s for installation, 5.62s for independent verification and 4.17s for a
+completed repeat. All 26 Applications were Synced/Healthy at the exact deployment
+commit. Five foreground access commands worked concurrently; 174 checked persistent
+UIDs and private credential/cipher digests remained stable on repeat, with no
+installer resource writes in the audit. See [the full acceptance record](d1-validation.md).
+
+The candidate awaits review/promotion. The accepted archive must be promoted
+unchanged. This is not independent-machine, empty-cache or second-user evidence.
+Live interruptions at Kind/Root/key-backup/full-publication checkpoints were not
+injected in the successful run. S2 follows D1 review. Atlas code is distributed
+under the bundled MIT LICENSE.

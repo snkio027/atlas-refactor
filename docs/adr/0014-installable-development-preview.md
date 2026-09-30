@@ -66,9 +66,11 @@ artifact digest. The archive used for the selected runtime acceptance is promote
 Local builds, simulations and the existing S1 cluster are insufficient for D1 PASS.
 
 On 2026-09-30 the owner selected the current Mac and current public repository
-for the next acceptance, and chose MIT for Atlas code. This run uses a new
-`atlas-d1` deployment branch, new `atlas-d1` four-node cluster, fresh installer
-state and independent credentials. Its result is explicitly same-host acceptance,
+for acceptance, and chose MIT for Atlas code. The first `atlas-d1` instance
+stopped before consumer publication and was retired after evidence/backup review.
+The successful fresh retry used the independent `atlas-d1-r2` deployment branch
+and four-node cluster, new installer state and credentials. Its result is
+explicitly same-host acceptance,
 not evidence of independent-user or second-machine reproducibility. Existing
 Docker image layers may be reused after digest checks; old Atlas runtime state
 and keys are not installation inputs.
@@ -77,9 +79,13 @@ The owner separately approved the D1-only same-host backup exception at
 `/Users/nekoreb/Workspace/01_Vault/atlas-refactor-d1`. Record it as reduced
 isolation; do not call it physically isolated or inherit older exceptions.
 
-The selected runtime gate still requires the actual package, exact deployment
-identity, service access, repeat-install and failure checks, and retained final
-and Trust Root evidence. Release provenance remains a separate required check.
+The selected runtime gate requires the actual package, exact deployment identity,
+service access, repeat-install and failure checks, and retained final and Trust
+Root evidence. The attested v0.1.0-d1.4 archive passed those selected same-host
+checks; exact evidence and unexercised interruption limits are recorded in
+[the acceptance record](../d1-validation.md). This ADR remains Proposed and the
+archive awaits review/promotion; a runtime PASS does not accept the decision.
+Release provenance remains a separate required check.
 Independent-machine testing remains unproven and must be named as a limitation,
 rather than silently claimed by deleting clusters on the development host.
 This decision neither authorizes production cutover nor introduces upgrade,
