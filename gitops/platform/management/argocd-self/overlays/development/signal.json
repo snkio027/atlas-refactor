@@ -1,0 +1,15 @@
+{
+  "apiVersion": "v1",
+  "data": {
+    "fingerprint": "7e49f2eac89b4358794689fbc8f75f0c8c5b0949c5fd8dae554a680dbfc4ac9b"
+  },
+  "immutable": true,
+  "kind": "ConfigMap",
+  "metadata": {
+    "annotations": {
+      "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+    },
+    "name": "atlas-refactor-adoption-signal",
+    "namespace": "argocd"
+  }
+}
