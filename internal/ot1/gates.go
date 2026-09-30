@@ -152,13 +152,19 @@ func runtimeEvidence(data observation.Object, cluster string) error {
 		if _, ok := namespaces[ref.Namespace]; ok {
 			namespaces[ref.Namespace] = true
 		}
-		if ref.Namespace == "workload-web" && observation.String(observation.At(pod, "spec", "nodeName")) == cluster+"-worker3" {
+		if ref.Namespace == "workload-web" {
+			if observation.String(observation.At(pod, "spec", "nodeName")) != cluster+"-worker3" {
+				return errors.New("runtime workload Pod outside data node")
+			}
 			web = true
 		}
 		if ref.Namespace == "envoy-gateway-system" && strings.HasPrefix(ref.Name, "envoy-atlas-gateway-") &&
 			observation.String(observation.At(pod, "metadata", "labels", "app.kubernetes.io/component")) == "proxy" &&
 			observation.String(observation.At(pod, "metadata", "labels", "gateway.envoyproxy.io/owning-gateway-name")) == "development" &&
-			observation.String(observation.At(pod, "metadata", "labels", "gateway.envoyproxy.io/owning-gateway-namespace")) == "atlas-gateway" && observation.String(observation.At(pod, "spec", "nodeName")) == cluster+"-worker" {
+			observation.String(observation.At(pod, "metadata", "labels", "gateway.envoyproxy.io/owning-gateway-namespace")) == "atlas-gateway" {
+			if observation.String(observation.At(pod, "spec", "nodeName")) != cluster+"-worker" {
+				return errors.New("runtime gateway Pod outside gateway node")
+			}
 			gateway = true
 		}
 	}

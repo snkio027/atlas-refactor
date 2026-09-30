@@ -6,11 +6,13 @@ import (
 	"atlas-refactor/internal/platform"
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -18,7 +20,7 @@ func main() {
 	if len(os.Args) > 1 && (os.Args[1] == "observe" || os.Args[1] == "verify") {
 		os.Exit(runObservation(os.Args[2:]))
 	}
-	fs := flag.NewFlagSet("atlas-platform", flag.ExitOnError)
+	fs := flag.NewFlagSet("atlas-platform", flag.ContinueOnError)
 	root := fs.String("root", ".", "repository root")
 	helm := fs.String("helm", "helm", "locked Helm executable")
 	kubectl := fs.String("kubectl", "kubectl", "locked kubectl (client commands only)")
@@ -27,11 +29,15 @@ func main() {
 	capabilities := fs.String("capabilities", "monitoring,object-storage,storage-monitoring", "complete desired capability set for plan/select; removal is unsupported")
 	yq := fs.String("yq", "yq", "locked yq executable")
 	fs.Usage = func() {
-		fmt.Fprintln(fs.Output(), "Usage: atlas-platform [flags] render|check|plan|select|prepare-credentials (local files only)")
+		fmt.Fprintln(fs.Output(), "Usage: atlas-platform render|check|plan|select|prepare-credentials [flags] (local files only; legacy flags-first accepted)")
 		fs.PrintDefaults()
 	}
-	fs.Parse(os.Args[1:])
-	if fs.NArg() != 1 || (fs.Arg(0) != "render" && fs.Arg(0) != "check" && fs.Arg(0) != "plan" && fs.Arg(0) != "select" && fs.Arg(0) != "prepare-credentials") {
+	command, err := parseLocalCommand(fs, os.Args[1:])
+	if errors.Is(err, flag.ErrHelp) {
+		return
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		fs.Usage()
 		os.Exit(2)
 	}
@@ -40,7 +46,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, e)
 		os.Exit(1)
 	}
-	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	ctx, cancel := context.WithTimeout(signalCtx, 3*time.Minute)
 	defer cancel()
@@ -49,17 +55,17 @@ func main() {
 	if *capabilities != "" {
 		requested = strings.Split(*capabilities, ",")
 	}
-	if fs.Arg(0) == "prepare-credentials" {
+	if command == "prepare-credentials" {
 		e = p.PrepareCredentials(ctx, *cert, *kubeseal)
 		if e == nil {
 			fmt.Println("Prepared sealed manifests; plaintext remains in private .state/capabilities/credentials.json. No cluster operations.")
 		}
-	} else if fs.Arg(0) == "select" {
+	} else if command == "select" {
 		e = p.SelectCapabilities(ctx, requested)
 		if e == nil {
 			fmt.Println("Updated local capability selection and GitOps projection. Review the diff before publishing.")
 		}
-	} else if fs.Arg(0) == "plan" {
+	} else if command == "plan" {
 		var plan platform.Object
 		plan, e = p.CapabilityPlan(requested)
 		if e == nil {
@@ -67,7 +73,7 @@ func main() {
 			encoder.SetIndent("", "  ")
 			e = encoder.Encode(plan)
 		}
-	} else if fs.Arg(0) == "render" {
+	} else if command == "render" {
 		plan, err := p.CapabilityPlan(p.Capabilities.Enabled.Capabilities)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -110,4 +116,31 @@ func main() {
 		fmt.Fprintln(os.Stderr, e)
 		os.Exit(1)
 	}
+}
+
+// Accept the same verb-first convention as the other CLIs while preserving
+// existing scripts that put all flags before the verb. Do not accept trailing
+// arguments: silently ignored options can change the requested capability set.
+func parseLocalCommand(fs *flag.FlagSet, args []string) (string, error) {
+	valid := func(command string) bool {
+		switch command {
+		case "render", "check", "plan", "select", "prepare-credentials":
+			return true
+		}
+		return false
+	}
+	command := ""
+	if len(args) > 0 && valid(args[0]) {
+		command, args = args[0], args[1:]
+	}
+	if err := fs.Parse(args); err != nil {
+		return "", err
+	}
+	if command == "" && fs.NArg() == 1 && valid(fs.Arg(0)) {
+		return fs.Arg(0), nil
+	}
+	if command != "" && fs.NArg() == 0 {
+		return command, nil
+	}
+	return "", errors.New("expected one local command and its flags")
 }

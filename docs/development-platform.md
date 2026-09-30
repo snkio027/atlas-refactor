@@ -89,8 +89,8 @@ Cilium 与 Argo Seed 分别与对应 GitOps 叶子字节一致，启动集成会
 `bootstrap/root.json` 和 `bootstrap/project.json` 是独立模板，不在任何 Kustomization 中。
 禁止对整个 `platform/development/bootstrap/` 执行递归 apply。
 
-需要预装 Go 1.27.1、Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1。
-依赖不会由质量命令自动下载。工具已在 PATH 且版本匹配时：
+需要预装 Go 1.27.1、Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）。
+依赖不会由质量命令自动下载。工具已在 `.state/tools/` 或 PATH 且版本匹配时：
 
 ```sh
 cd /Users/nekoreb/Workspace/03_Projects/atlas-refactor
@@ -98,10 +98,10 @@ task platform:render
 task quality
 ```
 
-如果工具不在 PATH，使用 Task 参数；原 Bootstrap 的真实 Helm 测试另由 `ATLAS_TEST_HELM` 开启：
+工具在其他目录时，使用 Task 参数；同一选择同时传给 Bootstrap 和平台真实渲染测试：
 
 ```sh
-ATLAS_TEST_HELM=/absolute/path/to/helm task quality \
+task quality \
   PLATFORM_HELM=/absolute/path/to/helm \
   PLATFORM_KUBECTL=/absolute/path/to/kubectl \
   PLATFORM_YQ=/absolute/path/to/yq \

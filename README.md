@@ -2,6 +2,10 @@
 
 从 Atlas 的架构和失败经验出发，用 Go 独立实现 Bootstrap。
 
+最新完整运行结论是 [S1 单次 29/29 验收与冻结](docs/s1-final-validation.md)。
+下文的最小 Bootstrap 与 dev02 数字属于各自历史基线；不能据此判断当前本机集群。
+进入 S2 前的代码与操作质量检查见 [工程审查](docs/pre-s2-engineering-review.md)。
+
 当前版本包含本地可构建的 `doctor`、`render`、`status`、`apply`，以及完整流程的
 模拟契约测试。公开远端为 `snkio027/atlas-refactor`。第四次真实运行已通过最小
 Bootstrap 闭环：External Root / GitOps 接管、中断续跑、39 个持久 Seed 的证据、
@@ -32,8 +36,10 @@ task build
 ./bin/atlas --help
 ```
 
-`task quality` 检查格式、运行 `go vet`、race-enabled 契约测试、Lua 健康检查和开发清单校验；不访问集群。
-现在还需本地 Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1；
+`task quality` 检查格式、运行 `go vet`、race-enabled 契约测试、Lua 健康检查和开发清单校验，并编译/vet 三个冻结的 OT-1 专用入口；不访问集群。
+现在还需本地 Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）；
+Task 优先使用现有 `.state/tools/{helm,kubectl,yq,kubeseal}`，缺少时使用 PATH；
+显式 `PLATFORM_HELM`、`PLATFORM_KUBECTL`、`PLATFORM_YQ`、`KUBESEAL` 参数优先，Lua 使用 `PLATFORM_LUA` 或 PATH。不会自动安装工具。
 工具路径参数与清单渲染命令见[开发平台说明](docs/development-platform.md#文件与复现)。
 Go 自动工具链获取与模块网络访问被关闭。若本机没有 Task，也可运行：
 
@@ -46,11 +52,11 @@ GOTOOLCHAIN=local CGO_ENABLED=0 go build -trimpath -o bin/atlas ./cmd/atlas
 真实 Helm 渲染校验使用预装的 **4.2.3** 可执行文件：
 
 ```sh
-ATLAS_TEST_HELM=/absolute/path/to/helm task quality
+task quality PLATFORM_HELM=/absolute/path/to/helm
 ```
 
 该校验渲染两次并比较结果，同时检查固定镜像、CRD、Secret 边界及 Seed/接管一致性。
-未设置路径时，该项明确标记为跳过。`task build:matrix` 交叉构建三种目标；
+Task 将选定工具传给真实测试；单独运行 `go test` 时，未设置 `ATLAS_TEST_HELM` 才会跳过该项。`task build:matrix` 交叉构建三种目标；
 交叉构建不等于已支持或已验证 Linux 运行环境。
 
 ## 首次集成验证

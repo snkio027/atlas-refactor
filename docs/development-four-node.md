@@ -19,7 +19,7 @@ API 与 Web 入口均只暴露到 loopback。原有 dev01/四轮测试记录保�
 
 预装锁定工具：Go 1.27.1、Helm 4.2.3、Kind 0.32.0、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1，
 以及 Git、Docker / OrbStack。工具安装不由 Bootstrap 隐式执行。
-`--tool-dir` 包含 Helm、Kind、kubectl；Docker/Git 从 PATH 获取。
+`--tool-dir` 包含 Helm、Kind、kubectl；相对目录按调用者当前目录解析，不随内部 checkout 改变。Docker/Git 从 PATH 获取。
 先完成 `task quality`，提交并发布到 `codex/development-platform`，远端 SHA 必须等于本地 HEAD。
 
 ```sh
@@ -36,6 +36,11 @@ go build -trimpath -o bin/atlas-dev ./cmd/atlas-dev
 
 执行仓库和私有状态固定保存在 `.state/development/atlas-refactor-test-dev02/repo`；
 结果为同级 `latest-run.json`，公有 CA 为 `development-ca.crt`。不会再依赖临时目录。
+获取本次运行锁后，成功与失败都会原子替换 latest 记录；保存失败返回非零且不会输出 PASS。
+记录包含 `result`、`startedAt`、`finishedAt`，失败时另有 `error`。若保存本身失败，旧文件可能仍在，
+因此应同时检查命令退出码和本次时间，不把旧 PASS 当作当前结果。
+重复 apply 按审计 request ID 集合比较，不能用相同事件数量代替零写入证明。
+日常 `verify` 执行一次完整只读验收；`up` 在重复 apply/访问安装后再做最终验收。
 同名活跃任务有 run.lock；异常结束时先确认旧进程和证据，不能盲删锁或 `.state`。
 集群丢失而本地绑定仍存在时，正常流程拒绝重新初始化；删除/新建目标仍需独立授权。
 
