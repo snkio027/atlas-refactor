@@ -33,7 +33,8 @@ tasks:
       ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default .LOCAL_KUBESEAL}}'
     cmds:
       - task: toolchain
-      - go test -race ./...
+      # Full S1 fixture suites exceed Go's default 10m budget on hosted ARM runners.
+      - go test -race -timeout 25m ./...
   quality:
     cmds:
       - task: check

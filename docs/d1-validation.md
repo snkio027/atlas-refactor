@@ -33,6 +33,13 @@ local clone reproduced their absence; fetching full history restored the existin
 contract. The release checkout now requests full history. The first run was
 cancelled rather than weakening or skipping the frozen regression checks.
 
+The second candidate (`v0.1.0-d1.2`, source `657eb19`) reached the remote
+race suite but `internal/ot1` exceeded Go's implicit ten-minute package timeout.
+The stack showed active JSON fixture construction, not a reported failed
+assertion. Quality now declares a bounded 25-minute package budget for the full
+race suite on hosted ARM runners. No tests are skipped and no live-operation
+deadline changes. A fresh candidate must pass the entire remote gate.
+
 
 Final local quality exit code: **0**. This ran Go vet and race tests, all
 348-resource Helm/Kustomize/conformance checks, eight Python contract tests,
