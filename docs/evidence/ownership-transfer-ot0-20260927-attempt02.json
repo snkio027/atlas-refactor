@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "experiment": "OT-0",
+  "attempt": 2,
+  "sourceCommit": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+  "result": "STOPPED_BEFORE_A4_SYNC",
+  "cluster": "atlas-refactor-test-ot0",
+  "clusterUID": "6f77ec58-7a86-4fa0-af57-404e2bedb36d",
+  "stages": [
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A1",
+      "trackingOwner": "owner-a"
+    },
+    {
+      "expectedOutcome": "released",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A2",
+      "trackingOwner": "owner-a"
+    },
+    {
+      "expectedOutcome": "blocked",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A3",
+      "trackingOwner": "owner-a"
+    }
+  ],
+  "A4": {
+    "commandExitCode": 1,
+    "stageVerifierRun": false,
+    "syncRequestSent": false,
+    "transferWindowOpened": false,
+    "error": "SSA conflict with ot0-ceremony using argoproj.io/v1alpha1 at .spec.syncPolicy.syncOptions; Application was created by Update then changed via Apply",
+    "ownerBUID": "9fb05056-e8ce-424f-ae1a-59b2bcc79e02",
+    "strictStillEnabled": true,
+    "probeObjectsExactlyEqualToA3": true,
+    "trackingOwner": "owner-a"
+  },
+  "reverseTransfer": "NOT_RUN",
+  "runtimeTransferSupported": false,
+  "defaultKubeconfigUnchanged": true,
+  "dev02Mutations": 0,
+  "clusterRetained": true,
+  "privateEvidenceSHA256": {
+    "commands.jsonl": "1afb4df37a7d2c3f65b5e9f9a919786c7267c69fa0c6b35630f66629bd942ff6",
+    "label-correction.json": "1cbf42d2b03bf9bd1cfc7bda11faabf7fc2192b3cdec9fc5b1cbb33b1479ca57",
+    "runtime-images.json": "f3422ea689641120014d220a3b90b687e5a305c36d9ab828138a9d663d11a4cd",
+    "cluster-nodes.json": "7c7dc1d1b1d1f09ce950e7ba9ab153bf40c9dd4b7a357914b4aea5c30962714e",
+    "A4-failed-application.json": "b08110100ad9b0b416c14d08fdb0826336db5b0338f05b32ad950369e4f77f1d",
+    "A4-stopped-snapshot.json": "f80a4d09a92013d0e27b24c9e36843c3145d580558e6570c3740825acd365153",
+    "last-failure.stderr": "68b5abdddf8ea9cbfe77e56d89c29e746365f1ce5a1f18a87c39f09f268e449c",
+    "stopped.json": "1de7fffb065a0700aeb0480a149ebd000db03dcac90d83ebfaab9d3d164c54c2"
+  }
+}

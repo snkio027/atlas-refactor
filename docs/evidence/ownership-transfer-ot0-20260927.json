@@ -1,0 +1,1250 @@
+{
+  "schema": 1,
+  "experiment": "OT-0",
+  "result": "OT0_TRANSFER_WINDOW_VERIFIED",
+  "observedAt": "2026-09-27T08:06:23.601079+00:00",
+  "scope": "Two fixture resources only; no Atlas Bootstrap or 13-resource migration proof",
+  "fixtureCommit": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+  "probeImplementationCommit": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+  "applicationTransitionCommit": "f45e9c569cf1390dfc88c61b26639b16dc3812a4",
+  "cluster": "atlas-refactor-test-ot0",
+  "clusterUID": "6f77ec58-7a86-4fa0-af57-404e2bedb36d",
+  "tools": {
+    "helm": "v4.2.3",
+    "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+    "kubectl": "v1.36.3",
+    "yq": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+  },
+  "images": {
+    "argoImage": "quay.io/argoproj/argocd:v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+    "nodeImage": "docker.io/kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+    "redisImage": "ecr-public.aws.com/docker/library/redis:8.6.4-alpine@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763"
+  },
+  "runtimeImages": [
+    {
+      "pod": "argocd-application-controller-0",
+      "container": "application-controller",
+      "image": "sha256:a43ebe8e98ae9b11be9013d8030a05cd83ce2d962d2fc82c40253d855ca251a2",
+      "imageID": "quay.io/argoproj/argocd:v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+      "ready": true
+    },
+    {
+      "pod": "argocd-redis-b8d56d9cb-ft47f",
+      "container": "redis",
+      "image": "sha256:bc7388e40963525ee0eeef0b4514ae5d097104c024598b5b660003ed092b01fc",
+      "imageID": "ecr-public.aws.com/docker/library/redis:8.6.4-alpine@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763",
+      "ready": true
+    },
+    {
+      "pod": "argocd-repo-server-5f649565b8-8qh8l",
+      "container": "repo-server",
+      "image": "sha256:a43ebe8e98ae9b11be9013d8030a05cd83ce2d962d2fc82c40253d855ca251a2",
+      "imageID": "quay.io/argoproj/argocd:v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+      "ready": true
+    },
+    {
+      "pod": "argocd-repo-server-5f649565b8-8qh8l",
+      "container": "copyutil",
+      "image": "sha256:a43ebe8e98ae9b11be9013d8030a05cd83ce2d962d2fc82c40253d855ca251a2",
+      "imageID": "quay.io/argoproj/argocd:v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+      "ready": true
+    }
+  ],
+  "renderHashes": {
+    "A1-app.json": "587d3c3deaf63f5e7142a84fe21b9131ee89743c0942af39e7c37e77022bb49b",
+    "A1-sync.json": "64d05c16badb6173790dd153a4657523970113f083f9fe6075a7dfcf2202fc35",
+    "A3-app.json": "bcb5e81f9306ea4ceaf9beb3d31a888a90c810aeb96e49dbb0605471fa2f63cb",
+    "A3-sync.json": "1fba1bfa6eb7029426d22de6e1d6a5afd3c94f32fa76dabd07cfdd6634f09490",
+    "A4-app.json": "a94d4362df0fbcc8aa5bf63b89b25be05ab3753628fdd496fd065a71d67d2283",
+    "A4-sync.json": "4059decb953292f167655aad7d16ccc1c2a6db375638b3f45f3a0c4ba398e001",
+    "A5-app.json": "bcb5e81f9306ea4ceaf9beb3d31a888a90c810aeb96e49dbb0605471fa2f63cb",
+    "A5-sync.json": "576869d883400410aafb5dc180095ef773b74d6cd244356da6ff6dd188812948",
+    "A6-restored-app.json": "587d3c3deaf63f5e7142a84fe21b9131ee89743c0942af39e7c37e77022bb49b",
+    "A6-restored-sync.json": "1b83873d09690c4a354024a149e73cc94ea56f00ae5fd07569b58b6fcef014a1",
+    "A6-strict-app.json": "587d3c3deaf63f5e7142a84fe21b9131ee89743c0942af39e7c37e77022bb49b",
+    "A6-strict-sync.json": "99af94678b393de8dcae57222f274cb6b36473cabfa86edcaef5dd6a83be2336",
+    "A6-transfer-app.json": "2c061239ee444c0b3561aec650d805bd1e351a28cba4bf77da501ced92944044",
+    "A6-transfer-sync.json": "b0aff76dacc4b18a25af449ffab442f2d33124c0a34fdfe2f0483f005324a7bd",
+    "argocd-cm.json": "902b3434b02c18d63c35a2d439d20dddae90f69c5f2e1948b7f17ea7834a8882",
+    "argocd-namespace.json": "0bf76fa992a38f1b9aeb8ab16486688d880f912624ec364b5e51b659b677ebf5",
+    "kind.json": "c941d301fe8070d64f13b6068a5f13160c22424deb6aa6a2084ea540535b5c34",
+    "project.json": "a20a84909b8ec6786686b39c2d7e0b6c86fed0ae8a88ae10899e2362d471b365",
+    "seed.json": "efef65d775a2824028f4eb9906204d460ad8767562ce442f0bdfcd83d660c456",
+    "seed.yaml": "78ea270a48dadd31d050698e1e3cd1af716089685b6669377ad582c316545f33"
+  },
+  "fixtureSHA256": "a4142f37ec64c64b9332499496708dda34ed97c05c7d61710e68dfb2cd65dd50",
+  "stages": [
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A1",
+      "trackingOwner": "owner-a",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "1747",
+          "tracking": "owner-a:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "1750",
+          "tracking": "owner-a:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-a",
+        "uid": "64be5579-cd2b-4cc8-b950-3b5c4fa11fe1",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T07:56:25Z",
+          "status": "Healthy"
+        },
+        "conditions": [],
+        "operationPhase": "Succeeded",
+        "operationMessage": "successfully synced (all tasks run)",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A1"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T07:56:25Z",
+        "finishedAt": "2026-09-27T07:56:25Z"
+      }
+    },
+    {
+      "expectedOutcome": "released",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A2",
+      "trackingOwner": "owner-a",
+      "verifierExitCode": 0,
+      "applicationCount": 0,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "1747",
+          "tracking": "owner-a:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "1750",
+          "tracking": "owner-a:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ]
+    },
+    {
+      "expectedOutcome": "blocked",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A3",
+      "trackingOwner": "owner-a",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "1747",
+          "tracking": "owner-a:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "1750",
+          "tracking": "owner-a:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T07:56:25Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-b",
+        "uid": "9fb05056-e8ce-424f-ae1a-59b2bcc79e02",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "OutOfSync"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T07:56:29Z",
+          "status": "Healthy"
+        },
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-27T07:56:29Z",
+            "message": "ConfigMap/probe is part of applications argocd/owner-b and owner-a",
+            "type": "SharedResourceWarning"
+          },
+          {
+            "lastTransitionTime": "2026-09-27T07:56:32Z",
+            "message": "Namespace/ot0-probe is part of applications argocd/owner-b and owner-a",
+            "type": "SharedResourceWarning"
+          }
+        ],
+        "operationPhase": "Failed",
+        "operationMessage": "Shared resource found: ConfigMap/probe is part of applications argocd/owner-b and owner-a",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A3"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T07:56:32Z",
+        "finishedAt": "2026-09-27T07:56:32Z"
+      }
+    },
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A4",
+      "trackingOwner": "owner-b",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2317",
+          "tracking": "owner-b:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2318",
+          "tracking": "owner-b:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-b",
+        "uid": "9fb05056-e8ce-424f-ae1a-59b2bcc79e02",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=false"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T07:56:29Z",
+          "status": "Healthy"
+        },
+        "conditions": [],
+        "operationPhase": "Succeeded",
+        "operationMessage": "successfully synced (all tasks run)",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A4"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=false"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T08:02:40Z",
+        "finishedAt": "2026-09-27T08:02:40Z"
+      }
+    },
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A5",
+      "trackingOwner": "owner-b",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2317",
+          "tracking": "owner-b:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2318",
+          "tracking": "owner-b:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-b",
+        "uid": "9fb05056-e8ce-424f-ae1a-59b2bcc79e02",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T07:56:29Z",
+          "status": "Healthy"
+        },
+        "conditions": [],
+        "operationPhase": "Succeeded",
+        "operationMessage": "successfully synced (all tasks run)",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A5"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T08:02:43Z",
+        "finishedAt": "2026-09-27T08:02:43Z"
+      }
+    },
+    {
+      "expectedOutcome": "released",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A6-release",
+      "trackingOwner": "owner-b",
+      "verifierExitCode": 0,
+      "applicationCount": 0,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2317",
+          "tracking": "owner-b:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2318",
+          "tracking": "owner-b:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ]
+    },
+    {
+      "expectedOutcome": "blocked",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A6-strict",
+      "trackingOwner": "owner-b",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2317",
+          "tracking": "owner-b:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2318",
+          "tracking": "owner-b:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:40Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-a",
+        "uid": "2261a42a-0a5f-458f-a998-ab5e808ef387",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "OutOfSync"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T08:02:47Z",
+          "status": "Healthy"
+        },
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-27T08:02:47Z",
+            "message": "ConfigMap/probe is part of applications argocd/owner-a and owner-b",
+            "type": "SharedResourceWarning"
+          },
+          {
+            "lastTransitionTime": "2026-09-27T08:02:47Z",
+            "message": "Namespace/ot0-probe is part of applications argocd/owner-a and owner-b",
+            "type": "SharedResourceWarning"
+          }
+        ],
+        "operationPhase": "Failed",
+        "operationMessage": "Shared resource found: ConfigMap/probe is part of applications argocd/owner-a and owner-b",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A6-strict"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T08:02:47Z",
+        "finishedAt": "2026-09-27T08:02:47Z"
+      }
+    },
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A6-transfer",
+      "trackingOwner": "owner-a",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2357",
+          "tracking": "owner-a:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:48Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2358",
+          "tracking": "owner-a:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:48Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-a",
+        "uid": "2261a42a-0a5f-458f-a998-ab5e808ef387",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=false"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T08:02:47Z",
+          "status": "Healthy"
+        },
+        "conditions": [],
+        "operationPhase": "Succeeded",
+        "operationMessage": "successfully synced (all tasks run)",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A6-transfer"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=false"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T08:02:48Z",
+        "finishedAt": "2026-09-27T08:02:48Z"
+      }
+    },
+    {
+      "expectedOutcome": "success",
+      "resourceUIDs": {
+        "ConfigMap/ot0-probe/probe": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+        "Namespace//ot0-probe": "1ad8cd95-afc7-4512-9c29-83eabce2a961"
+      },
+      "result": "PASS",
+      "semanticSHA256": {
+        "ConfigMap/ot0-probe/probe": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269",
+        "Namespace//ot0-probe": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+      },
+      "stage": "A6-restored",
+      "trackingOwner": "owner-a",
+      "verifierExitCode": 0,
+      "applicationCount": 1,
+      "objects": [
+        {
+          "identity": "Namespace//ot0-probe",
+          "uid": "1ad8cd95-afc7-4512-9c29-83eabce2a961",
+          "resourceVersion": "2357",
+          "tracking": "owner-a:/Namespace:ot0-probe/ot0-probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:48Z"
+            }
+          ],
+          "semanticSHA256": "1e7ca6a011ff4d5fccc2ae5a5afea5cfb589fac94241b47b6a76873f33b4db75"
+        },
+        {
+          "identity": "ConfigMap/ot0-probe/probe",
+          "uid": "ecf70517-6e5f-4c63-af2d-088f289b9d2c",
+          "resourceVersion": "2358",
+          "tracking": "owner-a:/ConfigMap:ot0-probe/probe",
+          "managedFields": [
+            {
+              "apiVersion": "v1",
+              "fieldsType": "FieldsV1",
+              "fieldsV1": {
+                "f:data": {
+                  "f:contract": {}
+                },
+                "f:metadata": {
+                  "f:annotations": {
+                    "f:argocd.argoproj.io/tracking-id": {}
+                  },
+                  "f:labels": {
+                    "f:atlas.local/experiment": {}
+                  }
+                }
+              },
+              "manager": "argocd-controller",
+              "operation": "Apply",
+              "time": "2026-09-27T08:02:48Z"
+            }
+          ],
+          "semanticSHA256": "59af228deaa2c33385bf25781a63c303927a674e58676f3c69e44274b43e9269"
+        }
+      ],
+      "application": {
+        "name": "owner-a",
+        "uid": "2261a42a-0a5f-458f-a998-ab5e808ef387",
+        "source": {
+          "path": "experiments/ownership-transfer/fixture",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+        },
+        "syncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "activeOperationPresent": false,
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "ot0-probe",
+              "server": "https://kubernetes.default.svc"
+            },
+            "source": {
+              "path": "experiments/ownership-transfer/fixture",
+              "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+              "targetRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15"
+            }
+          },
+          "revision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-09-27T08:02:47Z",
+          "status": "Healthy"
+        },
+        "conditions": [],
+        "operationPhase": "Succeeded",
+        "operationMessage": "successfully synced (all tasks run)",
+        "operationInfo": [
+          {
+            "name": "ot0-stage",
+            "value": "A6-restored"
+          }
+        ],
+        "operationSyncOptions": [
+          "ServerSideApply=true",
+          "FailOnSharedResource=true"
+        ],
+        "operationRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+        "startedAt": "2026-09-27T08:02:51Z",
+        "finishedAt": "2026-09-27T08:02:51Z"
+      }
+    }
+  ],
+  "baselineResourceContent": [
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "metadata": {
+        "labels": {
+          "atlas.local/experiment": "ownership-transfer-ot0",
+          "kubernetes.io/metadata.name": "ot0-probe"
+        },
+        "name": "ot0-probe"
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "contract": "same identity and content; different Argo owner"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "atlas.local/experiment": "ownership-transfer-ot0"
+        },
+        "name": "probe",
+        "namespace": "ot0-probe"
+      }
+    }
+  ],
+  "project": {
+    "uid": "473a4616-4f0b-436b-9073-79c889efaf42",
+    "spec": {
+      "clusterResourceWhitelist": [
+        {
+          "group": "",
+          "kind": "Namespace"
+        }
+      ],
+      "destinations": [
+        {
+          "namespace": "ot0-probe",
+          "server": "https://kubernetes.default.svc"
+        }
+      ],
+      "namespaceResourceWhitelist": [
+        {
+          "group": "",
+          "kind": "ConfigMap"
+        }
+      ],
+      "sourceRepos": [
+        "https://github.com/snkio027/atlas-refactor.git"
+      ]
+    },
+    "unchanged": true
+  },
+  "final": {
+    "owner": "owner-a",
+    "strictRestored": true,
+    "idle": true,
+    "synced": true,
+    "healthy": true,
+    "conditions": [],
+    "sourceRevision": "fe76dd57034b82eaf9c0359292eae2394cadfb15",
+    "resourceUIDsUnchanged": true,
+    "resourceContentUnchanged": true,
+    "subsequentReadOnlyObservationPassed": true,
+    "defaultKubeconfigUnchanged": true,
+    "retainedClusters": [
+      "atlas-refactor-test-dev02",
+      "atlas-refactor-test-ot0"
+    ]
+  },
+  "execution": {
+    "completedStages": 9,
+    "finalStageDriverExitCode": 0,
+    "stageVerifierExitCodes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "commandExitCodeCounts": {
+      "0": 84,
+      "1": 1
+    },
+    "historicalNonzeroCommand": "One pre-sync A4 Application SSA conflict; preserved as attempt02 and resumed only after explicit approval",
+    "manualProbeResourceWrites": 0,
+    "manualTrackingPatches": 0,
+    "forcedConflicts": 0,
+    "dev02Mutations": 0
+  },
+  "historicalReports": [
+    "ownership-transfer-ot0-20260927-attempt01.json",
+    "ownership-transfer-ot0-20260927-attempt02.json"
+  ],
+  "historicalEvidenceNote": "attempt02-frozen contains exact original private evidence hashes, including the commands.jsonl prefix before the approved A4 continuation; historical reports are unchanged.",
+  "privateEvidenceSHA256": {
+    "plan.json": "89cb8bf3a3965038a5cec1d5c40538fa41fe7948062762537fb70dab3cef0bba",
+    "binding.json": "4a54be91cfddde1d409e53d0f6667ee4d67eddb01492fc318e3b335ba80c7460",
+    "authorization.json": "2cbae35a9fcff8dfc072b6a6552effde698a4b45913b726ff8d1047e8c32fff8",
+    "authorization-A4-resume.json": "ecf04cede262c019e67f8929dd9b522940c8b11d12a8da34be0c2a1e2ed80a33",
+    "runtime-images.json": "f3422ea689641120014d220a3b90b687e5a305c36d9ab828138a9d663d11a4cd",
+    "cluster-nodes.json": "7c7dc1d1b1d1f09ce950e7ba9ab153bf40c9dd4b7a357914b4aea5c30962714e",
+    "label-correction.json": "1cbf42d2b03bf9bd1cfc7bda11faabf7fc2192b3cdec9fc5b1cbb33b1479ca57",
+    "setup-complete.json": "c016385cd02dcba9ea86efe64dc9033f332ae1885ee686aca44567766bad3f1f",
+    "stage-executor.json": "c414000902a3f9de37560f65eba0c333f8a82daae0fc1b308df877b4ced6bd85",
+    "stage-executor-A4-resume.json": "24eb871dace9a2761b103a990fca2c3977465a0efd658fb04f1002f5ca637d4e",
+    "commands.jsonl": "b380e3593187363e6dabcf7021fd05598491eb46423d1c8306499fb0f9a124a6",
+    "completed.json": "755f74e97fdf1d44d74a77af1872d74ea105b214267cf6d7b4141bb9ac4e60fc",
+    "final-observation.json": "0543bc43945482c1daf299bb9d9169957da71fb5bb9100438df39da729322e7c",
+    "evidence/A1-result.json": "7b354eb8af0b3f653d932a1276f4005a381423ce89ccbe651db0836f161a1b7c",
+    "evidence/A1.json": "23fde667aa02be7b03b8f83e429817637ad19ef0698a5aada98a9020dc53ce38",
+    "evidence/A2-result.json": "db421dec4603fed75b6783d2cefb087e77f2526d5b910b8cea5d267d14d82622",
+    "evidence/A2.json": "5fd504f9b13bd8adc59f1bc7a5e578bb8b35eebbfd07a5f47cbb53160e984eb0",
+    "evidence/A3-result.json": "c0ff8c45041d43a21578c7539b955793ce7c73300701be830cda3f60c8d8dd07",
+    "evidence/A3.json": "d773e1ae0ccf920ac2cab16010d0798beccee1b2965d9b1c2c92b562948f56e1",
+    "evidence/A4-result.json": "9e271a410411edc867ba8f7653179afcf7473a68d380398cdfd08990ad7bde2a",
+    "evidence/A4.json": "1ab9c111ce3de1fe63337b17030e1daa6e801bae02662311d7d17cebc60735e9",
+    "evidence/A5-result.json": "c3d9e8068d2748ef6e3ae15b66c5ef1399be904dd5fedbe93aee29b254ef8723",
+    "evidence/A5.json": "519cd358639c5f688e6ae5319fb08224a8ecca4b98b1955758629b15a07487dc",
+    "evidence/A6-release-result.json": "22e1630f5515b1faaa6b360490ca9e46648572e4f8f990631d4a9e95f535efcc",
+    "evidence/A6-release.json": "c8e45e2c32787c776cd548e800a2d2a243bc67ef6fa17754a69c49dab229aa30",
+    "evidence/A6-restored-result.json": "f89b6840342196ae6126ec990002d7cf12f85ca469f6070876d4d7d531658d78",
+    "evidence/A6-restored.json": "2bce58c808b01ed852bd854cb283c82f80fdd5f81e581ac8df4f73021c720c0d",
+    "evidence/A6-strict-result.json": "de2af05947870c701f425c64234dd85046c2475aca3cea8505e1bd2f92e9d320",
+    "evidence/A6-strict.json": "b496cff032d0547b7946170629c72668767d88549e418ec42eb2a65dd447664f",
+    "evidence/A6-transfer-result.json": "8f24ad0a94bd8a0c019a62c3b9a11393ac13575e513a96e15d33905d1cdd5c1c",
+    "evidence/A6-transfer.json": "879e05dae990ddcd1449669101f18620de3150c500a00a9053bde148711072d1",
+    "drivers/atlas-ot0-resume.py": "1c06b94006ac08270acf023eb650977f8c993713503823f704c38ec886d20766",
+    "drivers/atlas-ot0-retry-stages.py": "500e51a13ce1cb4d4db85adf1dbcb86aed40b3946e88a6113860cd5d4a46a306",
+    "drivers/atlas-ot0-setup.py": "23a01625a398eb8e41bccf1fe6425a1efc928cbce35f5c3b371fb03e619a41a0",
+    "drivers/atlas-ot0-window-resume.py": "e60b3f7221c3f491448937c9a2e50ddaeb369615491f037986195dd29c7333e9"
+  },
+  "notProven": [
+    "OT-1 exact 13-resource transfer",
+    "Bootstrap Identity/Root/Latch/Receipt/Signal preservation",
+    "Bootstrap repeated apply zero writes",
+    "dev02 migration",
+    "general ownership-migration engine",
+    "production readiness"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "metadata": {
+        "name": "ot0-probe",
+        "labels": {"atlas.local/experiment": "ownership-transfer-ot0"}
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "probe",
+        "namespace": "ot0-probe",
+        "labels": {"atlas.local/experiment": "ownership-transfer-ot0"}
+      },
+      "data": {"contract": "same identity and content; different Argo owner"}
+    }
+  ]
+}
