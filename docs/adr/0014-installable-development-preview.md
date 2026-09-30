@@ -25,6 +25,16 @@ platform: a base with Sealed Secrets and a full platform. Neither includes autho
 ciphertexts or private state. User projection changes only approved Git bindings
 and loopback ports. Consumers are published only after independent per-install
 credentials have been sealed with this installation's verified certificate.
+The base activates the secrets, observability and storage namespace owners
+before the fixed sealing-controller payload, which already contains RBAC for
+all three consumer namespaces. The core foundation runs at wave -110 before
+domain foundations at -100 because storage's NetworkPolicy uses workload-web.
+These D1 catalog annotations leave resource ownership and frozen S1 inputs intact;
+monitoring/S3 consumers still wait for verified backup and new ciphertexts.
+During initial D1 handoff, an idle Failed/Error sync for the exact base revision
+returns an error immediately, including when a parent only reports Progressing.
+Old-revision terminal records and an already active retry do not prove failure.
+
 Bootstrap creates its finite authority and permanently relinquishes Seed writes
 at the existing durable latch. Post-handoff health failure cannot restore them.
 

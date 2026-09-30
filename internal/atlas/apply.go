@@ -116,6 +116,9 @@ func (a *App) Apply(ctx context.Context, approvedCluster string, tier0 bool) err
 		return fmt.Errorf("%s: %s", obs.report.State, obs.report.Detail)
 	}
 	for {
+		if e = a.checkInstallationHandoffFailure(ctx); e != nil {
+			return e
+		}
 		obs, e = a.inspect(ctx)
 		if e != nil {
 			return e

@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -371,5 +372,80 @@ func TestProductRepositoryCanUseIndependentDeploymentBranch(t *testing.T) {
 	}
 	if _, e := w.app(context.Background(), strings.Repeat("b", 40)); e != nil {
 		t.Fatal("product repository must not substitute for deployment commit", e)
+	}
+}
+
+// A dormant Namespace manifest is insufficient: its owner must be reachable in
+// the active phase before any other Application targets that namespace.
+func TestActivePhasePayloadNamespaceClosure(t *testing.T) {
+	p := testProduct(t)
+	c := testConfig(t)
+	for _, full := range []bool{false, true} {
+		files, e := p.Project(c, full)
+		if e != nil {
+			t.Fatal(e)
+		}
+		apps, e := applications(files)
+		if e != nil {
+			t.Fatal(e)
+		}
+		type resource struct {
+			app    string
+			object platform.Object
+		}
+		var resources []resource
+		owners := map[string]string{}
+		waves := map[string]int{}
+		for name, app := range apps {
+			wave, _ := nested(app, "metadata", "annotations", "argocd.argoproj.io/sync-wave").(string)
+			if wave != "" {
+				waves[name], e = strconv.Atoi(wave)
+				if e != nil {
+					t.Fatal(e)
+				}
+			}
+			dir, _ := nested(app, "spec", "source", "path").(string)
+			var k struct {
+				APIVersion, Kind string
+				Resources        []string
+			}
+			if e = Decode(files[dir+"/kustomization.yaml"], &k); e != nil {
+				t.Fatal(name, e)
+			}
+			for _, ref := range k.Resources {
+				path := dir + "/" + ref
+				if path == signalPath {
+					continue
+				} // Filled by Bootstrap, in the seeded argocd namespace.
+				objects, e := platform.DecodeJSONManifests(files[path])
+				if e != nil {
+					t.Fatal(name, path, e)
+				}
+				for _, o := range objects {
+					resources = append(resources, resource{name, o})
+					if o["kind"] == "Namespace" {
+						ns, _ := nested(o, "metadata", "name").(string)
+						if owners[ns] != "" {
+							t.Fatalf("namespace %s has duplicate owners", ns)
+						}
+						owners[ns] = name
+					}
+				}
+			}
+		}
+		seeded := map[string]bool{"argocd": true, "kube-system": true, "default": true, "kube-public": true, "kube-node-lease": true, "local-path-storage": true}
+		for _, r := range resources {
+			ns, _ := nested(r.object, "metadata", "namespace").(string)
+			if ns == "" || seeded[ns] {
+				continue
+			}
+			owner := owners[ns]
+			if owner == "" {
+				t.Fatalf("full=%v: %s targets namespace %s without an active owner", full, r.app, ns)
+			}
+			if owner != r.app && waves[owner] >= waves[r.app] {
+				t.Fatalf("full=%v: namespace %s owner %s does not precede %s", full, ns, owner, r.app)
+			}
+		}
 	}
 }

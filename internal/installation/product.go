@@ -61,7 +61,10 @@ func BuildProduct(root, version, source string, tools platform.Tools, locks []To
 	for path, b := range files {
 		base[path] = b
 	}
-	names, e := p.ResolveCapabilities([]string{"secrets-controller"})
+	// The fixed controller payload already grants unsealing roles in all three
+	// consumer namespaces. Keep its payload identical across both publications,
+	// and activate the namespace owners before installing those bindings.
+	names, e := p.ResolveCapabilities([]string{"secrets-controller", "observability-foundation", "storage-foundation"})
 	if e != nil {
 		return Product{}, e
 	}
@@ -71,6 +74,11 @@ func BuildProduct(root, version, source string, tools platform.Tools, locks []To
 	}
 	for path, b := range activation {
 		base[path] = b
+	}
+	for _, phase := range []Files{base, files} {
+		if e = orderInstallationFoundations(phase); e != nil {
+			return Product{}, e
+		}
 	}
 	var l atlas.Lock
 	b, e := os.ReadFile(filepath.Join(root, "versions.lock.json"))
@@ -91,6 +99,34 @@ func BuildProduct(root, version, source string, tools platform.Tools, locks []To
 	out := Product{Schema: 1, Version: version, SourceCommit: source, Lock: l, Images: platform.ImageList(p.Lock.Images), Assets: assets, Base: base, Full: files, Tools: locks}
 	return out, out.Validate()
 }
+
+// A new cluster has no workload-web namespace yet. The storage foundation
+// contains a policy there, so its core Namespace owner must finish first.
+// This ordering belongs to the D1 product; frozen development/S1 inputs stay put.
+func orderInstallationFoundations(files Files) error {
+	objects, e := platform.DecodeJSONManifests(files[appCatalog])
+	if e != nil {
+		return e
+	}
+	found := false
+	for _, app := range objects {
+		if nested(app, "metadata", "name") != "foundation" {
+			continue
+		}
+		annotations := mapping(nested(app, "metadata", "annotations"))
+		if found || annotations == nil {
+			return errors.New("invalid core foundation Application")
+		}
+		annotations["argocd.argoproj.io/sync-wave"] = "-110"
+		found = true
+	}
+	if !found {
+		return errors.New("installation lacks core namespace foundation")
+	}
+	files[appCatalog] = JSON(map[string]any{"apiVersion": "v1", "kind": "List", "items": objects})
+	return nil
+}
+
 func (p Product) Validate() error {
 	if p.Schema != 1 || !commit.MatchString(p.SourceCommit) || !regexpVersion(p.Version) {
 		return errors.New("invalid product identity")

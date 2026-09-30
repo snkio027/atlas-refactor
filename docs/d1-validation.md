@@ -1,8 +1,10 @@
 # D1 acceptance record
 
-Status: LOCAL CANDIDATE; owner-selected same-host runtime acceptance pending. No new live
-cluster, Trust Root, ciphertext publication, GitOps push or release has been
-executed for D1. S1 remains the last completed live milestone. ADR-0014 remains
+Status: INITIAL RUNTIME STOP; correction awaiting a fresh attested-package run.
+The actual CI package `v0.1.0-d1.3` passed provenance, preparation and preflight
+negatives, and created its four-node target, but base GitOps handoff failed.
+No consumer credentials or ciphertexts were generated. The target, Git definition,
+audit and incident key backup are retained. D1 is not accepted; ADR-0014 remains
 Proposed.
 
 | Gate | Required evidence | Current status |
@@ -14,13 +16,13 @@ Proposed.
 | Trust Root mechanics | Key/cert match, backup readback, actual seal/unseal | Synthetic 4096-bit key and locked kubeseal roundtrip PASS; namespace rebinding rejected |
 | Git publication | Closed generated tree, exact-parent commit, unknown acknowledgement | Real local Git and controlled remote-response regression PASS |
 | Access process | Multiple readers; installation exclusion; lost connection exits | Process and OS-lock regression PASS; live service/browser NOT RUN |
-| Release provenance | Pinned Actions, locked quality, attested archive, draft promotion | Workflow implemented; NOT RUN remotely |
+| Release provenance | Pinned Actions, locked quality, attested archive, draft promotion | CI run 36730610488 PASS; archive and exact workflow/tag/source attestation verified |
 | Independent clean machine | Actual macOS/OrbStack versions, capacities, empty state/cache | Deferred by owner; this run uses the current Mac and fresh state |
-| Dedicated deployment | New isolated deployment branch and two generated commits | Selected: snkio027/atlas-refactor, new atlas-d1 branch |
-| Live Trust Root | New controller key and declared independent backup destination | Selected: independent D1 directory; same-host exception explicitly approved |
-| Installation and services | Four nodes, ownership, Web/PVC/monitoring/S3 acceptance | NOT RUN |
+| Dedicated deployment | New isolated deployment branch and two generated commits | Base commit e34b68e8 published to atlas-d1; full consumer commit absent |
+| Live Trust Root | New controller key and declared independent backup destination | Controller generated a new key; private incident backup readback PASS; installer backup stage not reached |
+| Installation and services | Four nodes, ownership, Web/PVC/monitoring/S3 acceptance | Four nodes Ready; initial handoff STOP on missing namespace owners |
 | Repeated install | Stable UIDs, credentials, ciphertext, Git; no unnecessary mutation | Local intent/credential reuse coverage; live NOT RUN |
-| Failure matrix | Artifact, ports, permissions, backup, interruption checkpoints | Selected local negatives PASS; full live matrix NOT RUN |
+| Failure matrix | Artifact, ports, permissions, backup, interruption checkpoints | Actual package rejected manifest/tool corruption, occupied port, unwritable backup and denied Git permission before publication; interrupted preparation reran with the same record |
 | User-only procedure | Second person using packaged README without repair commands | NOT RUN |
 | Final package | Accepted archive digest equals distributed archive digest | NOT RUN |
 
@@ -83,8 +85,8 @@ live resource or service readiness.
 The first successful preflight saves measured host versions and capacities.
 Final authority evidence includes product/binary/source identities, plan and
 Git commit, cluster UID, certificate/ciphertext bindings, per-file render hashes,
-and Application UID/Sync/Health. This evidence has not yet been produced by a
-real D1 installation.
+and Application UID/Sync/Health. Final PASS evidence has not been produced; the failed installation has a separate
+retained authority bundle.
 
 ## Owner-selected acceptance
 
@@ -104,9 +106,10 @@ This is a same-host run; second-machine and independent-user installation remain
 unproven. Existing Docker layer cache may be reused, so it is not a whole-machine
 empty-cache test. MIT is now selected and bundled; third-party grants are unchanged.
 
-Run the documented procedure against an attested candidate archive, record the
-actual environment, timings/capacity and exact archive digest, and exercise the
-failure matrix. In particular, interruptions around Kind creation, Root/latch
+The next attempt must use the corrected attested archive, a fresh installation
+identity and an explicitly reviewed cleanup/rebuild target. Do not change the
+failed installation's product binding or hand-create missing namespaces to bypass
+the package defect. Record the same runtime, repeat and failure checks. In particular, interruptions around Kind creation, Root/latch
 creation, key backup and consumer publication remain live acceptance cases;
 local tests do not prove their complete behavior. Uncertain or contradictory
 Bootstrap identity still stops and cannot be repaired by deleting state files.
@@ -118,3 +121,42 @@ Implementation: `internal/installation` coordinates fixed phases;
 `internal/atlas` retains Seed/Latch/Receipt and schemas 1–3; `cmd/atlas-release`
 builds the complete archive; `cmd/atlas-install` loads authenticated adjacent
 runtime data without a source checkout.
+
+## First actual package run: namespace closure failure
+
+- CI source: `4cb635486b847b89ac36e8aefc300a4696a69c8f`; tag `v0.1.0-d1.3`.
+- [CI run](https://github.com/snkio027/atlas-refactor/actions/runs/36730610488): all gates PASS;
+  hosted ARM OT-1 race suite 983.142 seconds.
+- Actual archive SHA256: `e2722020ada9a1bd2a580749e6e913fb544e6bb180dfc25be064672f5477b668`.
+- Manifest/binary/internal checksums and GitHub repository/workflow/tag/source
+  attestation PASS; MIT LICENSE included. Runtime PATH excluded Go/Task/Lua and
+  preinstalled Atlas tools, outside the source checkout.
+- Preparation was interrupted during a real tool download, then completed in
+  395.85 seconds with the same installation record. Four tools and 25 OCI
+  archives verified; existing Docker layers reused. Same-host evidence only.
+- Base deployment: `e34b68e8a593608bf516105ac0186581ba80a3fc` on `atlas-d1`.
+  Cluster UID: `9080d70e-176b-4048-8bd7-2ba5843da6d2`; four nodes Ready.
+- STOP: secrets-controller exhausted sync retries because its Role/RoleBinding
+  targets atlas-monitoring and atlas-storage, whose namespace owners were absent
+  from the base Application catalog. Parents remained Progressing. The operator
+  sent SIGINT to the exact installer after observing this terminal child failure;
+  installer exit 1. No full commit, Grafana/S3 credentials or ciphertext publication.
+- Cause: D1 retained the full fixed controller payload but selected only the
+  secrets-controller activation closure. Dormant Namespace files in the package
+  did not make their owners active. The correction activates both domain namespace
+  owners before the controller, while keeping consumer applications deferred.
+- A reachable-source regression also exposed storage foundation's workload-web
+  NetworkPolicy dependency. The D1 core foundation now precedes domain foundations;
+  schema 1–3 catalogs and the S1 authority bundle are unchanged.
+- Regression: `TestActivePhasePayloadNamespaceClosure` resolves active Application
+  sources and checks namespace ownership/order for both phases;
+  `TestInstallationHandoffStopsOnCurrentTerminalSyncFailure` and
+  `TestInstallationHandoffUnknownReadFailsClosed` cover immediate D1 error reporting
+  without new writes or changed historical observation rules.
+
+Private evidence: `/Users/nekoreb/Atlas/d1/evidence/failed-install-authority/`.
+The executed archive, plan, deployment bundle, dedicated kubeconfig, live snapshots
+and Metadata-only audit are retained. The already generated controller key was
+backed up under the approved D1 vault directory as **incident preservation**, not
+as a successful installer backup/roundtrip gate. No private material enters Git.
+The failed target must not be overwritten or adopted by a different product digest.

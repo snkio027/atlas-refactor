@@ -100,3 +100,36 @@ func (a *App) verifyInstallationRepository(ctx context.Context, files map[string
 	return nil
 }
 func (c Config) fourNodeProfile() bool { return c.Schema == 3 || c.Schema == 4 }
+
+// Initial D1 adoption must surface an exhausted sync, even when a parent is
+// still Progressing while waiting for that child. This is a read-only check;
+// a terminal error never restores Seed authority or changes GitOps resources.
+func (a *App) checkInstallationHandoffFailure(ctx context.Context) error {
+	if a.installation == nil {
+		return nil // Preserve the frozen schema 1–3 observation contract.
+	}
+	b, e := a.kube(ctx, nil, "get", "applications", "-n", "argocd", "-o", "json")
+	if e != nil {
+		return e
+	}
+	var list struct {
+		Kind  string
+		Items []Live
+	}
+	if e = decode(b, &list); e != nil {
+		return e
+	}
+	if list.Kind != "List" && list.Kind != "ApplicationList" {
+		return errors.New("invalid installation Application list")
+	}
+	for _, app := range list.Items {
+		if app.Metadata.Name == "" || app.Metadata.Namespace != "argocd" || app.Metadata.UID == "" {
+			return errors.New("invalid installation Application identity")
+		}
+		op := app.Status.OperationState
+		if app.Operation == nil && op.SyncResult.Revision == a.installation.DeploymentCommit && (op.Phase == "Failed" || op.Phase == "Error") {
+			return fmt.Errorf("GitOps Application %s failed initial handoff at %s; Seed remains denied", app.Metadata.Name, op.SyncResult.Revision)
+		}
+	}
+	return nil
+}

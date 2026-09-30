@@ -2,6 +2,7 @@ package atlas
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -76,4 +77,72 @@ func TestInstallationLockDoesNotTouchHistoricalSTOP(t *testing.T) {
 		t.Fatal(e)
 	}
 	release()
+}
+
+func TestInstallationHandoffStopsOnCurrentTerminalSyncFailure(t *testing.T) {
+	for _, tc := range []struct {
+		name, phase, revision string
+		active, fail          bool
+	}{
+		{"failed child", "Failed", strings.Repeat("b", 40), false, true},
+		{"errored child", "Error", strings.Repeat("b", 40), false, true},
+		{"running child", "Running", strings.Repeat("b", 40), false, false},
+		{"succeeded child", "Succeeded", strings.Repeat("b", 40), false, false},
+		{"old failed operation", "Failed", strings.Repeat("a", 40), false, false},
+		{"retry already active", "Failed", strings.Repeat("b", 40), true, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			a, _ := fixture(t)
+			a.installation = &InstallationBinding{DeploymentCommit: strings.Repeat("b", 40)}
+			if e := WriteFiles(a.Root, ".state", map[string][]byte{"kubeconfig": []byte("private fixture"), "kubeconfig.sha256": []byte(digest([]byte("private fixture")))}); e != nil {
+				t.Fatal(e)
+			}
+			app := Object{"metadata": Object{"name": "secrets-controller", "namespace": "argocd", "uid": "controller-app"}, "status": Object{"operationState": Object{"phase": tc.phase, "syncResult": Object{"revision": tc.revision}}}}
+			if tc.active {
+				app["operation"] = Object{"sync": Object{}}
+			}
+			body, e := json.Marshal(Object{"kind": "ApplicationList", "items": []Object{app}})
+			if e != nil {
+				t.Fatal(e)
+			}
+			calls := 0
+			a.Runner = runnerFunc(func(_ context.Context, q Request) ([]byte, error) {
+				calls++
+				if q.Tool != "kubectl" || !strings.Contains(strings.Join(q.Args, " "), " get applications -n argocd -o json") || len(q.Input) != 0 {
+					t.Fatal("unexpected write", q)
+				}
+				return body, nil
+			})
+			e = a.checkInstallationHandoffFailure(context.Background())
+			if (e != nil) != tc.fail || calls != 1 {
+				t.Fatal(e, calls)
+			}
+			if e != nil && !strings.Contains(e.Error(), "secrets-controller") {
+				t.Fatal(e)
+			}
+			a.installation = nil
+			if e = a.checkInstallationHandoffFailure(context.Background()); e != nil || calls != 1 {
+				t.Fatal("historical contract changed", e, calls)
+			}
+		})
+	}
+}
+
+func TestInstallationHandoffUnknownReadFailsClosed(t *testing.T) {
+	for _, body := range [][]byte{nil, []byte(`{"kind":"SecretList","items":[]}`), []byte(`{"kind":"ApplicationList","items":[{"metadata":{"name":"unbound"}}]}`)} {
+		a, _ := fixture(t)
+		a.installation = &InstallationBinding{DeploymentCommit: strings.Repeat("b", 40)}
+		if e := WriteFiles(a.Root, ".state", map[string][]byte{"kubeconfig": []byte("private fixture"), "kubeconfig.sha256": []byte(digest([]byte("private fixture")))}); e != nil {
+			t.Fatal(e)
+		}
+		a.Runner = runnerFunc(func(_ context.Context, q Request) ([]byte, error) {
+			if q.Tool != "kubectl" || len(q.Input) != 0 {
+				t.Fatal("unexpected write")
+			}
+			return body, nil
+		})
+		if a.checkInstallationHandoffFailure(context.Background()) == nil {
+			t.Fatal("accepted unknown Application response")
+		}
+	}
 }
