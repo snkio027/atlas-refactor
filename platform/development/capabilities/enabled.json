@@ -1,4 +1,8 @@
 {
   "schema": 1,
-  "capabilities": []
+  "capabilities": [
+    "monitoring",
+    "object-storage",
+    "storage-monitoring"
+  ]
 }

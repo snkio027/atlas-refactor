@@ -1,28 +1,27 @@
 {
   "apiVersion": "v1",
-  "kind": "List",
   "items": [
     {
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-100"
+        },
         "name": "foundation",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-100",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "argocd",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/foundation/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/foundation/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "argocd"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -41,23 +40,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-99"
+        },
         "name": "cilium",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-99",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "kube-system",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/networking/cilium/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/networking/cilium/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "kube-system"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -76,23 +75,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-90"
+        },
         "name": "argocd-self",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-90",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "argocd",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/management/argocd-self/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/management/argocd-self/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "argocd"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -111,23 +110,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-90"
+        },
         "name": "cert-manager",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-90",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "cert-manager",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/management/cert-manager/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/management/cert-manager/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "cert-manager"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -146,23 +145,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-40"
+        },
         "name": "gateway-api",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-40",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "envoy-gateway-system",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/networking/gateway-api/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/networking/gateway-api/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "envoy-gateway-system"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -181,23 +180,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-40"
+        },
         "name": "envoy-crds",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-40",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "envoy-gateway-system",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/networking/envoy-crds/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/networking/envoy-crds/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "envoy-gateway-system"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -216,23 +215,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-30"
+        },
         "name": "envoy-gateway",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-30",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "envoy-gateway-system",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/networking/envoy-gateway/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/networking/envoy-gateway/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "envoy-gateway-system"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -251,23 +250,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-30"
+        },
         "name": "local-storage",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-30",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "local-path-storage",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/storage/local-path/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/storage/local-path/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "local-path-storage"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -286,23 +285,23 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-20"
+        },
         "name": "local-pki",
-        "namespace": "argocd",
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-20",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "atlas-gateway",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/management/local-pki/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/management/local-pki/overlays/development"
-        },
-        "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "atlas-gateway"
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -321,23 +320,338 @@
       "apiVersion": "argoproj.io/v1alpha1",
       "kind": "Application",
       "metadata": {
-        "name": "edge",
-        "namespace": "argocd",
         "annotations": {
-          "argocd.argoproj.io/sync-wave": "-10",
-          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
-        }
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-10"
+        },
+        "name": "edge",
+        "namespace": "argocd"
       },
       "spec": {
+        "destination": {
+          "namespace": "atlas-gateway",
+          "server": "https://kubernetes.default.svc"
+        },
         "project": "platform-project",
         "source": {
+          "path": "gitops/platform/networking/edge/overlays/development",
           "repoURL": "https://github.com/snkio027/atlas-refactor.git",
-          "targetRevision": "codex/development-platform",
-          "path": "gitops/platform/networking/edge/overlays/development"
+          "targetRevision": "codex/development-platform"
         },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-100"
+        },
+        "name": "capability-foundation",
+        "namespace": "argocd"
+      },
+      "spec": {
         "destination": {
-          "server": "https://kubernetes.default.svc",
-          "namespace": "atlas-gateway"
+          "namespace": "argocd",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/foundation/capabilities/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-95"
+        },
+        "name": "secrets-crds",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-secrets",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/management/sealed-secrets-crds/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-90"
+        },
+        "name": "secrets-controller",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-secrets",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/management/sealed-secrets/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-80"
+        },
+        "name": "platform-credentials",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-monitoring",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/management/platform-credentials/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-40"
+        },
+        "name": "monitoring-crds",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-monitoring",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/observability/crds/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-30"
+        },
+        "name": "monitoring-operator",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-monitoring",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/observability/operator/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-10"
+        },
+        "name": "monitoring",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-monitoring",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/observability/stack/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-10"
+        },
+        "name": "object-storage",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-storage",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/storage/seaweedfs/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "0"
+        },
+        "name": "storage-monitoring",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "atlas-monitoring",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/observability/storage/overlays/development",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "codex/development-platform"
         },
         "syncPolicy": {
           "automated": {
@@ -352,5 +666,6 @@
         }
       }
     }
-  ]
+  ],
+  "kind": "List"
 }

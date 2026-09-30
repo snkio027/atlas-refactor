@@ -59,6 +59,8 @@ Sealed Secrets 物化 Grafana/S3 凭据，Git 仅含引用或严格 namespace/na
 ## 验证与发布条件
 
 本地质量门禁、身份不变/退化不恢复权限测试、真实 kubeseal 离线测试及隔离 S3 容器 API 测试
-支持实现可行性；尚无新增组件在 dev02 上的 Kubernetes/Argo 成功证据。
-该 ADR 继续 Proposed，目录默认无启用项。正式接入顺序、访问方式和验收 Gate 见
+支持实现可行性。该 ADR 初始提交时目录无启用项，尚无 dev02 运行证据。
+后续所有者单独授权了 dev02 接入与本机备份开发例外，实测结果见
+[启用记录](../platform-dev02-activation.md)；该 ADR 继续 Proposed，不因部署成功自动 Accepted。
+正式接入顺序、访问方式和验收 Gate 见
 [平台能力扩展](../platform-capabilities.md)。

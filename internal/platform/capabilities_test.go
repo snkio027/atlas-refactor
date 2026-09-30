@@ -16,6 +16,49 @@ func candidate(t *testing.T) *Project {
 	}
 	return p
 }
+
+// unsealedCandidate explicitly models first-time onboarding, even after the
+// checked-in development profile has encrypted credentials and active services.
+func unsealedCandidate(t *testing.T) *Project {
+	t.Helper()
+	p := candidate(t)
+	source := p.Root
+	p.Root = t.TempDir()
+	paths := []string{capabilityDir}
+	for _, c := range p.Capabilities.Catalog.Components {
+		paths = append(paths, c.Path)
+	}
+	for _, dir := range paths {
+		err := filepath.WalkDir(filepath.Join(source, dir), func(path string, entry os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if entry.IsDir() {
+				return nil
+			}
+			rel, err := filepath.Rel(source, path)
+			if err != nil {
+				return err
+			}
+			b, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			dest := filepath.Join(p.Root, rel)
+			if err = os.MkdirAll(filepath.Dir(dest), 0700); err != nil {
+				return err
+			}
+			return os.WriteFile(dest, b, 0600)
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(p.Root, capabilityDir, "resources/platform-credentials.json"), []byte(`{"apiVersion":"v1","kind":"List","items":[]}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
 func TestCapabilityClosureAndReadinessOrder(t *testing.T) {
 	p := candidate(t)
 	names, e := p.ResolveCapabilities([]string{"storage-monitoring"})
@@ -36,7 +79,7 @@ func TestCapabilityClosureAndReadinessOrder(t *testing.T) {
 	}
 }
 func TestCandidatePlanReportsMissingCredentials(t *testing.T) {
-	p := candidate(t)
+	p := unsealedCandidate(t)
 	plan, e := p.CapabilityPlan([]string{"storage-monitoring"})
 	if e != nil {
 		t.Fatal(e)
@@ -86,7 +129,7 @@ func TestCapabilityProjectionPreservesCoreAndTenant(t *testing.T) {
 	}
 }
 func TestUnrenderedOrForgedCatalogCannotActivate(t *testing.T) {
-	p := candidate(t)
+	p := unsealedCandidate(t)
 	p.Capabilities.Active = []string{"monitoring"}
 	if e := p.ValidateCapabilityActivation(); e == nil {
 		t.Fatal("missing credentials accepted")
