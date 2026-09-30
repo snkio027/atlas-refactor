@@ -157,7 +157,7 @@ func (a *App) prepareCilium(ctx context.Context, files map[string][]byte) error 
 	return a.VerifyNodes(ctx)
 }
 func (a *App) developmentHandoffComplete(ctx context.Context, root, self, signal *Live, adopted bool) (bool, error) {
-	if adopted && a.Config.Schema == 3 {
+	if adopted && a.Config.fourNodeProfile() {
 		return a.developmentAuthorityIntact(ctx, self, signal)
 	}
 	return a.developmentRolloutComplete(ctx, root, self, signal, adopted)
@@ -219,7 +219,7 @@ func (a *App) developmentRolloutComplete(ctx context.Context, root, self, signal
 	}
 	for name, path := range map[string]string{"argocd-self": developmentSeed, "cilium": ciliumSeed} {
 		proofCommit := commit
-		if adopted && a.Config.Schema == 3 {
+		if adopted && a.Config.fourNodeProfile() {
 			proofCommit = liveApps[name].Status.OperationState.SyncResult.Revision
 			if !regexp.MustCompile(`^[a-f0-9]{40}$`).MatchString(proofCommit) {
 				return false, nil
@@ -259,7 +259,7 @@ func (a *App) developmentAuthorityIntact(ctx context.Context, self, signal *Live
 func (a *App) developmentIdentity(d map[string]string) {
 	d["schema"] = "atlas-refactor/identity/v2-development"
 	d["substrateProfile"] = "kind-cilium-ipv4-development/v1"
-	if a.Config.Schema == 3 {
+	if a.Config.fourNodeProfile() {
 		d["schema"] = "atlas-refactor/identity/v3-development"
 		d["substrateProfile"] = "kind-cilium-ipv4-four-node/v1"
 	}
@@ -267,6 +267,12 @@ func (a *App) developmentIdentity(d map[string]string) {
 		d["substrateProfile"] = "kind-cilium-ipv4-four-node-ot1/v1"
 	}
 	d["platformSHA256"] = a.development.baselineFingerprint
+	if a.installation != nil {
+		d["schema"] = "atlas-refactor/identity/v4-installation"
+		d["productSHA256"] = a.installation.ProductSHA256
+		d["binarySHA256"] = a.installation.BinarySHA256
+		d["installID"] = a.installation.InstallID
+	}
 }
 func (a *App) initialWait() string {
 	if a.development != nil {
@@ -291,6 +297,15 @@ func validateDevelopmentKindFor(revision string, data []byte) error {
 	if err != nil {
 		return err
 	}
+	return ValidateInstallationKind(data, profile.HTTPPort, profile.HTTPSPort)
+}
+
+// ValidateInstallationKind restricts D1 to the same reviewed four-node topology;
+// only the two unprivileged, loopback host ports are selected per installation.
+func ValidateInstallationKind(data []byte, httpPort, httpsPort int) error {
+	if httpPort < 1024 || httpPort > 65535 || httpsPort < 1024 || httpsPort > 65535 || httpPort == httpsPort {
+		return errors.New("invalid installation ingress ports")
+	}
 	const expected = `{"apiVersion":"kind.x-k8s.io/v1alpha4","kind":"Cluster","networking":{"ipFamily":"ipv4","apiServerAddress":"127.0.0.1","disableDefaultCNI":true,"kubeProxyMode":"iptables"},"nodes":[{"role":"control-plane"},{"role":"worker","labels":{"node-role.local/gateway":"true"},"extraPortMappings":[{"containerPort":30080,"hostPort":8080,"listenAddress":"127.0.0.1","protocol":"TCP"},{"containerPort":30443,"hostPort":8443,"listenAddress":"127.0.0.1","protocol":"TCP"}]},{"role":"worker","labels":{"node-role.local/compute":"true"}},{"role":"worker","labels":{"node-role.local/data":"true","topology.kubernetes.io/zone":"data-zone-1"},"kubeadmConfigPatches":["apiVersion: kubeadm.k8s.io/v1beta4\nkind: JoinConfiguration\nnodeRegistration:\n  taints:\n    - key: node-role.local/data\n      value: \"true\"\n      effect: NoSchedule\n"]}]}`
 	var got, want Object
 	if err := strictJSON(data, &got); err != nil {
@@ -300,8 +315,8 @@ func validateDevelopmentKindFor(revision string, data []byte) error {
 		return err
 	}
 	mappings := want["nodes"].([]any)[1].(map[string]any)["extraPortMappings"].([]any)
-	mappings[0].(map[string]any)["hostPort"] = float64(profile.HTTPPort)
-	mappings[1].(map[string]any)["hostPort"] = float64(profile.HTTPSPort)
+	mappings[0].(map[string]any)["hostPort"] = float64(httpPort)
+	mappings[1].(map[string]any)["hostPort"] = float64(httpsPort)
 	if !reflect.DeepEqual(got, want) {
 		return errors.New("development Kind configuration exceeds the reviewed local profile")
 	}

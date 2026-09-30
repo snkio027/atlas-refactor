@@ -29,10 +29,12 @@ tasks:
     env:
       ATLAS_TEST_LUA: '{{.PLATFORM_LUA | default "lua"}}'
       ATLAS_TEST_HELM: '{{.PLATFORM_HELM | default .LOCAL_HELM}}'
+      ATLAS_TEST_KUBECTL: '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}'
       ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default .LOCAL_KUBESEAL}}'
     cmds:
       - task: toolchain
-      - go test -race ./...
+      # Full S1 fixture suites exceed Go's default 10m budget on hosted ARM runners.
+      - go test -race -timeout 25m ./...
   quality:
     cmds:
       - task: check
@@ -56,6 +58,12 @@ tasks:
       - env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o bin/atlas-darwin-arm64 ./cmd/atlas
       - env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/atlas-linux-amd64 ./cmd/atlas
       - env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o bin/atlas-linux-arm64 ./cmd/atlas
+  release:candidate:
+    desc: Build a complete clean-commit D1 archive locally; never publishes or starts a cluster
+    cmds:
+      - task: quality
+      - go run ./cmd/atlas-release --version '{{.VERSION}}' --tool-dir "$(dirname '{{.PLATFORM_HELM | default .LOCAL_HELM}}')" --output '{{.OUTPUT | default ".state/latest/d1-package"}}'
+
   platform:plan:
     desc: Show capability dependency closure and missing sealed credentials; no cluster operations
     cmds:

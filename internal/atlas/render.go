@@ -19,6 +19,7 @@ type App struct {
 	Runner         Runner
 	resolvedCommit string
 	development    *developmentBundle
+	installation   *InstallationBinding
 	// In-package synthetic archive fixtures pin their own immutable snapshot.
 	// This is never populated from config, flags, environment, or repository data.
 	fixtureSnapshotDigest string
@@ -102,7 +103,11 @@ func (a *App) VerifyArtifacts() error {
 	if e := a.Config.Validate(); e != nil {
 		return e
 	}
-	if a.Config.developmentProfile() {
+	if a.Config.Schema == 4 {
+		if e := a.prepareInstallation(); e != nil {
+			return e
+		}
+	} else if a.Config.developmentProfile() {
 		if e := a.prepareDevelopment(); e != nil {
 			return e
 		}
@@ -219,7 +224,7 @@ func (a *App) Doctor(ctx context.Context) error {
 	if e := a.verifyTools(ctx, true); e != nil {
 		return e
 	}
-	if a.Config.Schema == 3 {
+	if a.Config.fourNodeProfile() {
 		if e := a.verifyImageArchives(); e != nil {
 			return e
 		}
