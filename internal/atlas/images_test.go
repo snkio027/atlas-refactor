@@ -149,3 +149,19 @@ func TestProcessStreamsPrivateInputAndRejectsEscape(t *testing.T) {
 		}
 	}
 }
+
+func TestRelativeToolDirectoryResolvedBeforeChildChangesDirectory(t *testing.T) {
+	caller := t.TempDir()
+	t.Chdir(caller)
+	if err := os.Mkdir("tools", 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile("tools/helm", []byte("#!/bin/sh\nprintf '%s' caller-tool\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	runner := ExecRunner{Root: t.TempDir(), ToolDir: "tools", DockerContext: "orbstack"}
+	output, err := runner.Run(context.Background(), Request{Tool: "helm", Args: []string{"version"}})
+	if err != nil || string(output) != "caller-tool" {
+		t.Fatalf("relative tool resolved in child cwd: output=%q err=%v", output, err)
+	}
+}

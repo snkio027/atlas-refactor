@@ -636,3 +636,39 @@ func TestPostOperationComparisonFreshness(t *testing.T) {
 		})
 	}
 }
+
+func TestRuntimeRejectsMisplacedReplicaDespiteHealthySibling(t *testing.T) {
+	plan, desired := syntheticPlan(t)
+	snapshot := syntheticSnapshots(t, plan, desired)[0]
+	for _, namespace := range []string{"workload-web", "envoy-gateway-system"} {
+		for _, first := range []bool{false, true} {
+			data := runtimeFixture(snapshot)
+			original := observation.Slice(data["pods"])
+			var extra observation.Object
+			// A separate fixture supplies an independent additional replica.
+			for _, raw := range observation.Slice(runtimeFixture(snapshot)["pods"]) {
+				pod := observation.Map(raw)
+				if observation.Reference(pod).Namespace == namespace && (namespace == "workload-web" || strings.HasPrefix(observation.Reference(pod).Name, "envoy-atlas-gateway-")) {
+					extra = pod
+					break
+				}
+			}
+			if extra == nil {
+				t.Fatal("missing fixture Pod")
+			}
+			observation.Map(extra["metadata"])["name"] = observation.Reference(extra).Name + "-second"
+			observation.Map(extra["metadata"])["uid"] = "extra-pod"
+			data["pods"] = append(original, extra)
+			if err := runtimeEvidence(data, plan.Target.Cluster); err != nil {
+				t.Fatal("correctly placed replicas rejected", err)
+			}
+			observation.Map(extra["spec"])["nodeName"] = plan.Target.Cluster + "-worker2"
+			if first {
+				data["pods"] = append([]any{extra}, original...)
+			}
+			if err := runtimeEvidence(data, plan.Target.Cluster); err == nil {
+				t.Fatalf("misplaced replica masked: namespace=%s first=%v", namespace, first)
+			}
+		}
+	}
+}

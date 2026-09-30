@@ -5,7 +5,6 @@ package main
 import (
 	"atlas-refactor/internal/atlas"
 	"atlas-refactor/internal/developmentprofile"
-	"bufio"
 	"context"
 	"crypto/sha256"
 	"crypto/tls"
@@ -17,6 +16,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	"os"
@@ -43,7 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 }
-func run() error {
+func run() (result error) {
 	if len(os.Args) < 2 || (os.Args[1] != "up" && os.Args[1] != "verify") {
 		return errors.New("usage: atlas-dev up|verify --tool-dir <tools> [--approve-cluster <exact name> --approve-tier0 --install-kubeconfig]")
 	}
@@ -60,6 +60,13 @@ func run() error {
 	}
 	if f.NArg() != 0 {
 		return errors.New("unexpected arguments")
+	}
+	if *tools != "" {
+		var err error
+		*tools, err = filepath.Abs(*tools)
+		if err != nil {
+			return err
+		}
 	}
 	abs, e := filepath.Abs(*root)
 	if e != nil {
@@ -100,9 +107,13 @@ func run() error {
 		return errors.New("development run lock exists; inspect the previous process before removal")
 	}
 	defer os.Remove(runLock)
+	completed := false
 	defer func() {
-		w.evidence["finishedAt"] = time.Now().UTC().Format(time.RFC3339)
-		_ = jsonFile(filepath.Join(w.dir, "latest-run.json"), w.evidence)
+		// A panic also runs defers; it must never manufacture a PASS.
+		if !completed && result == nil {
+			result = errors.New("development workflow did not complete")
+		}
+		result = w.finish(result, os.Stdout)
 	}()
 	if command == "up" {
 		if e = w.checkout(ctx); e != nil {
@@ -164,10 +175,10 @@ func run() error {
 		if e != nil {
 			return e
 		}
-		if after != before || string(beforeIDs) != string(afterIDs) {
+		if !maps.Equal(after, before) || string(beforeIDs) != string(afterIDs) {
 			return errors.New("repeated apply changed object identities or issued Kubernetes writes")
 		}
-		w.evidence["repeatApply"] = map[string]any{"exitCode": 0, "kubectlMutationDelta": after - before, "identitiesStable": true}
+		w.evidence["repeatApply"] = map[string]any{"exitCode": 0, "kubectlMutationDelta": len(after) - len(before), "identitiesStable": true}
 	}
 	if *install {
 		fmt.Println("6/6 Backing up and installing default kubectl access")
@@ -176,11 +187,14 @@ func run() error {
 		}
 		w.evidence["defaultContext"] = "kind-" + c.Cluster
 	}
-	if e = w.verify(ctx); e != nil {
-		return e
+	// A read-only verify already sampled the complete runtime once. Recheck
+	// only after repeat apply or access installation could have changed state.
+	if command == "up" || *install {
+		if e = w.verify(ctx); e != nil {
+			return e
+		}
 	}
-	w.evidence["result"] = "PASS"
-	fmt.Println("PASS: four Ready nodes, GitOps ADOPTED, HTTPS verified; evidence: " + filepath.Join(w.dir, "latest-run.json"))
+	completed = true
 	return nil
 }
 
@@ -207,13 +221,6 @@ func checkedDir(path string, private bool) error {
 		return errors.New("private state directory must be owner-only")
 	}
 	return nil
-}
-func jsonFile(path string, v any) error {
-	b, e := json.MarshalIndent(v, "", "  ")
-	if e != nil {
-		return e
-	}
-	return os.WriteFile(path, append(b, '\n'), 0600)
 }
 func (w *workflow) exec(ctx context.Context, dir, tool string, env []string, args ...string) ([]byte, error) {
 	if w.tools != "" && tool == "kubectl" {
@@ -330,42 +337,12 @@ func (w *workflow) verify(ctx context.Context) error {
 	if e != nil {
 		return e
 	}
-	var pods struct {
-		Items []struct {
-			Metadata struct{ Name, Namespace string }
-			Spec     struct{ NodeName string }
-			Status   struct {
-				Phase      string
-				Conditions []struct{ Type, Status string }
-			}
-		}
-	}
+	var pods struct{ Items []runtimePod }
 	if e = json.Unmarshal(b, &pods); e != nil {
 		return e
 	}
-	web, proxy := false, false
-	for _, p := range pods.Items {
-		if p.Status.Phase == "Succeeded" {
-			continue
-		}
-		ready := false
-		for _, c := range p.Status.Conditions {
-			if c.Type == "Ready" && c.Status == "True" {
-				ready = true
-			}
-		}
-		if p.Status.Phase != "Running" || !ready {
-			return fmt.Errorf("pod not Ready: %s/%s", p.Metadata.Namespace, p.Metadata.Name)
-		}
-		if p.Metadata.Namespace == "workload-web" {
-			web = p.Spec.NodeName == w.config.Cluster+"-worker3"
-		}
-		if strings.HasPrefix(p.Metadata.Name, "envoy-atlas-gateway-") {
-			proxy = p.Spec.NodeName == w.config.Cluster+"-worker"
-		}
-	}
-	if !web || !proxy {
-		return errors.New("gateway/data placement failed")
+	if e = verifyPods(pods.Items, w.config.Cluster); e != nil {
+		return e
 	}
 	w.evidence["pods"] = pods.Items
 	b, e = w.kube(ctx, "get", "applications", "-n", "argocd", "-o", "json")
@@ -475,43 +452,6 @@ func (w *workflow) verify(ctx context.Context) error {
 	}
 	_, e = w.identities(ctx)
 	return e
-}
-func auditWrites(repo string) (int, error) {
-	files, e := filepath.Glob(filepath.Join(repo, ".state/audit/*"))
-	if e != nil {
-		return 0, e
-	}
-	if len(files) == 0 {
-		return 0, errors.New("audit evidence unavailable")
-	}
-	count := 0
-	for _, p := range files {
-		f, e := os.Open(p)
-		if e != nil {
-			return 0, e
-		}
-		s := bufio.NewScanner(f)
-		s.Buffer(make([]byte, 4096), 1<<20)
-		for s.Scan() {
-			var event struct{ Verb, UserAgent, Stage string }
-			if e = json.Unmarshal(s.Bytes(), &event); e != nil {
-				_ = f.Close()
-				return 0, e
-			}
-			if strings.HasPrefix(event.UserAgent, "kubectl/") && event.Stage == "ResponseComplete" {
-				switch event.Verb {
-				case "create", "patch", "update", "delete", "deletecollection":
-					count++
-				}
-			}
-		}
-		e = s.Err()
-		_ = f.Close()
-		if e != nil {
-			return 0, e
-		}
-	}
-	return count, nil
 }
 func (w *workflow) installAccess(ctx context.Context) error {
 	home, e := os.UserHomeDir()

@@ -6,6 +6,16 @@ env:
   GOSUMDB: 'off'
   GOFLAGS: -mod=readonly
 
+vars:
+  LOCAL_HELM:
+    sh: 'if test -x "{{.ROOT_DIR}}/.state/tools/helm"; then printf "%s" "{{.ROOT_DIR}}/.state/tools/helm"; else printf "%s" "helm"; fi'
+  LOCAL_KUBECTL:
+    sh: 'if test -x "{{.ROOT_DIR}}/.state/tools/kubectl"; then printf "%s" "{{.ROOT_DIR}}/.state/tools/kubectl"; else printf "%s" "kubectl"; fi'
+  LOCAL_YQ:
+    sh: 'if test -x "{{.ROOT_DIR}}/.state/tools/yq"; then printf "%s" "{{.ROOT_DIR}}/.state/tools/yq"; else printf "%s" "yq"; fi'
+  LOCAL_KUBESEAL:
+    sh: 'if test -x "{{.ROOT_DIR}}/.state/tools/kubeseal"; then printf "%s" "{{.ROOT_DIR}}/.state/tools/kubeseal"; else printf "%s" "kubeseal"; fi'
+
 tasks:
   toolchain:
     cmds:
@@ -13,13 +23,13 @@ tasks:
   check:
     cmds:
       - task: toolchain
-      - test -z "$(gofmt -l cmd internal)"
+      - test -z "$(gofmt -l cmd internal experiments)"
       - go vet ./...
   test:
     env:
       ATLAS_TEST_LUA: '{{.PLATFORM_LUA | default "lua"}}'
-      ATLAS_TEST_HELM: '{{.PLATFORM_HELM | default "helm"}}'
-      ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default "kubeseal"}}'
+      ATLAS_TEST_HELM: '{{.PLATFORM_HELM | default .LOCAL_HELM}}'
+      ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default .LOCAL_KUBESEAL}}'
     cmds:
       - task: toolchain
       - go test -race ./...
@@ -29,6 +39,7 @@ tasks:
       - task: test
       - task: platform:check
       - task: ot1:contracts
+      - task: experiments:check
   build:
     cmds:
       - task: toolchain
@@ -48,30 +59,37 @@ tasks:
   platform:plan:
     desc: Show capability dependency closure and missing sealed credentials; no cluster operations
     cmds:
-      - go run ./cmd/atlas-platform --capabilities '{{.CAPABILITIES | default "monitoring,object-storage,storage-monitoring"}}' plan
+      - go run ./cmd/atlas-platform plan --capabilities '{{.CAPABILITIES | default "monitoring,object-storage,storage-monitoring"}}'
   platform:select:
     desc: Select capabilities in the local worktree only; never publishes or applies
     cmds:
-      - go run ./cmd/atlas-platform --capabilities '{{.CAPABILITIES}}' select
+      - go run ./cmd/atlas-platform select --capabilities '{{.CAPABILITIES}}'
   platform:credentials:
     desc: Seal locally generated credentials using a reviewed public certificate
     cmds:
-      - go run ./cmd/atlas-platform --cert '{{.CERT}}' --kubeseal '{{.KUBESEAL | default "kubeseal"}}' prepare-credentials
+      - go run ./cmd/atlas-platform prepare-credentials --cert '{{.CERT}}' --kubeseal '{{.KUBESEAL | default .LOCAL_KUBESEAL}}'
   platform:render:
     desc: Render the development candidate locally; never contacts a cluster
     cmds:
       - task: toolchain
-      - go run ./cmd/atlas-platform --helm '{{.PLATFORM_HELM | default "helm"}}' --kubectl '{{.PLATFORM_KUBECTL | default "kubectl"}}' --yq '{{.PLATFORM_YQ | default "yq"}}' render
-      - go run ./cmd/atlas render --config profiles/development.json --output .
+      - go run ./cmd/atlas-platform render --helm '{{.PLATFORM_HELM | default .LOCAL_HELM}}' --kubectl '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}' --yq '{{.PLATFORM_YQ | default .LOCAL_YQ}}'
+      - go run ./cmd/atlas render --config profiles/development.json --tool-dir "$(dirname "$(command -v '{{.PLATFORM_HELM | default .LOCAL_HELM}}')")" --output .
   platform:check:
     desc: Check local renders, Kustomize, schemas and architecture boundaries
     cmds:
       - task: toolchain
-      - go run ./cmd/atlas-platform --helm '{{.PLATFORM_HELM | default "helm"}}' --kubectl '{{.PLATFORM_KUBECTL | default "kubectl"}}' --yq '{{.PLATFORM_YQ | default "yq"}}' check
+      - go run ./cmd/atlas-platform check --helm '{{.PLATFORM_HELM | default .LOCAL_HELM}}' --kubectl '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}' --yq '{{.PLATFORM_YQ | default .LOCAL_YQ}}'
 
   ot1:contracts:
     desc: Immutable OT-1 scope/stages and four local Kustomize fixtures; no cluster calls
     cmds:
       - env PYTHONDONTWRITEBYTECODE=1 python3 experiments/foundation-ownership/contract.py
       - env PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s experiments/foundation-ownership -v
-      - for layout in source secrets observability storage; do {{.PLATFORM_KUBECTL | default "kubectl"}} kustomize "experiments/foundation-ownership/fixtures/$layout" >/dev/null || exit; done
+      - for layout in source secrets observability storage; do '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}' kustomize "experiments/foundation-ownership/fixtures/$layout" >/dev/null || exit; done
+
+  experiments:check:
+    desc: Compile and vet frozen OT-1 entry points without running their commands
+    cmds:
+      - task: toolchain
+      - go test -tags 'ot1_finalization ot1_f12_recovery ot1_stage12_continuation' ./experiments/foundation-ownership/...
+      - go vet -tags 'ot1_finalization ot1_f12_recovery ot1_stage12_continuation' ./experiments/foundation-ownership/...

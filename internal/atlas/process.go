@@ -33,7 +33,12 @@ func (r ExecRunner) Run(ctx context.Context, q Request) ([]byte, error) {
 	}
 	executable := q.Tool
 	if r.ToolDir != "" && q.Tool != "git" && q.Tool != "docker" {
-		executable = filepath.Join(r.ToolDir, q.Tool)
+		// Resolve relative tool directories before cmd.Dir changes the child's cwd.
+		var err error
+		executable, err = filepath.Abs(filepath.Join(r.ToolDir, q.Tool))
+		if err != nil {
+			return nil, err
+		}
 	}
 	for _, entry := range os.Environ() {
 		key, _, _ := strings.Cut(entry, "=")
