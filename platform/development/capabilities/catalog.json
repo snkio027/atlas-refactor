@@ -1,21 +1,15 @@
 {
-  "schema": 1,
+  "schema": 2,
   "components": {
-    "capability-foundation": {
-      "path": "gitops/platform/foundation/capabilities/overlays/development",
-      "namespace": "argocd",
-      "wave": -100,
-      "dependsOn": [],
-      "requiredSecrets": []
-    },
     "secrets-crds": {
       "path": "gitops/platform/management/sealed-secrets-crds/overlays/development",
       "namespace": "atlas-secrets",
       "wave": -95,
       "dependsOn": [
-        "capability-foundation"
+        "secrets-foundation"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "security"
     },
     "secrets-controller": {
       "path": "gitops/platform/management/sealed-secrets/overlays/development",
@@ -24,25 +18,30 @@
       "dependsOn": [
         "secrets-crds"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "security"
     },
     "platform-credentials": {
       "path": "gitops/platform/management/platform-credentials/overlays/development",
       "namespace": "atlas-monitoring",
       "wave": -80,
       "dependsOn": [
-        "secrets-controller"
+        "secrets-controller",
+        "observability-foundation",
+        "storage-foundation"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "security"
     },
     "monitoring-crds": {
       "path": "gitops/platform/observability/crds/overlays/development",
       "namespace": "atlas-monitoring",
       "wave": -40,
       "dependsOn": [
-        "capability-foundation"
+        "observability-foundation"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
     },
     "monitoring-operator": {
       "path": "gitops/platform/observability/operator/overlays/development",
@@ -52,7 +51,8 @@
         "monitoring-crds",
         "core:cert-manager"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
     },
     "monitoring": {
       "path": "gitops/platform/observability/stack/overlays/development",
@@ -72,7 +72,8 @@
             "admin-password"
           ]
         }
-      ]
+      ],
+      "permissionDomain": "observability"
     },
     "object-storage": {
       "path": "gitops/platform/storage/seaweedfs/overlays/development",
@@ -98,7 +99,8 @@
             "AWS_SECRET_ACCESS_KEY"
           ]
         }
-      ]
+      ],
+      "permissionDomain": "storage"
     },
     "storage-monitoring": {
       "path": "gitops/platform/observability/storage/overlays/development",
@@ -108,7 +110,32 @@
         "monitoring",
         "object-storage"
       ],
-      "requiredSecrets": []
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
+    },
+    "secrets-foundation": {
+      "path": "gitops/platform/foundation/secrets/overlays/development",
+      "namespace": "atlas-secrets",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "security"
+    },
+    "observability-foundation": {
+      "path": "gitops/platform/foundation/observability/overlays/development",
+      "namespace": "atlas-monitoring",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "observability"
+    },
+    "storage-foundation": {
+      "path": "gitops/platform/foundation/storage/overlays/development",
+      "namespace": "atlas-storage",
+      "wave": -100,
+      "dependsOn": [],
+      "requiredSecrets": [],
+      "permissionDomain": "storage"
     }
   },
   "jobs": [
@@ -131,7 +158,13 @@
           "component": "secrets-controller",
           "kinds": []
         }
-      ]
+      ],
+      "namespaceCapabilities": {
+        "atlas-secrets": "secrets-foundation",
+        "atlas-monitoring": "observability-foundation",
+        "atlas-storage": "storage-foundation",
+        "workload-web": "core:foundation"
+      }
     },
     {
       "release": "atlas-monitoring",
@@ -177,5 +210,10 @@
         "atlas-monitoring-apiserver"
       ]
     }
-  ]
+  ],
+  "permissionDomains": {
+    "security": "platform-project",
+    "observability": "platform-project",
+    "storage": "platform-project"
+  }
 }

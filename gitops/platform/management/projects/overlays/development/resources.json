@@ -85,11 +85,11 @@
             "server": "https://kubernetes.default.svc"
           },
           {
-            "namespace": "atlas-storage",
+            "namespace": "atlas-secrets",
             "server": "https://kubernetes.default.svc"
           },
           {
-            "namespace": "atlas-secrets",
+            "namespace": "atlas-storage",
             "server": "https://kubernetes.default.svc"
           }
         ],

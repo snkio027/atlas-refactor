@@ -113,3 +113,10 @@ Git SHA，但仍检查当前 Sync/Health、资源清单与 SSA ownership，首�
 与持续 Tier-1 能力选择分离。真实启动快照保持固定，新增能力只经既有 platform-control 接管。
 本地 plan/select/credentials/render/check 入口和验证范围见 [平台能力扩展](platform-capabilities.md)。
 该候选默认未启用，不构成对当前 dev02 的部署批准。
+
+## 平台契约加固候选
+
+[Proposed ADR-0007](adr/0007-platform-contract-hardening.md) 实现单调启用、统一 GVK scope、
+permissionDomain 元数据和 foundation 分域；现有 dev02 的资源 owner 迁移尚未批准或执行。
+长期 [Typed Platform Contract 方向](typed-platform-contracts.md) 保留有限 Bootstrap 与 GitOps
+分工，按 A5 / Project / Workload / Binding 分阶段设计，不增加常驻调谐执行器。
