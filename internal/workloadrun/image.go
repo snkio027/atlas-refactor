@@ -2,12 +2,15 @@ package workloadrun
 
 import (
 	"atlas-refactor/internal/installation"
+	"atlas-refactor/internal/observation"
 	"atlas-refactor/internal/oci"
 	"atlas-refactor/internal/workload"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -55,30 +58,61 @@ func (w *Workflow) ImportImage(ctx context.Context, p Plan, approval string) err
 		return e
 	}
 	nodes := []string{p.Cluster + "-control-plane", p.Cluster + "-worker", p.Cluster + "-worker2", p.Cluster + "-worker3"}
+	run := func(input []byte, args ...string) ([]byte, error) {
+		return command(ctx, w.Config.StateDirectory, input, "docker", append([]string{"--context", "orbstack"}, args...)...)
+	}
 	for _, node := range nodes {
-		if _, e = command(ctx, w.Config.StateDirectory, b, "docker", "--context", "orbstack", "exec", "-i", node, "ctr", "--namespace", "k8s.io", "images", "import", "--digests", "-"); e != nil {
+		if e = importWebImage(run, node, b, ref); e != nil {
 			return e
-		}
-		// containerd records the complete digest-pinned name Kubernetes will use.
-		if _, e = command(ctx, w.Config.StateDirectory, nil, "docker", "--context", "orbstack", "exec", node, "ctr", "--namespace", "k8s.io", "images", "tag", "--force", "atlas.local/s2-web:v1", ref); e != nil {
-			return e
-		}
-		raw, e := command(ctx, w.Config.StateDirectory, nil, "docker", "--context", "orbstack", "exec", node, "crictl", "inspecti", ref)
-		if e != nil {
-			return e
-		}
-		var info Object
-		if e = json.Unmarshal(raw, &info); e != nil {
-			return e
-		}
-		wanted := "sha256:" + strings.Split(ref, "@sha256:")[1]
-		matched := false
-		for _, d := range array(at(info, "status", "repoDigests")) {
-			matched = matched || strings.HasSuffix(str(d), "@"+wanted)
-		}
-		if !matched {
-			return errors.New("node image manifest identity differs")
 		}
 	}
 	return save(filepath.Join(w.Config.StateDirectory, "authority", approval, "image.json"), workload.JSON(Object{"archiveSHA256": w.Config.ImageSHA256, "reference": ref, "nodes": nodes}), true)
+}
+
+// importWebImage registers the canonical name that CRI actually resolves.
+// ParseDockerRef strips the tag from repo:tag@digest; registering only the
+// literal authored name in containerd leaves kubelet unable to find the image.
+// The authored image and archive remain unchanged. This adapter is limited to
+// the S2 fixture image, not a general image-reference parser or recovery API.
+func importWebImage(run func([]byte, ...string) ([]byte, error), node string, archive []byte, ref string) error {
+	const prefix = "atlas.local/s2-web:v1@sha256:"
+	digest, ok := strings.CutPrefix(ref, prefix)
+	if !ok || !observation.Hash(digest) {
+		return errors.New("invalid S2 image reference")
+	}
+	canonical := "atlas.local/s2-web@sha256:" + digest
+	if _, e := run(archive, "exec", "-i", node, "ctr", "--namespace", "k8s.io", "images", "import", "--digests", "-"); e != nil {
+		return fmt.Errorf("node %s image import: %w", node, e)
+	}
+	// Bind the tagging source to the verified manifest, not just a mutable tag.
+	refs, e := run(nil, "exec", node, "ctr", "--namespace", "k8s.io", "images", "list", "--quiet", "target.digest==sha256:"+digest)
+	if e != nil {
+		return fmt.Errorf("node %s image digest lookup: %w", node, e)
+	}
+	matching := strings.Fields(string(refs))
+	if !slices.Contains(matching, "atlas.local/s2-web:v1") {
+		return fmt.Errorf("node %s imported tag does not identify the locked manifest", node)
+	}
+	if !slices.Contains(matching, canonical) {
+		// No --force: an existing conflicting canonical name must fail closed.
+		if _, e = run(nil, "exec", node, "ctr", "--namespace", "k8s.io", "images", "tag", "atlas.local/s2-web:v1", canonical); e != nil {
+			return fmt.Errorf("node %s canonical image registration: %w", node, e)
+		}
+	}
+	// Query the original authored reference, exactly as kubelet will. A tag-only
+	// lookup or another repository with the same digest is not sufficient proof.
+	raw, e := run(nil, "exec", node, "crictl", "inspecti", ref)
+	if e != nil {
+		return fmt.Errorf("node %s CRI image inspection: %w", node, e)
+	}
+	var info Object
+	if e = json.Unmarshal(raw, &info); e != nil {
+		return fmt.Errorf("node %s malformed CRI image evidence: %w", node, e)
+	}
+	for _, d := range array(at(info, "status", "repoDigests")) {
+		if str(d) == canonical {
+			return nil
+		}
+	}
+	return fmt.Errorf("node %s canonical CRI image identity not proven", node)
 }

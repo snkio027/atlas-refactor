@@ -15,6 +15,8 @@
 可从 [示例](../examples/s2/platform/projects/demo.json) 开始。示例镜像是本地构建的
 `atlas.local/s2-web` OCI 制品，不能从公网拉取；`image` 字符串的合法性不证明制品存在。
 正式部署流程校验完整 archive、manifest、config、layer 摘要并把明确镜像导入该实例的四个节点。
+导入器按 manifest 验证 tag 来源，然后登记 CRI 使用的 `repo@digest` 名称；最后用 authored
+`repo:tag@digest` 查询 CRI 并要求精确 repoDigest。既有相同 canonical 名称不重复登记，冲突不 force 覆盖。
 纯编译器支持契约中任意合法 pinned WebService 镜像；本次本地验收执行器只接收这一个可核验的 demo 制品。
 
 `internal/workload` 不执行外部工具、不读取集群、不生成随机数、不推送 Git。
@@ -131,6 +133,19 @@ PutBucketCORS 的 403。危险的 bucket mutation 负例仅作用于这个空的
 回归见 `TestAbsentAuthoredAnnotationsPermitArgoTracking`、`TestKnownAPIOmissionsPreserveAuthoredValues`、
 `TestBindingSubjectDefaultDoesNotBroadenPermissions`。这次失败没有外部 mutation，保留本说明与回归，
 本地只保留 latest 工作材料。基线也独立核对每个既有对象的 owner tracking 与 Argo SSA。
+
+第二次获批执行 `a6aa7cf` / plan `0e64333d` 的远端 Quality 为 PASS，baseline 通过后在首节点
+CRI image inspection STOP。控制平面已导入正确锁定镜像并登记 literal `repo:tag@digest`，
+但 CRI 按 `repo@digest` 查找而失败。三个 worker 未导入；没有准备凭据、发布 Git 或执行 probe。
+四节点仍 Ready，Git parent 仍为 `70147b2`。这次有外部镜像写入，原 plan、decision、baseline、
+terminal 和 post-stop 诊断保留在对应 authority bundle；不清除 STOP，不自动重试。
+
+根因依据锁定 [containerd 2.3.1 LocalResolve](https://github.com/containerd/containerd/blob/v2.3.1/internal/cri/server/images/service.go#L147-L174)
+与 [ParseDockerRef](https://github.com/distribution/reference/blob/v0.6.0/normalize.go#L80-L112)。修正不改镜像制品、
+compiler、密文、GitOps 清单或 D1 engine；只修正 S2 的 canonical alias，新增精确 manifest 来源检查和
+分阶段错误定位。回归 `TestImageImportRegistersCRINameAndChecksAuthoredReference` 覆盖首次及已有同 digest，
+`TestImageImportFailsClosedAtEveryBoundary` 覆盖错误 repo/digest 和每步立即停止。
+回归是本地过程模拟，修正后的真实 CRI 导入尚未执行，不能记为 runtime PASS。
 
 修正后，同一个 Go 基线函数已只读验证当前实例 145 个资源的内容、UID 与 ownership；显式复核命令：
 

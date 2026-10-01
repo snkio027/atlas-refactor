@@ -1,6 +1,8 @@
 package workloadrun
 
 import (
+	"atlas-refactor/internal/workload"
+	"bytes"
 	"context"
 	"os"
 	"testing"
@@ -39,6 +41,13 @@ func TestS2ReadOnlyBaseline(t *testing.T) {
 	ids, err := w.readBaseline(ctx, p)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if before, e := w.baselineUIDs(); e == nil {
+		if !bytes.Equal(workload.JSON(before), workload.JSON(ids)) {
+			t.Fatal("existing baseline resource UID changed")
+		}
+	} else if !os.IsNotExist(e) {
+		t.Fatal(e)
 	}
 	if len(ids) == 0 {
 		t.Fatal("empty baseline")
