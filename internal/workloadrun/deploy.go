@@ -72,6 +72,11 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 			}
 		}
 	}
+	// Discover unavailable publication authority before image writes or private
+	// credential generation, not at the first push after those preparations.
+	if e := w.checkPublicationAccess(ctx); e != nil {
+		return e
+	}
 	if e := w.CaptureBaseline(ctx, p, approval); e != nil {
 		return e
 	}

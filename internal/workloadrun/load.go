@@ -64,7 +64,7 @@ func command(ctx context.Context, dir string, input []byte, name string, args ..
 	c := exec.CommandContext(ctx, name, args...)
 	c.Dir = dir
 	c.Stdin = bytes.NewReader(input)
-	c.Env = []string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME"), "LANG=C", "GIT_TERMINAL_PROMPT=0", "GIT_CONFIG_NOSYSTEM=1"}
+	c.Env = []string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME"), "LANG=C", "GIT_TERMINAL_PROMPT=0", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=/dev/null"}
 	b, e := c.Output()
 	if e != nil {
 		return b, fmt.Errorf("%s failed (output withheld): %w", filepath.Base(name), e)
@@ -232,7 +232,38 @@ func (w *Workflow) Lock() (func(), error) {
 }
 func (w *Workflow) repo() string { return filepath.Join(w.Config.StateDirectory, "deployment") }
 func (w *Workflow) git(ctx context.Context, input []byte, args ...string) ([]byte, error) {
-	return command(ctx, w.repo(), input, "git", args...)
+	return command(ctx, w.repo(), input, "git", publicationGitArgs(args...)...)
+}
+
+// Match the established D1 transport policy without changing the D1 engine.
+// Authentication stays in the existing gh store; no token enters argv, state,
+// generated Git or logs. Per-process options never change the user's Git config.
+func publicationGitArgs(args ...string) []string {
+	prefix := []string{"-c", "core.hooksPath=/dev/null", "-c", "credential.helper=", "-c", "credential.helper=!gh auth git-credential", "-c", "user.name=Atlas S2", "-c", "user.email=atlas-s2@localhost", "-c", "commit.gpgsign=false"}
+	return append(prefix, args...)
+}
+func (w *Workflow) checkPublicationAccess(ctx context.Context) error {
+	name := strings.TrimSuffix(strings.TrimPrefix(w.Install.Config.Repository, "https://github.com/"), ".git")
+	raw, e := command(ctx, w.Config.StateDirectory, nil, "gh", "api", "--hostname", "github.com", "repos/"+name, "--jq", "{full_name,private,archived,push:.permissions.push}")
+	if e != nil {
+		return fmt.Errorf("GitHub publication access unavailable: %w", e)
+	}
+	return validatePublicationAccess(name, raw)
+}
+func validatePublicationAccess(name string, raw []byte) error {
+	var access struct {
+		FullName string `json:"full_name"`
+		Private  bool   `json:"private"`
+		Archived bool   `json:"archived"`
+		Push     bool   `json:"push"`
+	}
+	if e := workload.StrictDecode(raw, &access); e != nil {
+		return errors.New("invalid GitHub publication permission evidence")
+	}
+	if !strings.EqualFold(access.FullName, name) || access.Private || access.Archived || !access.Push {
+		return errors.New("deployment repository must be the exact public, active, writable GitHub repository")
+	}
+	return nil
 }
 func (w *Workflow) PrepareRepository(ctx context.Context) error {
 	if e := os.MkdirAll(w.repo(), 0700); e != nil {

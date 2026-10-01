@@ -76,7 +76,10 @@ atlas-platform workload compile --config /absolute/s2.json --phase infrastructur
 atlas-platform workload deploy --config /absolute/s2.json --approve-plan <SHA256>
 ```
 
-`plan` 只下载指定公开 deployment Git 分支到独立 bare repository，读取本地安装元数据并编译计划。
+`plan` 只下载指定公开 deployment Git 分支到独立 bare repository，读取本地安装元数据并编译计划，
+并通过已有 `gh` 登录只读核对精确仓库为 public、active、可写。fresh deploy 在镜像/凭据写入前复核该条件。
+S2 publisher 显式使用 D1 已采用的 `gh auth git-credential`，不用临时全局 credential helper；
+Git 进程屏蔽 global/system 配置与 hooks，凭据由现有 gh store 提供，不写入参数、日志或 Git。
 `compile` 只使用已准备的本地 Git 对象与文件，不联网、不碰集群。
 二者都不读取 Secret 或私钥，不启动集群。正式部署不创建/删除集群。
 
@@ -145,7 +148,18 @@ terminal 和 post-stop 诊断保留在对应 authority bundle；不清除 STOP�
 compiler、密文、GitOps 清单或 D1 engine；只修正 S2 的 canonical alias，新增精确 manifest 来源检查和
 分阶段错误定位。回归 `TestImageImportRegistersCRINameAndChecksAuthoredReference` 覆盖首次及已有同 digest，
 `TestImageImportFailsClosedAtEveryBoundary` 覆盖错误 repo/digest 和每步立即停止。
-回归是本地过程模拟，修正后的真实 CRI 导入尚未执行，不能记为 runtime PASS。
+该修正在第三次精确执行（`042b67a` / plan `82613831`，exact-head Quality PASS）完成了四节点真实 CRI
+验证及 Binding 私有凭据/密文准备。但 infrastructure push 以 exit 128 STOP：S2 Git 子进程没有 HTTPS
+credential helper；现有 gh session 对精确仓库有 push 权限。本地 intent commit `fd2deedd` 已保留，
+远端仍为 `70147b2`，没有成功发布 receipt。只读核对 145 个 UID/content/ownership 与 live provider identity
+未变；未执行 infrastructure Gate、consumer 或 probe。新凭据、密文及原 executable/plan/terminal 完整私有保留。
+
+用 D1 已有的显式 gh helper 对同一 intent/lease 做 `git push --dry-run` 成功，远端确认未变；没有实际重推。
+修正只接入既有认证策略、把仓库可写检查提前到 preparation 前、明确 push 阶段错误；不修改 lease、
+publisher 输出、凭据算法或 D1 engine。`TestPublicationAccessRequiresCompleteExactWritableRepository`
+覆盖缺失/未知/越权权限，`TestPublicationUsesGHStoreWithoutChangingUserGitConfiguration` 使用合成 helper
+验证全局配置不变与 token 不落库。旧 STOP 和旧 intent 不清除；下一次必须审查新实现/plan 与已准备的
+镜像、凭据现场，复用原凭据与密文，不因换 binary 重新生成它们。真实两阶段 GitOps 和 Web→S3 仍未通过。
 
 修正后，同一个 Go 基线函数已只读验证当前实例 145 个资源的内容、UID 与 ownership；显式复核命令：
 

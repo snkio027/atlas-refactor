@@ -43,6 +43,9 @@ func (w *Workflow) Plan(ctx context.Context) (Plan, error) {
 	if len(w.Model.Intent.Bindings) == 0 || len(w.Model.Intent.Workloads) <= len(w.Model.Intent.Bindings) {
 		return p, errors.New("this S2 acceptance runner requires both bound and unbound WebServices")
 	}
+	if e := w.checkPublicationAccess(ctx); e != nil {
+		return p, e
+	}
 	p.ImplementationCommit = w.BuildSource
 	p.GoVersion = w.BuildGoVersion
 	p.SourceDirty = w.BuildDirty
@@ -256,6 +259,9 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 		receipt = Publication{1, approval, phase, current, current, platform.BundleDigest(result.Files)}
 		return receipt, save(w.publicationPath(p, phase), workload.JSON(receipt), true)
 	}
+	if e = w.checkPublicationAccess(ctx); e != nil {
+		return receipt, e
+	}
 	commit, e := w.commit(ctx, merged, current, "S2 "+phase+" for "+p.Project)
 	if e != nil {
 		return receipt, e
@@ -267,7 +273,7 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 		return receipt, e
 	}
 	if _, e = w.git(ctx, nil, "push", "--force-with-lease=refs/heads/"+p.Branch+":"+current, p.Repository, commit+":refs/heads/"+p.Branch); e != nil {
-		return receipt, e
+		return receipt, fmt.Errorf("%s Git push failed; intent retained for outcome inspection: %w", phase, e)
 	}
 	observed, e := w.remote(ctx)
 	if e != nil || observed != commit {
@@ -295,9 +301,9 @@ func (w *Workflow) commit(ctx context.Context, files Files, parent, message stri
 	os.Remove(index.Name())
 	defer os.Remove(index.Name())
 	run := func(input []byte, args ...string) ([]byte, error) {
-		c := exec.CommandContext(ctx, "git", args...)
+		c := exec.CommandContext(ctx, "git", publicationGitArgs(args...)...)
 		c.Dir = w.repo()
-		c.Env = []string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME"), "GIT_INDEX_FILE=" + index.Name(), "GIT_CONFIG_NOSYSTEM=1", "GIT_AUTHOR_NAME=Atlas S2", "GIT_AUTHOR_EMAIL=atlas-s2@localhost", "GIT_COMMITTER_NAME=Atlas S2", "GIT_COMMITTER_EMAIL=atlas-s2@localhost"}
+		c.Env = []string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME"), "GIT_INDEX_FILE=" + index.Name(), "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=/dev/null", "GIT_TERMINAL_PROMPT=0", "GIT_AUTHOR_NAME=Atlas S2", "GIT_AUTHOR_EMAIL=atlas-s2@localhost", "GIT_COMMITTER_NAME=Atlas S2", "GIT_COMMITTER_EMAIL=atlas-s2@localhost"}
 		c.Stdin = bytes.NewReader(input)
 		b, e := c.Output()
 		if e != nil {
