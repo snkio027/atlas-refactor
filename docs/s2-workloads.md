@@ -125,5 +125,20 @@ ATLAS_S2_PROVIDER_FIXTURE=1 go test ./internal/workloadrun \
 隔离 provider fixture 已验证对象读写、Head/List/Tagging/multipart，以及跨桶、CreateBucket、DeleteBucket、
 PutBucketCORS 的 403。危险的 bucket mutation 负例仅作用于这个空的合成 fixture，绝不在真实 uploads 上试删。
 
-本机 cluster slice 尚未执行；上述单元/隔离测试不能替代 TLS、Cilium、Argo、Sealed Secrets、Prometheus 的实际组合验证。
+本机首次执行在只读 baseline 阶段 STOP，尚未导入镜像、生成凭据或发布 Git；真实 slice 尚未通过。
+原因是 Helm 的空 annotations、core ServiceAccount 空 apiGroup、API 省略的探针零延迟与 false 字段
+被当作 drift。修正只覆盖这些已知 Kubernetes 字段；非默认值、额外 RBAC subject 与网络权限仍拒绝。
+回归见 `TestAbsentAuthoredAnnotationsPermitArgoTracking`、`TestKnownAPIOmissionsPreserveAuthoredValues`、
+`TestBindingSubjectDefaultDoesNotBroadenPermissions`。这次失败没有外部 mutation，保留本说明与回归，
+本地只保留 latest 工作材料。基线也独立核对每个既有对象的 owner tracking 与 Argo SSA。
+
+修正后，同一个 Go 基线函数已只读验证当前实例 145 个资源的内容、UID 与 ownership；显式复核命令：
+
+```sh
+ATLAS_S2_BASELINE_CONFIG=/absolute/path/to/s2.json go test ./internal/workloadrun \
+  -run '^TestS2ReadOnlyBaseline$' -count=1 -v
+```
+
+该 opt-in 测试只做实例绑定检查、GET、Git read 和本地编译，不导入镜像、不使用凭据、不写 authority evidence。
+上述单元/隔离/只读测试不能替代 TLS、Cilium、Argo、Sealed Secrets、Prometheus 的实际组合验证。
 S2 不是生产多租户、安全隔离 admission、端到端 mTLS 或 HA 声明。发布与最终验收保持同一个 PR。

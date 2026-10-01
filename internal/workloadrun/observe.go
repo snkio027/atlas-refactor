@@ -126,25 +126,59 @@ func normalizedSelector(v any) any { // only LabelSelector's equivalent empty ma
 	}
 	return v
 }
-func matches(want, live Object) bool {
-	// JSON roundtrip normalizes typed compiler slices and integer representations.
-	var desired Object
-	_ = json.Unmarshal(workload.JSON(want), &desired)
-	if want["kind"] == "NetworkPolicy" {
-		desired["spec"] = normalizedSelector(desired["spec"])
-		live = observation.Clone(live)
-		live["spec"] = normalizedSelector(live["spec"])
+
+// comparisonObject canonicalizes only known Kubernetes zero-value omissions.
+// Never drop an authored false/zero: filling the omitted default on both sides
+// still detects a live true/nonzero value. Other missing fields remain failures.
+func comparisonObject(o Object) Object {
+	var r Object
+	_ = json.Unmarshal(workload.JSON(observation.Semantic(o)), &r)
+	fill := func(m Object, key string, value any) {
+		if m != nil {
+			if _, present := m[key]; !present {
+				m[key] = value
+			}
+		}
 	}
-	if !subset(desired, live) {
+	switch str(r["apiVersion"]) + "/" + str(r["kind"]) {
+	case "v1/Service":
+		fill(mapping(r["spec"]), "publishNotReadyAddresses", false)
+	case "apps/v1/Deployment", "apps/v1/DaemonSet", "apps/v1/StatefulSet":
+		pod := mapping(at(r, "spec", "template", "spec"))
+		fill(pod, "hostIPC", false)
+		fill(pod, "hostNetwork", false)
+		for _, field := range []string{"containers", "initContainers"} {
+			for _, c := range array(pod[field]) {
+				for _, probe := range []string{"livenessProbe", "readinessProbe", "startupProbe"} {
+					fill(mapping(mapping(c)[probe]), "initialDelaySeconds", float64(0))
+				}
+			}
+		}
+	case "rbac.authorization.k8s.io/v1/RoleBinding", "rbac.authorization.k8s.io/v1/ClusterRoleBinding":
+		for _, v := range array(r["subjects"]) {
+			s := mapping(v)
+			if s["kind"] == "ServiceAccount" {
+				fill(s, "apiGroup", "")
+			}
+		}
+	}
+	if r["kind"] == "NetworkPolicy" {
+		r["spec"] = normalizedSelector(r["spec"])
+	}
+	return r
+}
+func matches(want, live Object) bool {
+	desired, observed := comparisonObject(want), comparisonObject(live)
+	if !subset(desired, observed) {
 		return false
 	}
 	switch want["kind"] {
 	case "NetworkPolicy":
-		return bytes.Equal(workload.JSON(normalizedSelector(want["spec"])), workload.JSON(normalizedSelector(live["spec"])))
+		return bytes.Equal(workload.JSON(desired["spec"]), workload.JSON(observed["spec"]))
 	case "Role", "ClusterRole":
-		return bytes.Equal(workload.JSON(want["rules"]), workload.JSON(live["rules"]))
+		return bytes.Equal(workload.JSON(desired["rules"]), workload.JSON(observed["rules"]))
 	case "RoleBinding", "ClusterRoleBinding":
-		return bytes.Equal(workload.JSON(want["subjects"]), workload.JSON(live["subjects"])) && bytes.Equal(workload.JSON(want["roleRef"]), workload.JSON(live["roleRef"]))
+		return bytes.Equal(workload.JSON(desired["subjects"]), workload.JSON(observed["subjects"])) && bytes.Equal(workload.JSON(desired["roleRef"]), workload.JSON(observed["roleRef"]))
 	}
 	return true
 }
@@ -366,31 +400,41 @@ func (w *Workflow) CaptureBaseline(ctx context.Context, p Plan, approval string)
 	if e := w.approve(p, approval); e != nil {
 		return e
 	}
-	if e := w.bind(ctx); e != nil {
+	ids, e := w.readBaseline(ctx, p)
+	if e != nil {
 		return e
 	}
+	return save(filepath.Join(w.Config.StateDirectory, "authority", approval, "baseline-uids.json"), workload.JSON(ids), true)
+}
+
+// readBaseline is shared by the execution gate and opt-in read-only integration
+// test. It neither writes authority evidence nor invokes any mutation adapter.
+func (w *Workflow) readBaseline(ctx context.Context, p Plan) (map[string]string, error) {
+	if e := w.bind(ctx); e != nil {
+		return nil, e
+	}
 	if e := w.authority(ctx); e != nil {
-		return e
+		return nil, e
 	}
 	current, e := w.remote(ctx)
 	if e != nil || current != p.Parent {
-		return errors.New("baseline Git differs")
+		return nil, errors.New("baseline Git differs")
 	}
 	r, e := w.Compile("infrastructure")
 	if e != nil {
-		return e
+		return nil, e
 	}
 	beforeFiles, e := w.ReadTree(ctx, p.Parent)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	baseInv, e := workload.InventoryOf(beforeFiles, w.Context.ResourceModel)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	desired, e := desiredObjects(beforeFiles, baseInv)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	ids := map[string]string{}
 	for _, v := range baseInv {
@@ -398,20 +442,29 @@ func (w *Workflow) CaptureBaseline(ctx context.Context, p Plan, approval string)
 			continue
 		}
 		o := desired[v.Identity]
-		if str(at(o, "metadata", "annotations", "helm.sh/hook")) != "" {
+		if str(at(o, "metadata", "annotations", "helm.sh/hook")) != "" || str(at(o, "metadata", "annotations", "argocd.argoproj.io/hook")) != "" {
 			continue
 		}
 		ref := observation.Reference(o)
 		live, e := w.get(ctx, resourceArgument(ref), ref.Namespace, ref.Name)
 		if e != nil {
-			return e
+			return nil, e
 		}
 		if !matches(o, live) {
-			return fmt.Errorf("baseline content drift: %s", v.Identity)
+			return nil, fmt.Errorf("baseline content drift: %s", v.Identity)
+		}
+		owner := desired["argoproj.io/Application/argocd/"+v.Owner]
+		if owner == nil {
+			return nil, fmt.Errorf("baseline owner missing: %s", v.Identity)
+		}
+		dest := str(at(owner, "spec", "destination", "namespace"))
+		fact := observation.ClassifyResource(observation.ExpectedResource{Ref: ref, Tracking: observation.Tracking(v.Owner, dest, ref), RequireSSA: true, Readiness: "identity-content"}, live, nil)
+		if fact.Classification != observation.Verified {
+			return nil, fmt.Errorf("baseline ownership %s: %s %v", v.Identity, fact.Classification, fact.Reasons)
 		}
 		uid := str(at(live, "metadata", "uid"))
 		if uid == "" {
-			return errors.New("missing baseline UID")
+			return nil, errors.New("missing baseline UID")
 		}
 		ids[v.Identity] = uid
 	}
@@ -419,10 +472,10 @@ func (w *Workflow) CaptureBaseline(ctx context.Context, p Plan, approval string)
 	// was absent from the immutable D1 Git inventory.
 	b, e := w.kube(ctx, "get", "namespace", p.Project, "--ignore-not-found", "-o", "json")
 	if e != nil {
-		return e
+		return nil, e
 	}
 	if len(bytes.TrimSpace(b)) != 0 && p.Parent == p.BaseCommit {
-		return errors.New("Project namespace already exists live")
+		return nil, errors.New("Project namespace already exists live")
 	}
-	return save(filepath.Join(w.Config.StateDirectory, "authority", approval, "baseline-uids.json"), workload.JSON(ids), true)
+	return ids, nil
 }

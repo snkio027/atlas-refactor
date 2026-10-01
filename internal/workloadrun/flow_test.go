@@ -137,3 +137,98 @@ func TestPlanApprovalBindsTargetBeforeAnyIO(t *testing.T) {
 		t.Fatal("foreign install approved")
 	}
 }
+
+func TestAbsentAuthoredAnnotationsPermitArgoTracking(t *testing.T) {
+	want := Object{"apiVersion": "v1", "kind": "Service", "metadata": Object{"name": "metrics", "namespace": "atlas-monitoring", "annotations": nil}, "spec": Object{"ports": []any{Object{"port": 8080}}}}
+	got := Object{"apiVersion": "v1", "kind": "Service", "metadata": Object{"name": "metrics", "namespace": "atlas-monitoring", "annotations": Object{"argocd.argoproj.io/tracking-id": "monitoring:/Service:atlas-monitoring/metrics"}}, "spec": Object{"ports": []any{Object{"port": 8080}}}}
+	if !matches(want, got) {
+		t.Fatal("null authored annotations are not an instruction to remove Argo tracking")
+	}
+	mapping(want["metadata"])["annotations"] = Object{"reviewed": "value"}
+	if matches(want, got) {
+		t.Fatal("explicit authored annotation was ignored")
+	}
+}
+
+func TestKnownAPIOmissionsPreserveAuthoredValues(t *testing.T) {
+	cases := []struct {
+		name, api, kind string
+		object          Object
+		path            []string
+		zero, changed   any
+	}{
+		{"service false", "v1", "Service", Object{"spec": Object{}}, []string{"spec", "publishNotReadyAddresses"}, false, true},
+		{"pod hostNetwork", "apps/v1", "Deployment", Object{"spec": Object{"template": Object{"spec": Object{}}}}, []string{"spec", "template", "spec", "hostNetwork"}, false, true},
+		{"pod hostIPC", "apps/v1", "DaemonSet", Object{"spec": Object{"template": Object{"spec": Object{}}}}, []string{"spec", "template", "spec", "hostIPC"}, false, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			want := tc.object
+			want["apiVersion"], want["kind"] = tc.api, tc.kind
+			got := comparisonObject(want)
+			parent := mapping(at(want, tc.path[:len(tc.path)-1]...))
+			key := tc.path[len(tc.path)-1]
+			parent[key] = tc.zero
+			delete(mapping(at(got, tc.path[:len(tc.path)-1]...)), key)
+			if !matches(want, got) {
+				t.Fatal("omitted default rejected")
+			}
+			mapping(at(got, tc.path[:len(tc.path)-1]...))[key] = tc.changed
+			if matches(want, got) {
+				t.Fatal("changed value accepted")
+			}
+			delete(mapping(at(got, tc.path[:len(tc.path)-1]...)), key)
+			parent[key] = tc.changed
+			if matches(want, got) {
+				t.Fatal("omission hid authored non-default")
+			}
+		})
+	}
+	for _, kind := range []string{"Deployment", "DaemonSet", "StatefulSet"} {
+		for _, probe := range []string{"livenessProbe", "readinessProbe", "startupProbe"} {
+			want := Object{"apiVersion": "apps/v1", "kind": kind, "spec": Object{"template": Object{"spec": Object{"containers": []any{Object{"name": "web", probe: Object{"initialDelaySeconds": 0}}}}}}}
+			got := comparisonObject(want)
+			p := mapping(mapping(array(at(got, "spec", "template", "spec", "containers"))[0])[probe])
+			delete(p, "initialDelaySeconds")
+			if !matches(want, got) {
+				t.Fatal(kind, probe, "omitted zero rejected")
+			}
+			p["initialDelaySeconds"] = 1
+			if matches(want, got) {
+				t.Fatal(kind, probe, "nonzero accepted")
+			}
+		}
+	}
+	// The same field name elsewhere is not a Kubernetes defaulting rule.
+	want := Object{"apiVersion": "example.test/v1", "kind": "Thing", "spec": Object{"hostNetwork": false, "initialDelaySeconds": 0}}
+	got := Object{"apiVersion": "example.test/v1", "kind": "Thing", "spec": Object{}}
+	if matches(want, got) {
+		t.Fatal("generic zero omission accepted")
+	}
+}
+
+func TestBindingSubjectDefaultDoesNotBroadenPermissions(t *testing.T) {
+	for _, kind := range []string{"RoleBinding", "ClusterRoleBinding"} {
+		want := Object{"apiVersion": "rbac.authorization.k8s.io/v1", "kind": kind, "subjects": []any{Object{"kind": "ServiceAccount", "name": "controller", "namespace": "atlas-secrets", "apiGroup": ""}}, "roleRef": Object{"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "controller"}}
+		got := comparisonObject(want)
+		subject := mapping(array(got["subjects"])[0])
+		delete(subject, "apiGroup")
+		if !matches(want, got) {
+			t.Fatal("empty core API group omission rejected")
+		}
+		subject["apiGroup"] = "rbac.authorization.k8s.io"
+		if matches(want, got) {
+			t.Fatal("foreign API group accepted")
+		}
+		delete(subject, "apiGroup")
+		subject["namespace"] = "foreign"
+		if matches(want, got) {
+			t.Fatal("foreign subject accepted")
+		}
+		subject["namespace"] = "atlas-secrets"
+		got["subjects"] = append(array(got["subjects"]), Object{"kind": "User", "name": "extra"})
+		if matches(want, got) {
+			t.Fatal("extra subject accepted")
+		}
+	}
+}
