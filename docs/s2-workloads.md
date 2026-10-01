@@ -161,7 +161,8 @@ publisher 输出、凭据算法或 D1 engine。`TestPublicationAccessRequiresCom
 验证全局配置不变与 token 不落库。旧 STOP 和旧 intent 不清除；下一次必须审查新实现/plan 与已准备的
 镜像、凭据现场，复用原凭据与密文，不因换 binary 重新生成它们。真实两阶段 GitOps 和 Web→S3 仍未通过。
 
-修正后，同一个 Go 基线函数已只读验证当前实例 145 个资源的内容、UID 与 ownership；显式复核命令：
+infrastructure 发布前，同一个 Go 基线函数已只读验证实例 145 个资源的内容、UID 与 ownership；
+以下 baseline 命令仅适用于 plan 的原 parent 仍在远端、尚未开始发布的状态：
 
 ```sh
 ATLAS_S2_BASELINE_CONFIG=/absolute/path/to/s2.json go test ./internal/workloadrun \
@@ -169,5 +170,18 @@ ATLAS_S2_BASELINE_CONFIG=/absolute/path/to/s2.json go test ./internal/workloadru
 ```
 
 该 opt-in 测试只做实例绑定检查、GET、Git read 和本地编译，不导入镜像、不使用凭据、不写 authority evidence。
+
+后续执行通过 exact-head CI、四节点 CRI 和凭据复用，首次 infrastructure Git 发布成功，但在只读 Gate
+的 Application 列表读取处 STOP：适配器传递了空名称位置参数，真实 kubectl 在请求 API 前即拒绝。
+修正只在有名称时传入该参数；`TestKubectlCollectionAndNamedReads` 使用锁定 kubectl 与隔离 HTTP API，
+覆盖列表、具名读取、managedFields 保留、403 和无效 JSON。该回归在原实现失败、修正后通过。
+
+发布后的现场只读复核确认 145 个旧资源 UID、59 个 D1 冻结文件未变，四节点 Ready。修正后的独立
+只读诊断按原 producer identity 重建并比对已发布 infrastructure 摘要，验证 26 个子 Application 和
+132 项相关资源，Project VERIFIED；它不修改 mutation approval，也不把历史 STOP 改写成成功。
+consumer 发布、功能 probe、重复部署尚未执行，Runtime 仍 UNPROVEN。旧 terminal、发布 intent/receipt、
+原 executable 和私有凭据证据完整保留。已有 infrastructure publication 的现场不能重跑原 `deploy`，
+也不能用新的 binary 冒用旧 plan；剩余写入须另行审查精确执行决定，不提供自动 continuation。
+
 上述单元/隔离/只读测试不能替代 TLS、Cilium、Argo、Sealed Secrets、Prometheus 的实际组合验证。
 S2 不是生产多租户、安全隔离 admission、端到端 mTLS 或 HA 声明。发布与最终验收保持同一个 PR。

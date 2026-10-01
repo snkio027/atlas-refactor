@@ -397,7 +397,13 @@ func (w *Workflow) kube(ctx context.Context, args ...string) ([]byte, error) {
 	return command(ctx, w.Config.StateDirectory, nil, filepath.Join(installation.ToolDirectory(w.Install.Config.StateDirectory, w.Install.Product.Tools), "kubectl"), append([]string{"--kubeconfig", p, "--context", "kind-" + w.Install.Config.Cluster, "--request-timeout=30s"}, args...)...)
 }
 func (w *Workflow) get(ctx context.Context, kind, ns, name string) (Object, error) {
-	args := []string{"get", kind, name, "-o", "json", "--show-managed-fields=true"}
+	// An absent name requests a collection. An explicit empty positional
+	// argument is rejected by kubectl before any API read.
+	args := []string{"get", kind}
+	if name != "" {
+		args = append(args, name)
+	}
+	args = append(args, "-o", "json", "--show-managed-fields=true")
 	if ns != "" {
 		args = append(args, "-n", ns)
 	}
