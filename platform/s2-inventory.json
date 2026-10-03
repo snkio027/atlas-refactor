@@ -1,20 +1,29 @@
 {
   "schema": 1,
-  "phase": "infrastructure",
+  "phase": "consumer",
   "productSHA256": "ce28f76918b7b8d7be1dbfbf1d5e79911c6dfaf93ef00819965ff10863f09aec",
   "compilerSHA256": "98e83b60e325800b9ff186f721b173581495d25995c7dd0f317250cb3553714e",
   "baseSHA256": "3229debaf987ef6a5cfde51a5b25c44018c8ab2cb4f4a666155938d1ba8d9824",
   "intentSHA256": "712795e88f579e02ac4ac6cbc268318ca76e597bbc3bc2e584a234046592119a",
   "files": {
-    "gitops/platform/applications/overlays/development/resources.json": "b34818aa5ac570d5d68532f3bd081e50dbbb29f28a654cc847d1d42ad56f8212",
+    "gitops/platform/applications/overlays/development/resources.json": "a67550095c8b9468bcf2beddb69cb698c49e197f6d88dfcdc827286dd3faa760",
+    "gitops/platform/bindings/demo/web-api-storage/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/bindings/demo/web-api-storage/resources.json": "04354a62213e1f4b9be9e346d6f9ca0ac7d21835fceee5ced4a1d8d63d01856f",
     "gitops/platform/management/local-pki/overlays/development/resources.json": "9f8161c1e41ab2241a151d947490cbcec2d024c0ab93108c7b231b79dad6937d",
+    "gitops/platform/management/platform-credentials/overlays/development/resources.json": "117b597ab524884ec25775a0e284aee01f183803f2bd6989daa5667f7eaad8b6",
     "gitops/platform/management/projects/overlays/development/resources.json": "d6a79080c7901341fb424ee400f7815545dec1b3372d48859927f83f19ff4982",
     "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml": "995a348a00c29204dab79160e04d12134d5895e9669398931625338dd760edfd",
     "gitops/platform/management/sealed-secrets/overlays/development/resources.json": "f567a757ef8aa354bdd80a2a5417da847103a1eac5efcf1eda3bbd11f5e7ff87",
     "gitops/platform/networking/edge/overlays/development/resources.json": "f8d3d99b18ee6ef076872309eb6c89fec9807bd53a1a0e244735a71f1f618edd",
     "gitops/platform/observability/stack/overlays/development/rendered.yaml": "e479e419e220021f2099ed5983311345e18794d26375a0aca4e0e9734b540e17",
     "gitops/platform/projects/demo/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
-    "gitops/platform/projects/demo/resources.json": "8f03fb4b58da1665786f3186137d1a7c01fab370c955098c55862e5b01281d73",
+    "gitops/platform/projects/demo/resources.json": "85c0e2c05f39507c460be4adefb932d56bc234e99b0563b8710055e63f058ade",
+    "gitops/platform/storage/seaweedfs/overlays/development/resources.json": "64320e68948b6d164478ffe34de96b5c58cad898b098252b1111f84317b6a386",
+    "gitops/workloads/applications/overlays/development/resources.json": "0c5b284b540360563a559d471dbdaa45a8218c417b2dbd30eea2dbb3dd6c5c22",
+    "gitops/workloads/projects/demo/unbound/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/workloads/projects/demo/unbound/resources.json": "6a63130893e7b5af95d98ad2b5016238b02a31d09eae3d8b12d639930a6d3dcd",
+    "gitops/workloads/projects/demo/web-api/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/workloads/projects/demo/web-api/resources.json": "b8bdd7974fdcfd5b4a66f555cd916aa7cf2b19ac79c00dddb80940dd31233afc",
     "platform/bindings/demo/web-api-storage.json": "ed403b41867c6c590cd5fe31bc3728c26fcf1de003aa6970aeeb297603a7da5b",
     "platform/projects/demo.json": "dc3a70c7b642f881f6cb9c302f2c77ca215333f181ea5247a0285d272ba3b7a2",
     "platform/workloads/demo/unbound.json": "e9dea12a005d858172b32a2e92143f09e12ca59731f56c82f2de02253c361d78",
@@ -488,6 +497,18 @@
       "owner": "cert-manager",
       "path": "gitops/platform/management/cert-manager/overlays/development/rendered.yaml",
       "sha256": "b936e3cdb6a2902b995e85a220f682f8379a486170b219ed90b2b2f83ab7ce50"
+    },
+    {
+      "identity": "/Service/demo/unbound",
+      "owner": "s2-w-demo-unbound-1d2730626355",
+      "path": "gitops/workloads/projects/demo/unbound/resources.json",
+      "sha256": "145cb6fca528b4511b2bb03d4b8b68c85d7232b0d8a5ab328180c24ec000d825"
+    },
+    {
+      "identity": "/Service/demo/web-api",
+      "owner": "s2-w-demo-web-api-fa6fb71d81c8",
+      "path": "gitops/workloads/projects/demo/web-api/resources.json",
+      "sha256": "1c6a647ce908a56a241bb49152961e47ddb87ebb8043d550f85109a7916aebea"
     },
     {
       "identity": "/Service/envoy-gateway-system/envoy-gateway",
@@ -982,6 +1003,18 @@
       "sha256": "4526188383f4ff59712f2d7199511761bf63369605291e00279c43922a64dfe7"
     },
     {
+      "identity": "apps/Deployment/demo/unbound",
+      "owner": "s2-w-demo-unbound-1d2730626355",
+      "path": "gitops/workloads/projects/demo/unbound/resources.json",
+      "sha256": "347e1f1f3590abc215903daf3b280114090091224afbb70375c681c996604102"
+    },
+    {
+      "identity": "apps/Deployment/demo/web-api",
+      "owner": "s2-w-demo-web-api-fa6fb71d81c8",
+      "path": "gitops/workloads/projects/demo/web-api/resources.json",
+      "sha256": "4be3de8aa682a611a91753f94fd00aa82146da153689450c43c73605a9f7c716"
+    },
+    {
       "identity": "apps/Deployment/envoy-gateway-system/envoy-gateway",
       "owner": "envoy-gateway",
       "path": "gitops/platform/networking/envoy-gateway/overlays/development/rendered.yaml",
@@ -1015,7 +1048,7 @@
       "identity": "apps/StatefulSet/atlas-storage/seaweedfs",
       "owner": "object-storage",
       "path": "gitops/platform/storage/seaweedfs/overlays/development/resources.json",
-      "sha256": "78ccf8aacf49e727bebab250b3ad1f33d0ec8b41cfb31554805cb8275fa4f467"
+      "sha256": "108f89ad11e817e0e91364cb9baae2196991dc5c4c8a7065efd80ff517dd6338"
     },
     {
       "identity": "argoproj.io/AppProject/argocd/platform-project",
@@ -1138,10 +1171,28 @@
       "sha256": "52e1e64fc8e2761c98609b60d3475878b769b2ce58450153e92e4241f9d0dfb8"
     },
     {
+      "identity": "argoproj.io/Application/argocd/s2-b-demo-web-api-storage-5d5f8f616377",
+      "owner": "platform-control",
+      "path": "gitops/platform/applications/overlays/development/resources.json",
+      "sha256": "b90b3dbc7785007a3943259c916acee5301c65894f5a6075a1b2013dcd3dddd1"
+    },
+    {
       "identity": "argoproj.io/Application/argocd/s2-p-demo-11d0a453ed37",
       "owner": "platform-control",
       "path": "gitops/platform/applications/overlays/development/resources.json",
       "sha256": "b19c924a92aac07783d4daaa3f7605b01b82c4d3c5cf806f097dd1f979f6e813"
+    },
+    {
+      "identity": "argoproj.io/Application/argocd/s2-w-demo-unbound-1d2730626355",
+      "owner": "workload-control",
+      "path": "gitops/workloads/applications/overlays/development/resources.json",
+      "sha256": "24b63382f050e942710f7f97e692b09edd5891cae4b066cef3cc850622d65129"
+    },
+    {
+      "identity": "argoproj.io/Application/argocd/s2-w-demo-web-api-fa6fb71d81c8",
+      "owner": "workload-control",
+      "path": "gitops/workloads/applications/overlays/development/resources.json",
+      "sha256": "3fe7902736185f2d9da940e1c1e0586a80c07dc7c89555fc391d13a73143794c"
     },
     {
       "identity": "argoproj.io/Application/argocd/secrets-controller",
@@ -1207,7 +1258,13 @@
       "identity": "bitnami.com/SealedSecret/atlas-storage/seaweedfs-auth",
       "owner": "platform-credentials",
       "path": "gitops/platform/management/platform-credentials/overlays/development/resources.json",
-      "sha256": "29f3c25191e8f082807e1a10d66f5aeb4b14cf70ff3444b1829689aabbb9de2a"
+      "sha256": "7e2f19b9eaf63ab7ff65c1e57f7d0358783f9f2119928dc8e64b866e92336bf4"
+    },
+    {
+      "identity": "bitnami.com/SealedSecret/demo/s3-5d5f8f616377",
+      "owner": "platform-credentials",
+      "path": "gitops/platform/management/platform-credentials/overlays/development/resources.json",
+      "sha256": "6b3d1c0755925df288edbf3575dad6a10b9718f76a37f7ddc2c8243b96d754f8"
     },
     {
       "identity": "bitnami.com/SealedSecret/workload-web/s3-client",
@@ -1298,6 +1355,30 @@
       "owner": "edge",
       "path": "gitops/platform/networking/edge/overlays/development/resources.json",
       "sha256": "362bada4f33ba98cc72509bfe4aae2bc6aa77bc295460c6472b33ac318f11fe6"
+    },
+    {
+      "identity": "gateway.networking.k8s.io/HTTPRoute/demo/unbound-http",
+      "owner": "s2-w-demo-unbound-1d2730626355",
+      "path": "gitops/workloads/projects/demo/unbound/resources.json",
+      "sha256": "5ae083043abffbfc5c9dc84c402c427a7d94afa9b147485dc16fdd5a8c37bd05"
+    },
+    {
+      "identity": "gateway.networking.k8s.io/HTTPRoute/demo/unbound-https",
+      "owner": "s2-w-demo-unbound-1d2730626355",
+      "path": "gitops/workloads/projects/demo/unbound/resources.json",
+      "sha256": "74f26a13079ee46039edbafa52cb029713e51e48821007770948b2d8823e849e"
+    },
+    {
+      "identity": "gateway.networking.k8s.io/HTTPRoute/demo/web-api-http",
+      "owner": "s2-w-demo-web-api-fa6fb71d81c8",
+      "path": "gitops/workloads/projects/demo/web-api/resources.json",
+      "sha256": "e4f7d20b0e7a34cc14a045326d105d07ba4d737f8f6c8dcbe25dbe8baad93c52"
+    },
+    {
+      "identity": "gateway.networking.k8s.io/HTTPRoute/demo/web-api-https",
+      "owner": "s2-w-demo-web-api-fa6fb71d81c8",
+      "path": "gitops/workloads/projects/demo/web-api/resources.json",
+      "sha256": "c8493f193b5b94a9a97b149928ba88f941b738f5558a41ec2d85b4eace93cc35"
     },
     {
       "identity": "gateway.networking.k8s.io/HTTPRoute/workload-web/web-http",
@@ -1576,6 +1657,12 @@
       "sha256": "b1868b3e6b0219d57d8925f135a6795972c7ed9d5d2bc5bae5843e6eeecff729"
     },
     {
+      "identity": "monitoring.coreos.com/ServiceMonitor/demo/web-api",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "ccf011468ed40d375ab0bea38be4e1daacee164176b0b004402ccc79ed4919a0"
+    },
+    {
       "identity": "networking.k8s.io/NetworkPolicy/argocd/atlas-refactor-argocd-application-controller",
       "owner": "argocd-self",
       "path": "gitops/platform/management/argocd-self/overlays/development/rendered.yaml",
@@ -1604,6 +1691,12 @@
       "owner": "observability-foundation",
       "path": "gitops/platform/foundation/observability/overlays/development/resources.json",
       "sha256": "6ec7075dac1ee1bba900d7fe085f5398761005efa06911a90e00fba78b7ba6a0"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/atlas-storage/s3-5d5f8f616377-ingress",
+      "owner": "s2-b-demo-web-api-storage-5d5f8f616377",
+      "path": "gitops/platform/bindings/demo/web-api-storage/resources.json",
+      "sha256": "839e32cd4cfe52c21ab8e562d86ea2379a6d8e967121b2f39bd852ea5114c405"
     },
     {
       "identity": "networking.k8s.io/NetworkPolicy/atlas-storage/s3-clients",
@@ -1646,6 +1739,12 @@
       "owner": "s2-p-demo-11d0a453ed37",
       "path": "gitops/platform/projects/demo/resources.json",
       "sha256": "aa3d42efcd377b375ef6d6299c0478857f5b46b27227fb223bebb1e2446a61ad"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/s3-5d5f8f616377-egress",
+      "owner": "s2-b-demo-web-api-storage-5d5f8f616377",
+      "path": "gitops/platform/bindings/demo/web-api-storage/resources.json",
+      "sha256": "0b5c5367e070f08e334f33a1e84c2a99e6357731582546ed573a313375d3e3f9"
     },
     {
       "identity": "networking.k8s.io/NetworkPolicy/workload-web/allow-dns",

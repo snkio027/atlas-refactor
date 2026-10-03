@@ -35,6 +35,76 @@
           ]
         }
       }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "10"
+        },
+        "name": "s2-w-demo-unbound-1d2730626355",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "demo",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "workload-project",
+        "source": {
+          "path": "gitops/workloads/projects/demo/unbound",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "atlas-s2-r1"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "10"
+        },
+        "name": "s2-w-demo-web-api-fa6fb71d81c8",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "demo",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "workload-project",
+        "source": {
+          "path": "gitops/workloads/projects/demo/web-api",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "atlas-s2-r1"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
     }
   ],
   "kind": "List"
