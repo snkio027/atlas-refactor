@@ -87,6 +87,64 @@
         "renewBefore": "168h",
         "secretName": "web-tls"
       }
+    },
+    {
+      "apiVersion": "cert-manager.io/v1",
+      "kind": "Certificate",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "3"
+        },
+        "name": "s2-1d2730626355-tls",
+        "namespace": "atlas-gateway"
+      },
+      "spec": {
+        "dnsNames": [
+          "unbound.atlas.test"
+        ],
+        "duration": "720h",
+        "issuerRef": {
+          "group": "cert-manager.io",
+          "kind": "Issuer",
+          "name": "development-ca"
+        },
+        "privateKey": {
+          "algorithm": "ECDSA",
+          "rotationPolicy": "Always",
+          "size": 256
+        },
+        "renewBefore": "168h",
+        "secretName": "s2-1d2730626355-tls"
+      }
+    },
+    {
+      "apiVersion": "cert-manager.io/v1",
+      "kind": "Certificate",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "3"
+        },
+        "name": "s2-fa6fb71d81c8-tls",
+        "namespace": "atlas-gateway"
+      },
+      "spec": {
+        "dnsNames": [
+          "api-demo.atlas.test"
+        ],
+        "duration": "720h",
+        "issuerRef": {
+          "group": "cert-manager.io",
+          "kind": "Issuer",
+          "name": "development-ca"
+        },
+        "privateKey": {
+          "algorithm": "ECDSA",
+          "rotationPolicy": "Always",
+          "size": 256
+        },
+        "renewBefore": "168h",
+        "secretName": "s2-fa6fb71d81c8-tls"
+      }
     }
   ],
   "kind": "List"
