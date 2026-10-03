@@ -378,23 +378,30 @@ func (w *Workflow) WriteResult(r workload.Result) error {
 	}
 	return save(filepath.Join(w.Config.StateDirectory, "latest-compile.json"), workload.JSON(Object{"directory": dir, "inventory": r.Inventory}), false)
 }
-func (w *Workflow) kube(ctx context.Context, args ...string) ([]byte, error) {
+func (w *Workflow) kubeCommand(args ...string) (string, []string, error) {
 	if !w.toolsVerified {
 		if e := installation.VerifyTools(w.Install.Config.StateDirectory, w.Install.Product.Tools); e != nil {
-			return nil, e
+			return "", nil, e
 		}
 		w.toolsVerified = true
 	}
 	p := filepath.Join(w.Install.Config.StateDirectory, "runtime/.state/kubeconfig")
 	b, e := regular(p, true)
 	if e != nil {
-		return nil, e
+		return "", nil, e
 	}
 	h, e := regular(p+".sha256", true)
 	if e != nil || workload.Digest(b) != strings.TrimSpace(string(h)) {
-		return nil, errors.New("kubeconfig binding differs")
+		return "", nil, errors.New("kubeconfig binding differs")
 	}
-	return command(ctx, w.Config.StateDirectory, nil, filepath.Join(installation.ToolDirectory(w.Install.Config.StateDirectory, w.Install.Product.Tools), "kubectl"), append([]string{"--kubeconfig", p, "--context", "kind-" + w.Install.Config.Cluster, "--request-timeout=30s"}, args...)...)
+	return filepath.Join(installation.ToolDirectory(w.Install.Config.StateDirectory, w.Install.Product.Tools), "kubectl"), append([]string{"--kubeconfig", p, "--context", "kind-" + w.Install.Config.Cluster, "--request-timeout=30s"}, args...), nil
+}
+func (w *Workflow) kube(ctx context.Context, args ...string) ([]byte, error) {
+	tool, argv, e := w.kubeCommand(args...)
+	if e != nil {
+		return nil, e
+	}
+	return command(ctx, w.Config.StateDirectory, nil, tool, argv...)
 }
 func (w *Workflow) get(ctx context.Context, kind, ns, name string) (Object, error) {
 	// An absent name requests a collection. An explicit empty positional

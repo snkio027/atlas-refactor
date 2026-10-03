@@ -218,3 +218,8 @@ S2 不是生产多租户、安全隔离 admission、端到端 mTLS 或 HA 声明
 显式编译并补真实 API spec 回归；编译入口进一步校验 CRD 默认值遗漏并前置 consumer 预检，
 见上文。没有放宽观察器或更新现场。完整绑定、已通过/未执行 Gate 和保留
 范围见 [本次验证记录](s2-clean-validation.md)；下一次 live mutation 需要新的执行决定。
+
+
+后续 r2 已通过 infrastructure 和 consumer Gate，随后因 API Service proxy 被监测网络边界拒绝
+而 STOP。metrics 读取改为有限 loopback port-forward，与既有 D1 访问方式一致；不开放网络、
+不降低 all-replicas `up=1` Gate。历史结果与回归见 [验证记录](s2-clean-validation.md)。

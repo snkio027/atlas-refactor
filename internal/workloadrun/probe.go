@@ -257,11 +257,34 @@ func (w *Workflow) metric(ctx context.Context, v workload.Workload) error {
 	if !v.Observability.Metrics {
 		return nil
 	}
-	q := "up{namespace=\"" + v.Project + "\",service=\"" + v.Name + "\"}"
-	path := "/api/v1/namespaces/atlas-monitoring/services/http:atlas-monitoring-prometheus:9090/proxy/api/v1/query?query=" + url.QueryEscape(q)
-	raw, e := w.kube(ctx, "get", "--raw", path)
+	address, stop, e := w.forwardService(ctx, "prometheus")
 	if e != nil {
 		return e
+	}
+	defer stop()
+	client := loopbackClient()
+	defer client.CloseIdleConnections()
+	return queryMetric(ctx, client, address, v)
+}
+
+func queryMetric(ctx context.Context, client *http.Client, address string, v workload.Workload) error {
+	q := "up{namespace=\"" + v.Project + "\",service=\"" + v.Name + "\"}"
+	req, e := http.NewRequestWithContext(ctx, "GET", address+"/api/v1/query?query="+url.QueryEscape(q), nil)
+	if e != nil {
+		return e
+	}
+	response, e := client.Do(req)
+	if e != nil {
+		return errors.New("Prometheus query unavailable")
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return errors.New("Prometheus query HTTP failure")
+	}
+	const limit = 4 << 20
+	raw, e := io.ReadAll(io.LimitReader(response.Body, limit+1))
+	if e != nil || len(raw) > limit {
+		return errors.New("Prometheus response unreadable or oversized")
 	}
 	var metrics Object
 	if e = json.Unmarshal(raw, &metrics); e != nil {

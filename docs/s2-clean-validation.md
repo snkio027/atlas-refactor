@@ -92,3 +92,33 @@ terminal、确切二进制/plan、新实例凭据与密钥备份、元数据 aud
 未证明：真实 HTTPS→S3、unbound 网络拒绝、跨项目 Secret 授权拒绝、metrics discovery、S2 后 D1
 功能回归，以及成功后的幂等/零写入审计 Gate。禁止把本地修复或 fixture PASS 当成这些 Gate 的替代。
 本次仍是同机、有公开镜像缓存的开发实例，不构成独立干净机器、HA 或强多租户生产保证。
+
+
+## r2：metrics 读取通路失败（53634fe）
+
+`atlas-s2-r2` 的唯一 S2 attempt 使用 `53634feaf85b3762fb06e7479f2bc18c276151b7`，
+plan `65ac3a6f8788ab5f33d9efea869b5dd6c0989f3033934d41fea3c453dd69874b`，
+cluster UID `495d7cba-cf78-4c0b-b7ce-70ab935122ba`。
+D1 曾在旧集群并行运行时失败；经用户批准删除旧集群后重试通过，因此 r2 不能声称完整首装单次 PASS。
+原始 D1 STOP 与重试记录分别保留。
+
+S2 infrastructure `bffe2c5e73637647ebb6e1467b7c711821aa9b49` 和 consumer
+`b0076a2361edc1df63046ae0674a1a1ffb4e9c8e` 均成功发布并通过 Gate。
+CRD default-stability 修正生效；Project / Workload / Binding VERIFIED。
+随后 metrics 查询失败，deploy exit 1，Runtime UNPROVEN；未执行功能 probe 或幂等验收。
+
+根因是 `kubectl get --raw .../services/.../proxy/api/v1/query` 的 API Service proxy
+连接来自 Cilium `remote-node` identity，不满足冻结的 monitoring-ingress 策略。
+现场捕获到访问 Prometheus 9090 的 Policy denied SYN；同一查询经临时 loopback
+port-forward 返回成功且目标 `up=1`。这是观察通路不符合平台网络边界，不是 scrape 未就绪。
+
+修正为精确绑定实例 kubeconfig/context、校验工具后，对锁定 Prometheus Service 建立
+临时 `127.0.0.1` port-forward；只发 GET，禁止环境代理/重定向，限制响应大小与等待时间。
+同一私有 helper 也替换 D1 S3 兼容性读取的重复转发代码，持续排空 stdout 并在所有退出路径
+取消和回收子进程。它不修改 D1 release、NetworkPolicy、GitOps 输出、权限、Gate 或超时上限。
+普通 Observe 仍不启动转发；转发仅属于已批准 deploy/probe 的读通路。
+
+回归：`TestServiceForwardProcess` 用真实子进程验证输出管道持续排空、HTTP 查询、提前退出、
+错误地址/端口、取消与重复清理；`TestMetricGate` 验证全部副本 up、缺失/失败抓取、HTTP/JSON
+失败、重定向与响应上限；未知连接失败保持 fatal。旧 STOP、发布 intent/receipt、私有备份和
+完整证据不改写；用户已另行批准修正、清理旧集群并以新实例重新验证。
