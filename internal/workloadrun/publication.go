@@ -11,35 +11,36 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 )
 
 type Plan struct {
-	Schema               int      `json:"schema"`
-	Cluster              string   `json:"cluster"`
-	ClusterUID           string   `json:"clusterUID"`
-	InstallID            string   `json:"installID"`
-	Repository           string   `json:"repository"`
-	Branch               string   `json:"branch"`
-	Parent               string   `json:"parent"`
-	BaseCommit           string   `json:"baseCommit"`
-	ProductSHA256        string   `json:"productSHA256"`
-	CompilerSHA256       string   `json:"compilerSHA256"`
-	ConfigSHA256         string   `json:"configSHA256"`
-	IntentSHA256         string   `json:"intentSHA256"`
-	InfrastructureSHA256 string   `json:"infrastructureSHA256"`
-	CertificateSHA256    string   `json:"certificateSHA256"`
-	Project              string   `json:"project"`
-	CredentialTargets    []string `json:"credentialTargets"`
-	Phases               []string `json:"phases"`
-	ImplementationCommit string   `json:"implementationCommit"`
-	GoVersion            string   `json:"goVersion"`
-	SourceDirty          bool     `json:"sourceDirty"`
+	Schema               int               `json:"schema"`
+	Cluster              string            `json:"cluster"`
+	ClusterUID           string            `json:"clusterUID"`
+	InstallID            string            `json:"installID"`
+	Repository           string            `json:"repository"`
+	Branch               string            `json:"branch"`
+	Parent               string            `json:"parent"`
+	BaseCommit           string            `json:"baseCommit"`
+	ProductSHA256        string            `json:"productSHA256"`
+	CompilerSHA256       string            `json:"compilerSHA256"`
+	ConfigSHA256         string            `json:"configSHA256"`
+	IntentSHA256         string            `json:"intentSHA256"`
+	PhaseSHA256          map[string]string `json:"phaseSHA256"`
+	CertificateSHA256    string            `json:"certificateSHA256"`
+	Project              string            `json:"project"`
+	CredentialTargets    []string          `json:"credentialTargets"`
+	Phases               []string          `json:"phases"`
+	ImplementationCommit string            `json:"implementationCommit"`
+	GoVersion            string            `json:"goVersion"`
+	SourceDirty          bool              `json:"sourceDirty"`
 }
 
 func (w *Workflow) Plan(ctx context.Context) (Plan, error) {
-	p := Plan{Schema: 1, Cluster: w.Install.Config.Cluster, ClusterUID: w.Install.Record.ClusterUID, InstallID: w.Install.Record.InstallID, Repository: w.Context.Repository, Branch: w.Context.Branch, BaseCommit: w.Install.Record.FullCommit, ProductSHA256: w.Install.ProductDigest, CompilerSHA256: w.BinarySHA256, ConfigSHA256: workload.Digest(workload.JSON(w.Config)), IntentSHA256: workload.Digest(workload.JSON(w.Model.Intent)), CertificateSHA256: w.Install.Record.CertificateSHA256, Project: w.Model.Intent.Project.Name, CredentialTargets: []string{}, Phases: []string{"infrastructure", "consumer"}}
+	p := Plan{Schema: 2, Cluster: w.Install.Config.Cluster, ClusterUID: w.Install.Record.ClusterUID, InstallID: w.Install.Record.InstallID, Repository: w.Context.Repository, Branch: w.Context.Branch, BaseCommit: w.Install.Record.FullCommit, ProductSHA256: w.Install.ProductDigest, CompilerSHA256: w.BinarySHA256, ConfigSHA256: workload.Digest(workload.JSON(w.Config)), IntentSHA256: workload.Digest(workload.JSON(w.Model.Intent)), CertificateSHA256: w.Install.Record.CertificateSHA256, Project: w.Model.Intent.Project.Name, CredentialTargets: []string{}, Phases: publicationPhases(true)}
 	if len(w.Model.Intent.Bindings) == 0 || len(w.Model.Intent.Workloads) <= len(w.Model.Intent.Bindings) {
 		return p, errors.New("this S2 acceptance runner requires both bound and unbound WebServices")
 	}
@@ -70,15 +71,14 @@ func (w *Workflow) Plan(ctx context.Context) (Plan, error) {
 			return p, e
 		}
 		if inv.Phase != "consumer" {
-			return p, errors.New("an existing infrastructure publication must finish under its original plan")
+			return p, errors.New("an incomplete publication cannot become a new plan")
 		}
 		p.Phases = []string{"consumer"}
 	}
-	r, e := w.Compile("infrastructure")
+	p.PhaseSHA256, e = w.phaseDigests()
 	if e != nil {
 		return p, e
 	}
-	p.InfrastructureSHA256 = platform.BundleDigest(r.Files)
 	p.CredentialTargets = append(p.CredentialTargets, "atlas-storage/seaweedfs-auth")
 	for _, b := range w.Model.Intent.Bindings {
 		p.CredentialTargets = append(p.CredentialTargets, b.Project+"/"+b.Secret())
@@ -97,15 +97,18 @@ func (w *Workflow) approve(p Plan, digest string) error {
 	if p.SourceDirty || w.BuildDirty || !fullSHA.MatchString(p.ImplementationCommit) || p.ImplementationCommit != w.BuildSource || p.GoVersion != w.BuildGoVersion {
 		return errors.New("execution requires a clean, source-bound compiled binary")
 	}
-	if digest == "" || digest != workload.Digest(workload.JSON(p)) || p.Schema != 1 || p.CompilerSHA256 != w.BinarySHA256 || p.ProductSHA256 != w.Install.ProductDigest || p.ClusterUID != w.Install.Record.ClusterUID || p.InstallID != w.Install.Record.InstallID || p.Repository != w.Context.Repository || p.Branch != w.Context.Branch || p.BaseCommit != w.Install.Record.FullCommit || p.ConfigSHA256 != workload.Digest(workload.JSON(w.Config)) || p.IntentSHA256 != workload.Digest(workload.JSON(w.Model.Intent)) || p.CertificateSHA256 != w.Install.Record.CertificateSHA256 {
+	if digest == "" || digest != workload.Digest(workload.JSON(p)) || p.Schema != 2 || p.CompilerSHA256 != w.BinarySHA256 || p.ProductSHA256 != w.Install.ProductDigest || p.ClusterUID != w.Install.Record.ClusterUID || p.InstallID != w.Install.Record.InstallID || p.Repository != w.Context.Repository || p.Branch != w.Context.Branch || p.BaseCommit != w.Install.Record.FullCommit || p.ConfigSHA256 != workload.Digest(workload.JSON(w.Config)) || p.IntentSHA256 != workload.Digest(workload.JSON(w.Model.Intent)) || p.CertificateSHA256 != w.Install.Record.CertificateSHA256 {
 		return errors.New("exact approved S2 plan/input binding required")
 	}
-	r, e := w.Compile("infrastructure")
+	if !slices.Equal(p.Phases, publicationPhases(p.Parent == p.BaseCommit)) || p.Project != w.Model.Intent.Project.Name || !fullSHA.MatchString(p.Parent) {
+		return errors.New("invalid fixed publication sequence")
+	}
+	digests, e := w.phaseDigests()
 	if e != nil {
 		return e
 	}
-	if platform.BundleDigest(r.Files) != p.InfrastructureSHA256 {
-		return errors.New("compiled infrastructure changed")
+	if !bytes.Equal(workload.JSON(digests), workload.JSON(p.PhaseSHA256)) {
+		return errors.New("compiled publication prerequisites changed")
 	}
 	return nil
 }
@@ -183,6 +186,9 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 	if !allowed {
 		return receipt, errors.New("phase not in approved plan")
 	}
+	if e := w.publicationWritable(p, phase); e != nil {
+		return receipt, e
+	}
 	result, e := w.Compile(phase)
 	if e != nil {
 		return receipt, e
@@ -203,26 +209,21 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 	} else if !os.IsNotExist(e) {
 		return receipt, e
 	}
+	// A receipt records a push, not readiness. Even standalone publish must
+	// re-observe its predecessor before exposing any dependent source tree.
+	prior, e := w.precedingPublication(p, phase)
+	if e != nil {
+		return receipt, e
+	}
 	expectedParent := p.Parent
-	if phase == "consumer" && len(p.Phases) == 2 {
-		b, e := regular(w.publicationPath(p, "infrastructure"), true)
-		if e != nil {
-			return receipt, e
-		}
-		var prior Publication
-		if e = workload.StrictDecode(b, &prior); e != nil {
-			return receipt, e
-		}
-		if prior.PlanSHA256 != approval || prior.Phase != "infrastructure" || !fullSHA.MatchString(prior.Commit) {
-			return receipt, errors.New("infrastructure receipt mismatch")
-		}
+	if prior != nil {
 		expectedParent = prior.Commit
-		infra, e := w.Compile("infrastructure")
+		r, e := w.Compile(prior.Phase)
 		if e != nil {
 			return receipt, e
 		}
-		if _, e = w.Observe(ctx, infra, expectedParent); e != nil {
-			return receipt, fmt.Errorf("infrastructure gate: %w", e)
+		if _, e = w.observeLatest(ctx, r, expectedParent); e != nil {
+			return receipt, fmt.Errorf("%s gate: %w", prior.Phase, e)
 		}
 	}
 	if current != expectedParent {
@@ -281,6 +282,75 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 	}
 	return receipt, save(w.publicationPath(p, phase), workload.JSON(receipt), true)
 }
+
+// publicationPhases deliberately describes one fixed protocol, not a resume
+// graph. Updates keep the existing Project/namespace (ValidateUpdate).
+func publicationPhases(fresh bool) []string {
+	if fresh {
+		return []string{"permissions", "project", "infrastructure", "consumer"}
+	}
+	return []string{"consumer"}
+}
+
+func (w *Workflow) phaseDigests() (map[string]string, error) {
+	digests := map[string]string{}
+	for _, phase := range []string{"permissions", "project", "infrastructure"} {
+		r, e := w.Compile(phase)
+		if e != nil {
+			return nil, e
+		}
+		digests[phase] = platform.BundleDigest(r.Files)
+	}
+	return digests, nil
+}
+
+func (w *Workflow) publicationWritable(p Plan, phase string) error {
+	terminal := filepath.Join(w.Config.StateDirectory, "authority", workload.Digest(workload.JSON(p)), "terminal.json")
+	if _, e := regular(terminal, true); e == nil {
+		return errors.New("prior attempt stopped; publication is forbidden")
+	} else if !os.IsNotExist(e) {
+		return e
+	}
+	if _, e := regular(w.publicationPath(p, phase), true); e == nil {
+		return nil // Receipt will be validated; no remote mutation is repeated.
+	} else if !os.IsNotExist(e) {
+		return e
+	}
+	if _, e := regular(w.publicationPath(p, phase)+".intent", true); e == nil {
+		return errors.New("publication intent without receipt; outcome requires inspection")
+	} else if !os.IsNotExist(e) {
+		return e
+	}
+	return nil
+}
+
+func (w *Workflow) precedingPublication(p Plan, phase string) (*Publication, error) {
+	if !slices.Equal(p.Phases, publicationPhases(p.Parent == p.BaseCommit)) {
+		return nil, errors.New("invalid fixed publication sequence")
+	}
+	index := slices.Index(p.Phases, phase)
+	if index < 0 {
+		return nil, errors.New("phase not in approved plan")
+	}
+	parent := p.Parent
+	var prior *Publication
+	for _, step := range p.Phases[:index] {
+		b, e := regular(w.publicationPath(p, step), true)
+		if e != nil {
+			return nil, e
+		}
+		var receipt Publication
+		if e = workload.StrictDecode(b, &receipt); e != nil {
+			return nil, e
+		}
+		if receipt.Schema != 1 || receipt.PlanSHA256 != workload.Digest(workload.JSON(p)) || receipt.Phase != step || receipt.Parent != parent || !fullSHA.MatchString(receipt.Commit) || receipt.TreeSHA256 != p.PhaseSHA256[step] || receipt.TreeSHA256 == "" {
+			return nil, errors.New("publication predecessor receipt mismatch: " + step)
+		}
+		parent, prior = receipt.Commit, &receipt
+	}
+	return prior, nil
+}
+
 func sameFiles(a, b Files) bool {
 	if len(a) != len(b) {
 		return false

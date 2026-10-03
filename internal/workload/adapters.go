@@ -11,9 +11,9 @@ import (
 	"strings"
 )
 
-func platformAdapters(files Files, m *Model) error {
+func projectPermissions(files Files, m *Model) error {
 	ns := m.Intent.Project.Name
-	if e := edit(files, ProjectsPath, func(xs []Object) ([]Object, error) {
+	return edit(files, ProjectsPath, func(xs []Object) ([]Object, error) {
 		for _, name := range []string{"platform-project", "workload-project"} {
 			p, e := find(xs, "AppProject", "argocd", name)
 			if e != nil {
@@ -23,9 +23,11 @@ func platformAdapters(files Files, m *Model) error {
 			s["destinations"] = append(arr(s["destinations"]), Object{"server": "https://kubernetes.default.svc", "namespace": ns})
 		}
 		return xs, nil
-	}); e != nil {
-		return e
-	}
+	})
+}
+
+func platformAdapters(files Files, m *Model) error {
+	ns := m.Intent.Project.Name
 	if e := edit(files, EdgePath, func(xs []Object) ([]Object, error) {
 		g, e := find(xs, "Gateway", "atlas-gateway", "development")
 		if e != nil {

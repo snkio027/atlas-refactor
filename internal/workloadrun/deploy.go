@@ -17,9 +17,9 @@ func (w *Workflow) wait(ctx context.Context, phase, revision string) error {
 		return e
 	}
 	for {
-		report, e := w.Observe(ctx, r, revision)
+		_, e := w.observeLatest(ctx, r, revision)
 		if e == nil {
-			return save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false)
+			return nil
 		}
 		var pending Pending
 		if !errors.As(e, &pending) {
@@ -36,7 +36,7 @@ func (w *Workflow) wait(ctx context.Context, phase, revision string) error {
 	}
 }
 
-// Deploy is a finite two-publication procedure. It never resumes an incomplete
+// Deploy is a finite prerequisite-ordered publication procedure. It never resumes an incomplete
 // externally mutated attempt or retries a failed write. A successful repeat
 // verifies the final state without publishing, credential use or probe writes.
 func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultErr error) {
@@ -80,9 +80,18 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 	if e := w.CaptureBaseline(ctx, p, approval); e != nil {
 		return e
 	}
+	// Replace ephemeral development output before this attempt so a failure in
+	// preparation cannot accidentally archive an unrelated older observation.
+	initial := Observation{Schema: 1, Phase: "preparation", ClusterUID: p.ClusterUID, Revision: p.Parent, Project: "UNKNOWN", Workload: "UNKNOWN", Binding: "UNKNOWN", Runtime: "UNPROVEN"}
+	if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(initial), false); e != nil {
+		return e
+	}
 	external := false
 	defer func() {
 		if resultErr != nil && external {
+			if b, e := regular(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), true); e == nil {
+				_ = save(filepath.Join(filepath.Dir(terminal), "stop-observation.json"), b, true)
+			}
 			_ = save(terminal, workload.JSON(Object{"result": "STOP", "planSHA256": approval, "reason": resultErr.Error(), "externalStateMayHaveChanged": true}), true)
 		}
 	}()
@@ -102,6 +111,13 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 			return e
 		}
 		if e = w.wait(ctx, phase, receipt.Commit); e != nil {
+			return e
+		}
+		gate, e := regular(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), true)
+		if e != nil {
+			return e
+		}
+		if e = save(filepath.Join(filepath.Dir(terminal), phase+"-gate.json"), gate, true); e != nil {
 			return e
 		}
 	}

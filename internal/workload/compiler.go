@@ -160,10 +160,10 @@ func find(xs []Object, kind, ns, name string) (Object, error) {
 // the resulting delta with a verified predecessor; it never treats missing state
 // as an empty installation. Review mode must not publish unprepared consumers.
 func Compile(c CompileContext, m *Model, phase string, sealed *Artifacts) (Result, error) {
-	// Plan uses infrastructure compilation. Check the credential-independent
+	// Check the credential-independent
 	// consumer through this same lowering pipeline before any preparation or
 	// publication. Its incomplete tree is private and always discarded.
-	if phase == "infrastructure" {
+	if phase == "permissions" || phase == "project" || phase == "infrastructure" {
 		if _, err := compile(c, m, "consumer", nil, true); err != nil {
 			return Result{}, fmt.Errorf("consumer preflight: %w", err)
 		}
@@ -172,7 +172,7 @@ func Compile(c CompileContext, m *Model, phase string, sealed *Artifacts) (Resul
 }
 
 func compile(c CompileContext, m *Model, phase string, sealed *Artifacts, preflight bool) (Result, error) {
-	if phase != "infrastructure" && phase != "consumer" {
+	if phase != "permissions" && phase != "project" && phase != "infrastructure" && phase != "consumer" {
 		return Result{}, errors.New("unknown phase")
 	}
 	if m == nil || c.ResourceModel == nil || !shaRE.MatchString(c.ProductSHA256) || !shaRE.MatchString(c.CompilerSHA256) || c.HTTPSPort < 1024 || c.HTTPSPort > 65535 || len(c.InstallID) != 32 || !shaRE.MatchString(c.CertificateSHA256) {
@@ -221,12 +221,19 @@ func compile(c CompileContext, m *Model, phase string, sealed *Artifacts, prefli
 	}
 	m = resolved
 	p := m.Intent.Project
-	xs := projectObjects(m, phase)
-	if e = addLeaf(files, c, p.AppName(), "gitops/platform/projects/"+p.Name, p.Name, "platform-project", "-105", xs); e != nil {
+	if e = projectPermissions(files, m); e != nil {
 		return Result{}, e
 	}
-	if e = platformAdapters(files, m); e != nil {
-		return Result{}, e
+	if phase != "permissions" {
+		xs := projectObjects(m, phase)
+		if e = addLeaf(files, c, p.AppName(), "gitops/platform/projects/"+p.Name, p.Name, "platform-project", "-105", xs); e != nil {
+			return Result{}, e
+		}
+	}
+	if phase == "infrastructure" || phase == "consumer" {
+		if e = platformAdapters(files, m); e != nil {
+			return Result{}, e
+		}
 	}
 	if phase == "consumer" {
 		if len(m.Intent.Bindings) > 0 && !preflight {

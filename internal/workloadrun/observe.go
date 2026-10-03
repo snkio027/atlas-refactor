@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -20,16 +21,19 @@ type Pending string
 func (e Pending) Error() string { return string(e) }
 
 type Observation struct {
-	Schema       int               `json:"schema"`
-	ClusterUID   string            `json:"clusterUID"`
-	Revision     string            `json:"revision"`
-	Project      string            `json:"project"`
-	Workload     string            `json:"workload"`
-	Binding      string            `json:"binding"`
-	Runtime      string            `json:"runtime"`
-	Applications map[string]string `json:"applications"`
-	Resources    map[string]string `json:"resources"`
-	UID          map[string]string `json:"uid"`
+	Schema                int                           `json:"schema"`
+	Phase                 string                        `json:"phase"`
+	ApplicationFacts      []observation.ApplicationFact `json:"applicationFacts,omitempty"`
+	ApplicationConditions map[string][]Object           `json:"applicationConditions,omitempty"`
+	ClusterUID            string                        `json:"clusterUID"`
+	Revision              string                        `json:"revision"`
+	Project               string                        `json:"project"`
+	Workload              string                        `json:"workload"`
+	Binding               string                        `json:"binding"`
+	Runtime               string                        `json:"runtime"`
+	Applications          map[string]string             `json:"applications"`
+	Resources             map[string]string             `json:"resources"`
+	UID                   map[string]string             `json:"uid"`
 }
 
 func desiredObjects(files Files, inventory []workload.OwnedResource) (map[string]Object, error) {
@@ -183,7 +187,7 @@ func matches(want, live Object) bool {
 	return true
 }
 func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision string) (Observation, error) {
-	report := Observation{Schema: 1, ClusterUID: w.Install.Record.ClusterUID, Revision: revision, Project: "UNKNOWN", Workload: "UNKNOWN", Binding: "UNKNOWN", Runtime: "UNPROVEN", Applications: map[string]string{}, Resources: map[string]string{}, UID: map[string]string{}}
+	report := Observation{Schema: 1, Phase: result.Inventory.Phase, ClusterUID: w.Install.Record.ClusterUID, Revision: revision, Project: "UNKNOWN", Workload: "UNKNOWN", Binding: "UNKNOWN", Runtime: "UNPROVEN", Applications: map[string]string{}, Resources: map[string]string{}, UID: map[string]string{}}
 	if !fullSHA.MatchString(revision) {
 		return report, errors.New("exact observation revision required")
 	}
@@ -226,10 +230,11 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 		if at(o, "metadata", "name") == "atlas-refactor-root" {
 			continue
 		}
-		liveApps[str(at(o, "metadata", "name"))] = o
-	}
-	if len(liveApps) != len(apps) {
-		return report, Pending("Application inventory has not converged")
+		name := str(at(o, "metadata", "name"))
+		if name == "" || liveApps[name] != nil {
+			return report, errors.New("duplicate or unnamed Application in snapshot")
+		}
+		liveApps[name] = o
 	}
 	// Read-only equivalence is confined to the immutable D1 base and current
 	// approved publication parents. It never changes a mutation fence.
@@ -245,32 +250,31 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 			}
 		}
 	}
-	first := map[string]Object{}
+	baseline, e := w.baselineUIDs()
+	if e != nil {
+		return report, e
+	}
+	expectedApps := []observation.ExpectedApplication{}
 	for name, want := range apps {
-		live := liveApps[name]
-		if live == nil {
-			return report, Pending("Application missing: " + name)
-		}
-		observed := str(at(live, "status", "sync", "revision"))
+		observed := str(at(liveApps[name], "status", "sync", "revision"))
 		expected := revision
 		if observed != revision && accepted[observed] && name != "platform-control" && name != "project-bootstrap" && name != "workload-control" && sourceEqual(ctx, w, want, gitFiles, observed) {
 			expected = observed
 		}
-		fact := observation.ClassifyApplication(observation.ExpectedApplication{Name: name, Spec: mapping(want["spec"]), Revision: expected}, live, nil)
-		if fact.Classification != observation.Verified {
-			if fact.Classification == observation.Progressing {
-				return report, Pending("Application progressing: " + name)
-			}
-			return report, fmt.Errorf("Application %s: %s %v", name, fact.Classification, fact.Reasons)
-		}
-		key := "argoproj.io/Application/argocd/" + name
-		report.Applications[name] = observed
-		report.UID[key] = str(at(live, "metadata", "uid"))
-		first[key] = live
+		expectedApps = append(expectedApps, observation.ExpectedApplication{Name: name, UID: baseline["argoproj.io/Application/argocd/"+name], Spec: mapping(want["spec"]), Revision: expected})
 	}
-	baseline, e := w.baselineUIDs()
+	report.ApplicationFacts, e = classifyApplications(expectedApps, liveApps)
+	report.ApplicationConditions = applicationConditions(liveApps)
 	if e != nil {
 		return report, e
+	}
+	first := map[string]Object{}
+	for _, fact := range report.ApplicationFacts {
+		name := fact.Ref.Name
+		key := "argoproj.io/Application/argocd/" + name
+		report.Applications[name] = fact.ObservedRevision
+		report.UID[key] = fact.UID
+		first[key] = liveApps[name]
 	}
 	for _, r := range result.Inventory.Resources {
 		if result.Inventory.Files[r.Path] == "" || desired[r.Identity]["kind"] == "Application" {
@@ -347,7 +351,9 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 	if e != nil || current != revision {
 		return report, errors.New("Git moved during observation")
 	}
-	report.Project = "VERIFIED"
+	if result.Inventory.Phase != "permissions" {
+		report.Project = "VERIFIED"
+	}
 	if result.Inventory.Phase == "consumer" {
 		report.Workload = "VERIFIED"
 		report.Binding = "VERIFIED"
@@ -478,4 +484,70 @@ func (w *Workflow) readBaseline(ctx context.Context, p Plan) (map[string]string,
 		return nil, errors.New("Project namespace already exists live")
 	}
 	return ids, nil
+}
+
+// A whole-snapshot decision: any fatal observation wins over all progress.
+// Sorting makes both the decision and its diagnostics independent of map order.
+func classifyApplications(expected []observation.ExpectedApplication, live map[string]Object) ([]observation.ApplicationFact, error) {
+	expected = append([]observation.ExpectedApplication(nil), expected...)
+	sort.Slice(expected, func(i, j int) bool { return expected[i].Name < expected[j].Name })
+	facts := []observation.ApplicationFact{}
+	wanted := map[string]bool{}
+	fatal, pending := []string{}, []string{}
+	for _, want := range expected {
+		wanted[want.Name] = true
+		fact := observation.ClassifyApplication(want, live[want.Name], nil)
+		facts = append(facts, fact)
+		if live[want.Name] == nil {
+			pending = append(pending, "Application missing: "+want.Name)
+			continue
+		}
+		switch fact.Classification {
+		case observation.Verified:
+		case observation.Progressing:
+			pending = append(pending, "Application progressing: "+want.Name)
+		default:
+			fatal = append(fatal, fmt.Sprintf("Application %s: %s %v", want.Name, fact.Classification, fact.Reasons))
+		}
+	}
+	for name := range live {
+		if !wanted[name] {
+			fatal = append(fatal, "unexpected Application: "+name)
+		}
+	}
+	sort.Strings(fatal)
+	if len(fatal) > 0 {
+		return facts, errors.New(strings.Join(fatal, "; "))
+	}
+	if len(pending) > 0 {
+		return facts, Pending(strings.Join(pending, "; "))
+	}
+	return facts, nil
+}
+
+// Raw controller messages may include rendered values. Keep them only in the
+// owner-only observation file, never in returned errors or progress output.
+func applicationConditions(apps map[string]Object) map[string][]Object {
+	out := map[string][]Object{}
+	for name, app := range apps {
+		for _, raw := range array(at(app, "status", "conditions")) {
+			c := mapping(raw)
+			entry := Object{}
+			for _, key := range []string{"type", "status", "reason", "message", "lastTransitionTime"} {
+				if value, ok := c[key].(string); ok {
+					entry[key] = value
+				}
+			}
+			out[name] = append(out[name], entry)
+		}
+	}
+	return out
+}
+
+func (w *Workflow) observeLatest(ctx context.Context, result workload.Result, revision string) (Observation, error) {
+	report, err := w.Observe(ctx, result, revision)
+	if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
+		return report, e
+	}
+	return report, err
 }

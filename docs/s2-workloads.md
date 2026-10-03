@@ -1,6 +1,6 @@
 # S2：把 Web/API 项目编译到已安装平台
 
-状态：新实例已完成两阶段发布，consumer HTTPRoute Gate STOP；Runtime 尚未通过。
+状态：r3 的 D1 首装通过；S2 因权限与依赖发布竞争在 infrastructure Gate STOP，Runtime 尚未通过。
 本次结果和编译器修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
 [S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
 本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
@@ -48,7 +48,7 @@ HTTPRoute 故障暴露了这个缺口：省略可选字段能通过原来的 sch
 这些边界遵循 [Kubernetes CRD defaulting 语义](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#defaulting)。
 
 `plan` 原来只编译 infrastructure，consumer 的错误可能在 preparation 和首次发布后才暴露。
-现在 infrastructure 编译会先通过同一个 lowering pipeline 检查不依赖密文的 consumer 内容。
+现在 permissions、project、infrastructure 编译都会先通过同一个 lowering pipeline 检查不依赖密文的 consumer 内容。
 这份预检结果在内部丢弃，不输出 consumer 文件，不制造占位密文；正常 consumer 编译仍要求
 本实例已登记的真实 artifacts。任何预检错误都阻止返回可发布输出。
 
@@ -114,10 +114,22 @@ Git 进程屏蔽 global/system 配置与 hooks，凭据由现有 gh store 提供
 
 1. 核对 cluster UID、D1 authority、四节点和当前 Git；拒绝接管已占用的 namespace；记录相关旧资源 UID。
 2. 校验并导入已登记 OCI；校验现有 public certificate/backup receipt，保留 D1 旧 identity，为每个新 Binding 生成独立凭据。
-3. 发布 infrastructure：精确 destination、namespace/quota/SA/policy、controller RBAC、TLS、monitoring selector。等待 Argo 与 live content/ownership 验证。
-4. 发布 consumer：新 client SealedSecret、聚合 provider SealedSecret、Binding、Workload/Route 和受控 provider rollout。再次验证。
-5. 执行 HTTPS→Web→S3 put/get/delete、无 Binding 网络拒绝、跨桶/管理读取拒绝、SA 跨 namespace Secret 拒绝、metrics 发现、旧 D1 HTTPS/S3 凭据验证。
-6. 保存绑定 implementation/binary/plan/Git/cluster/resource UID 的 final evidence。
+3. 发布 permissions：只扩充既有 AppProject 的精确 destination；只读 Gate 验证 live 内容、ownership 与应用收敛。
+4. 发布 project：创建 Project leaf 的 namespace/quota/SA/policy；等待 Namespace Active 和完整安全边界。
+5. 发布 infrastructure：已有 owner 下扩充 controller RBAC、TLS、monitoring selector；再次等待完整 Gate。
+6. 发布 consumer：新 client SealedSecret、聚合 provider SealedSecret、Binding、Workload/Route 和受控 provider rollout。再次验证。
+7. 执行 HTTPS→Web→S3 put/get/delete、无 Binding 网络拒绝、跨桶/管理读取拒绝、SA 跨 namespace Secret 拒绝、metrics 发现、旧 D1 HTTPS/S3 凭据验证。
+8. 保存绑定 implementation/binary/plan/Git/cluster/resource UID 的 final evidence。
+
+首次部署的四阶段由 [Proposed ADR-0016](adr/0016-s2-publication-prerequisites.md) 定义。
+Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和固定顺序绑定到审核；
+不能用旧二阶段计划授权新流程。每次 standalone `publish` 也必须校验完整前序 receipt 链，
+并对紧邻前一阶段重新执行只读 Gate；receipt 本身不等于 Ready。STOP 或无 receipt 的 intent
+都禁止重推。完成后同一 Project/namespace 的受限 update 仍为 consumer 单阶段。
+
+应用 Gate 遍历完整快照，按名字稳定输出，fatal 优先于缺失/Progressing；多余应用、UNKNOWN
+与实际错误不变成等待。失败快照和 controller condition.message 只写入 owner-only 本地报告，
+终端/公开报告仅包含分类与原因码；首次 deploy 保存各阶段的通过报告，失败时冻结 stop-observation.json。
 
 所有 Git 发布都保留完整 parent tree，仅替换编译器声明的 delta，并用 exact-parent lease 拒绝并发更新。
 已有无关文件、可执行位及 Git 历史不重建。重复成功 `deploy` 只观察；重复发布相同 consumer 不产生新 commit。

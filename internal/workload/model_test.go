@@ -242,7 +242,7 @@ func TestS2RealKustomizeBuild(t *testing.T) {
 		t.Skip("task quality supplies the locked kubectl")
 	}
 	c, m := compileFixture(t)
-	for _, phase := range []string{"infrastructure", "consumer"} {
+	for _, phase := range []string{"permissions", "project", "infrastructure", "consumer"} {
 		var a *Artifacts
 		if phase == "consumer" {
 			a = artifactFixture(c, m)

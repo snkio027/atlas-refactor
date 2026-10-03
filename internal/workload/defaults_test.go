@@ -115,9 +115,11 @@ func TestInfrastructurePreflightChecksFutureConsumerDefaults(t *testing.T) {
 	if !matched {
 		t.Fatal("missing locked HTTPRoute definition")
 	}
-	result, err := Compile(c, m, "infrastructure", nil)
-	if err == nil || !strings.Contains(err.Error(), "$.spec.rules[0].timeouts") || result.Files != nil {
-		t.Fatalf("consumer defect escaped the pre-credential plan: %v", err)
+	for _, phase := range []string{"permissions", "project", "infrastructure"} {
+		result, err := Compile(c, m, phase, nil)
+		if err == nil || !strings.Contains(err.Error(), "$.spec.rules[0].timeouts") || result.Files != nil {
+			t.Fatalf("%s: consumer defect escaped before publication: %v", phase, err)
+		}
 	}
 }
 

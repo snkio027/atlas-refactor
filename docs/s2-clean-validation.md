@@ -122,3 +122,35 @@ port-forward 返回成功且目标 `up=1`。这是观察通路不符合平台网
 错误地址/端口、取消与重复清理；`TestMetricGate` 验证全部副本 up、缺失/失败抓取、HTTP/JSON
 失败、重定向与响应上限；未知连接失败保持 fatal。旧 STOP、发布 intent/receipt、私有备份和
 完整证据不改写；用户已另行批准修正、清理旧集群并以新实例重新验证。
+
+
+## r3：AppProject 权限与依赖发布竞争（2b42ce7）
+
+`atlas-s2-r3` 在按用户授权删除全部旧本机集群后创建。实现 `2b42ce7964c357a2bd500a2855416983cf0079f6`，
+cluster UID `323b905f-c267-4f5a-a68f-e7a5fda5af55`，D1 FullCommit
+`f4793802f21763b717cadafb09202d843288c730`。D1 首次安装与独立验证 PASS，四节点 Ready；
+S2 sole plan `3c4c37e99c19b8cdcd7dee850c9ead4f18803671eec944de024bc8e3556180ed` 的
+infrastructure `61bd0286ca001dd75cd637900911f0fcc934ac77` 发布后 Gate STOP。
+consumer 未发布；metrics、HTTPS→Web→S3 和幂等验收未执行。
+
+2026-10-03 22:29:11 UTC，secrets-controller 已尝试同步 demo 中的 Role/RoleBinding，
+明确报 namespace demo is not permitted。22:30:24 新 Project Application 被创建并进入 Unknown；
+22:31:10 project-bootstrap 才应用新增 destination。22:31:42 S2 STOP；22:32:38 Argo
+自行把 Project 收敛为 Synced/Healthy。后续自然收敛不改写原 attempt 失败。
+Project 原始 condition.message 未被旧程序保存，不能声称拥有其具体错误原文。
+同 namespace 的 RBAC 拒绝、应用时间线和冻结 Git 树共同证明了授权发布竞争。
+
+根因：一个 Git commit 同时开放权限、namespace 和独立自动调谐的使用者；sync-wave
+只约束各自同步，不构成这些 Application 之间的完成屏障。依赖升级不改变这项协议缺口。
+另一个确定问题是 Gate 遍历 map 后立即返回首个未通过应用，混合错误/进度下结果不确定。
+
+修正见 [ADR-0016](adr/0016-s2-publication-prerequisites.md)：固定四阶段与逐阶段真实只读门禁、
+完整 predecessor receipt 链、UNKNOWN 不放宽、全快照 fatal 优先、失败诊断私有保留。
+回归 `TestPublicationPrerequisitesUnderAdversarialReconcileOrder` 验证任一新可见资源的权限与
+跨应用 namespace 前置条件来自前一个已通过阶段；真实 Kustomize 覆盖四阶段。
+`TestPublicationCannotSkipPrerequisiteReceipts` / `TestPublicationRejectsBrokenReceiptChain`
+覆盖缺失、乱序与六类 receipt 漂移；`TestApplicationGateFatalAlwaysWinsOverProgressAndMissing`
+覆盖反复乱序快照和诊断不泄漏；consumer preflight 覆盖所有首次可发布阶段。
+
+旧 STOP、分支、集群、Trust Root 和完整私有证据不改动。该修正尚无新实例 Runtime PASS；
+需要新实现与四阶段计划的独立执行决定，不能清锁续跑 r3。

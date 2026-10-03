@@ -24,7 +24,7 @@ func runWorkload(args []string) error {
 	}
 	f := flag.NewFlagSet("workload "+verb, flag.ContinueOnError)
 	config := f.String("config", "s2.json", "private S2 configuration")
-	phase := f.String("phase", "infrastructure", "infrastructure or consumer")
+	phase := f.String("phase", "infrastructure", "permissions, project, infrastructure or consumer")
 	approval := f.String("approve-plan", "", "exact approved plan SHA256")
 	revision := f.String("revision", "", "exact deployed commit for observation")
 	wait := f.Duration("wait", 0, "bounded read-only convergence wait, at most 15m")

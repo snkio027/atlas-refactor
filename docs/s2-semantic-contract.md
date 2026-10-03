@@ -353,7 +353,7 @@ artifact provenance/runtime gate 必须拒绝它。S2-D 需真实构建/锁定 W
 | A 语义模型 | 正例可解析/解析引用，所有字段和 update 语义明确；负例 fail closed；无 renderer 旁路 |
 | B 确定性编译 | 冻结完整输入，重复/重排序 byte equality；ownership 唯一；平台/业务输出分开；无网络/凭据副作用 |
 | C 静态契约 | locked ResourceModel、权限投影、无 plaintext、既有 owner 不变、diff 无删除；真实 Helm/Kustomize/结构校验；task quality |
-| D 真实 slice | 从已完成 D1 的目标开始，经审核的两阶段发布，HTTPS→Web→S3 put/get；无 Binding 拒绝；跨桶和管理操作拒绝；SA 跨 namespace Secret 拒绝；metrics 被发现；重复 compile/publish 零变更 |
+| D 真实 slice | 从已完成 D1 的目标开始，经审核的 permissions → project → infrastructure → consumer 发布，HTTPS→Web→S3 put/get；无 Binding 拒绝；跨桶和管理操作拒绝；SA 跨 namespace Secret 拒绝；metrics 被发现；重复 compile/publish 零变更 |
 
 还必须验证：无 Binding 的 Workload 不能靠自行提供保留 label/SecretRef 绕过编译；平台 namespace
 不能挂载业务 route；D1 既有 S3 凭据在增量后仍有效；旧 Workload/平台对象 UID/owner 不变；
@@ -373,7 +373,7 @@ SeaweedFS mini/领域 Operator 与密码学身份的差距继续显式记录，�
 
 ## 11. 审查判定与证据状态
 
-三种类型、resolved semantic model、确定性编译器、两阶段发布和有限观察/探测入口已实现。
+三种类型、resolved semantic model、确定性编译器、固定前置条件发布和有限观察/探测入口已实现。
 命令、字段映射、凭据策略与验证边界见 [S2 工作流](s2-workloads.md)。本地静态/单元检查与
 隔离 SeaweedFS 合成权限测试已有结果；真实 S2 集群验收尚未完成，不能把这些检查计作 Gate-D PASS。
 S2 的实际验收结果在完成后单独记录，S1/D1 历史 evidence 不改写。
