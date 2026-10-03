@@ -157,6 +157,118 @@
               ],
               "mode": "Terminate"
             }
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "demo",
+                    "kubernetes.io/metadata.name": "demo"
+                  }
+                }
+              }
+            },
+            "hostname": "unbound.atlas.test",
+            "name": "s2-1d2730626355-http",
+            "port": 80,
+            "protocol": "HTTP"
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "demo",
+                    "kubernetes.io/metadata.name": "demo"
+                  }
+                }
+              }
+            },
+            "hostname": "unbound.atlas.test",
+            "name": "s2-1d2730626355-https",
+            "port": 443,
+            "protocol": "HTTPS",
+            "tls": {
+              "certificateRefs": [
+                {
+                  "group": "",
+                  "kind": "Secret",
+                  "name": "s2-1d2730626355-tls"
+                }
+              ],
+              "mode": "Terminate"
+            }
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "demo",
+                    "kubernetes.io/metadata.name": "demo"
+                  }
+                }
+              }
+            },
+            "hostname": "api-demo.atlas.test",
+            "name": "s2-fa6fb71d81c8-http",
+            "port": 80,
+            "protocol": "HTTP"
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "demo",
+                    "kubernetes.io/metadata.name": "demo"
+                  }
+                }
+              }
+            },
+            "hostname": "api-demo.atlas.test",
+            "name": "s2-fa6fb71d81c8-https",
+            "port": 443,
+            "protocol": "HTTPS",
+            "tls": {
+              "certificateRefs": [
+                {
+                  "group": "",
+                  "kind": "Secret",
+                  "name": "s2-fa6fb71d81c8-tls"
+                }
+              ],
+              "mode": "Terminate"
+            }
           }
         ]
       }
