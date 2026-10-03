@@ -352,13 +352,15 @@ func workloadObjects(c CompileContext, r ResolvedWorkload) []Object {
 	for _, https := range []bool{false, true} {
 		prefix := w.Name + "-http"
 		listener := "s2-" + ShortID("Workload", w.Project, w.Name) + "-http"
-		rule := Object{"filters": []any{Object{"type": "RequestRedirect", "requestRedirect": Object{"scheme": "https", "port": c.HTTPSPort, "statusCode": 301}}}}
+		// Emit the locked Gateway API defaults so SSA does not leave routes
+		// perpetually OutOfSync after the API materializes omitted fields.
+		rule := Object{"matches": []any{Object{"path": Object{"type": "PathPrefix", "value": "/"}}}, "filters": []any{Object{"type": "RequestRedirect", "requestRedirect": Object{"scheme": "https", "port": c.HTTPSPort, "statusCode": 301}}}}
 		if https {
 			prefix = w.Name + "-https"
 			listener += "s"
-			rule = Object{"backendRefs": []any{Object{"name": w.Name, "port": w.Port}}, "matches": []any{Object{"path": Object{"type": "PathPrefix", "value": "/"}}}}
+			rule = Object{"backendRefs": []any{Object{"group": "", "kind": "Service", "name": w.Name, "port": w.Port, "weight": 1}}, "matches": []any{Object{"path": Object{"type": "PathPrefix", "value": "/"}}}}
 		}
-		routes = append(routes, resource("gateway.networking.k8s.io/v1", "HTTPRoute", w.Project, prefix, Object{"parentRefs": []any{Object{"name": "development", "namespace": "atlas-gateway", "sectionName": listener}}, "hostnames": []string{w.Exposure.Hostname}, "rules": []any{rule}}))
+		routes = append(routes, resource("gateway.networking.k8s.io/v1", "HTTPRoute", w.Project, prefix, Object{"parentRefs": []any{Object{"group": "gateway.networking.k8s.io", "kind": "Gateway", "name": "development", "namespace": "atlas-gateway", "sectionName": listener}}, "hostnames": []string{w.Exposure.Hostname}, "rules": []any{rule}}))
 	}
 	return append([]Object{deploy, service}, routes...)
 }

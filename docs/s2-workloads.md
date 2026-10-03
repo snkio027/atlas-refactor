@@ -1,6 +1,7 @@
 # S2：把 Web/API 项目编译到已安装平台
 
-状态：实现中；真实集群验收未完成。语义与权限边界见
+状态：新实例已完成两阶段发布，consumer HTTPRoute Gate STOP；Runtime 尚未通过。
+本次结果和最小修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
 [S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
 本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
 
@@ -185,3 +186,8 @@ consumer 发布、功能 probe、重复部署尚未执行，Runtime 仍 UNPROVEN
 
 上述单元/隔离/只读测试不能替代 TLS、Cilium、Argo、Sealed Secrets、Prometheus 的实际组合验证。
 S2 不是生产多租户、安全隔离 admission、端到端 mTLS 或 HA 声明。发布与最终验收保持同一个 PR。
+
+最新一次 `atlas-s2-r1` 干净验证以冻结 `f432cfb` 完成 D1、infrastructure Gate 和 consumer 发布，
+因 compiler 省略 Gateway API 默认字段导致四个 HTTPRoute 持续 OutOfSync 而 STOP。已将默认字段
+显式编译并补真实 API spec 回归；没有放宽观察器或更新现场。完整绑定、已通过/未执行 Gate 和保留
+范围见 [本次验证记录](s2-clean-validation.md)；下一次 live mutation 需要新的执行决定。
