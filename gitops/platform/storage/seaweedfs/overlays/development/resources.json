@@ -68,6 +68,9 @@
         "serviceName": "seaweedfs",
         "template": {
           "metadata": {
+            "annotations": {
+              "atlas.io/s3-auth-cipher-sha256": "f5f347b44617b881fec804fcaf78c9ae8bc3dbb66de2c4b699c598ff4483accb"
+            },
             "labels": {
               "app.kubernetes.io/name": "seaweedfs"
             }
