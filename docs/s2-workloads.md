@@ -1,7 +1,7 @@
 # S2：把 Web/API 项目编译到已安装平台
 
 状态：新实例已完成两阶段发布，consumer HTTPRoute Gate STOP；Runtime 尚未通过。
-本次结果和最小修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
+本次结果和编译器修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
 [S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
 本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
 
@@ -29,6 +29,32 @@ quota 计入每个 Deployment 的一个 surge Pod。无 Binding 的 Workload 不
 Deployment/Service/HTTPRoute 属于 Tier-2 Workload leaf；两端 S3 NetworkPolicy 属于 Tier-1 Binding leaf。
 共享 Gateway、TLS、monitoring、Sealed Secrets RBAC 和 provider auth 仍由各自既有 Application 管理。
 编译器不创建 Secret 明文，不改变 External Root、Seed、handoff latch、Receipt 或 Signal。
+
+## 编译时拒绝 CRD 默认值遗漏
+
+schema 合法只说明字段可接受，不证明 Git 与 API 返回的表示相同。`atlas-s2-r1` 的
+HTTPRoute 故障暴露了这个缺口：省略可选字段能通过原来的 schema 检查，但 API 补入默认值后
+仍可能被 Argo 判为 OutOfSync。路由已显式生成已观测的默认字段，编译入口也增加了通用的
+**CRD 默认值遗漏检查**，避免其他新增 CRD 对象再次走到发布后才发现同类问题。
+
+检查使用锁定 ResourceModel；每个新增或改动 CRD 对象的 served version schema 与 scope
+必须和不可变 D1 public base 中的定义完全相符。新的源码 schema 不能替代已安装产品的规则。
+对新对象、变更的子树和列表项，任何会被结构 schema 补入的遗漏字段都会带精确字段路径报错。
+编译器要求 renderer 显式表达所需值，不自动补全默认值，不改 live state 或 Argo 比较规则。
+
+未改动的 D1 子树保留原始表示。列表按完整内容匹配旧项并各使用一次，不能把旧下标的遗漏
+继承给新增项；重复旧项也视为新增。缺失且没有自身默认值的可选父对象不会被虚构，显式 nullable
+`null` 保留，`default: null` 不视为可物化的默认值；`false`、`0`、空字符串默认值仍须显式表达。
+这些边界遵循 [Kubernetes CRD defaulting 语义](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#defaulting)。
+
+`plan` 原来只编译 infrastructure，consumer 的错误可能在 preparation 和首次发布后才暴露。
+现在 infrastructure 编译会先通过同一个 lowering pipeline 检查不依赖密文的 consumer 内容。
+这份预检结果在内部丢弃，不输出 consumer 文件，不制造占位密文；正常 consumer 编译仍要求
+本实例已登记的真实 artifacts。任何预检错误都阻止返回可发布输出。
+
+该检查不模拟 Kubernetes built-in admission、webhook、CEL 或 Argo 调谐，也不会重写历史 D1
+默认值遗漏。静态检查通过仍须执行真实 runtime Gate。回归覆盖已发生的 HTTPRoute 漏项、未来
+schema 新增 consumer 默认值、源码与产品 schema 不一致，以及预检不泄漏 consumer 输出。
 
 ## 构建与准备
 
@@ -189,5 +215,6 @@ S2 不是生产多租户、安全隔离 admission、端到端 mTLS 或 HA 声明
 
 最新一次 `atlas-s2-r1` 干净验证以冻结 `f432cfb` 完成 D1、infrastructure Gate 和 consumer 发布，
 因 compiler 省略 Gateway API 默认字段导致四个 HTTPRoute 持续 OutOfSync 而 STOP。已将默认字段
-显式编译并补真实 API spec 回归；没有放宽观察器或更新现场。完整绑定、已通过/未执行 Gate 和保留
+显式编译并补真实 API spec 回归；编译入口进一步校验 CRD 默认值遗漏并前置 consumer 预检，
+见上文。没有放宽观察器或更新现场。完整绑定、已通过/未执行 Gate 和保留
 范围见 [本次验证记录](s2-clean-validation.md)；下一次 live mutation 需要新的执行决定。

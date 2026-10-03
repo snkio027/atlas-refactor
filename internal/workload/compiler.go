@@ -160,6 +160,18 @@ func find(xs []Object, kind, ns, name string) (Object, error) {
 // the resulting delta with a verified predecessor; it never treats missing state
 // as an empty installation. Review mode must not publish unprepared consumers.
 func Compile(c CompileContext, m *Model, phase string, sealed *Artifacts) (Result, error) {
+	// Plan uses infrastructure compilation. Check the credential-independent
+	// consumer through this same lowering pipeline before any preparation or
+	// publication. Its incomplete tree is private and always discarded.
+	if phase == "infrastructure" {
+		if _, err := compile(c, m, "consumer", nil, true); err != nil {
+			return Result{}, fmt.Errorf("consumer preflight: %w", err)
+		}
+	}
+	return compile(c, m, phase, sealed, false)
+}
+
+func compile(c CompileContext, m *Model, phase string, sealed *Artifacts, preflight bool) (Result, error) {
 	if phase != "infrastructure" && phase != "consumer" {
 		return Result{}, errors.New("unknown phase")
 	}
@@ -217,7 +229,7 @@ func Compile(c CompileContext, m *Model, phase string, sealed *Artifacts) (Resul
 		return Result{}, e
 	}
 	if phase == "consumer" {
-		if len(m.Intent.Bindings) > 0 {
+		if len(m.Intent.Bindings) > 0 && !preflight {
 			if e = validateArtifacts(c, m, sealed); e != nil {
 				return Result{}, e
 			}
@@ -269,6 +281,9 @@ func Compile(c CompileContext, m *Model, phase string, sealed *Artifacts) (Resul
 	}
 	inv, e := InventoryOf(files, c.ResourceModel)
 	if e != nil {
+		return Result{}, e
+	}
+	if e = validateDefaultStability(c, files, baseInv, inv); e != nil {
 		return Result{}, e
 	}
 	after := map[string]OwnedResource{}

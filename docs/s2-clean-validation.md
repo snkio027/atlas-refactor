@@ -53,7 +53,7 @@ S2 deploy 只调用一次，12:06:06–12:19:08 UTC。确认持续不收敛后�
 所以不能由 Pod 健康推导 Runtime PASS。没有执行真实 HTTPS→S3 写入 probe，也没有重复部署。
 危险的 CreateBucket/DeleteBucket/PutBucketCORS 负例仅在合成 fixture 执行。
 
-## 原因与最小修正
+## 原因与编译器修正
 
 锁定 Gateway API v1.6.1 在 API 中补入以下字段；S2 compiler 原来省略它们：
 
@@ -70,6 +70,12 @@ S2 deploy 只调用一次，12:06:06–12:19:08 UTC。确认持续不收敛后�
 `TestConsumerRoutesMatchGatewayAPIDefaults` 使用本次 API 返回的四个路由 spec 作为非敏感 fixture，
 覆盖 bound/unbound 的 HTTP/HTTPS：旧实现四项全部失败，修复后通过。
 这证明生成结果与已观测 API 表示一致；**修正后的 Argo/runtime 收敛仍待新的执行决定验证**。
+
+后续根因修复把「schema 合法」与「CRD 默认值不改变新增内容」分开检查，并在 infrastructure
+编译／plan 阶段提前验证不依赖密文的 consumer。schema 绑定不可变 D1 base，历史未改动子树
+保持原样；缺失默认值、版本错配或 consumer 编译错误在返回输出前拒绝。
+实现边界与回归见 [编译时拒绝 CRD 默认值遗漏](s2-workloads.md#编译时拒绝-crd-默认值遗漏)。
+这项源代码修复没有重跑本次执行，也不改变上表的 STOP 或任何历史 plan/证据。
 
 辅助证据采集曾因把 JSON 多文档流作为单个 JSON 解码而退出；修正本地读取器后完成基线。
 这个辅助问题没有改变产品 executable、计划或外部状态，D1 install/verify 未重跑，S2 当时尚未生成 plan。
