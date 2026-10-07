@@ -4,6 +4,7 @@ import (
 	"atlas-refactor/internal/workload"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -16,24 +17,8 @@ func (w *Workflow) wait(ctx context.Context, phase, revision string) error {
 	if e != nil {
 		return e
 	}
-	for {
-		_, e := w.observeLatest(ctx, r, revision)
-		if e == nil {
-			return nil
-		}
-		var pending Pending
-		if !errors.As(e, &pending) {
-			return e
-		}
-		if w.Progress != nil {
-			w.Progress(string(pending))
-		}
-		select {
-		case <-ctx.Done():
-			return errors.New("S2 convergence timed out")
-		case <-time.After(10 * time.Second):
-		}
-	}
+	_, e = w.observeWait(ctx, r, revision, 10*time.Second)
+	return e
 }
 
 // Deploy is a finite prerequisite-ordered publication procedure. It never resumes an incomplete
@@ -133,19 +118,79 @@ func (w *Workflow) waitMetrics(ctx context.Context) error {
 	// Prometheus' first discovery, and never masks malformed/error responses.
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 	defer cancel()
+	return pollRead(ctx, 5*time.Second, w.Progress, w.metrics)
+}
+
+// Only explicitly Waiting reads are retried. The caller owns a single deadline;
+// cancellation is checked before every read. Mutations never enter this closure.
+func pollRead(ctx context.Context, interval time.Duration, progress func(string), read func(context.Context) error) error {
+	last := ""
 	for {
-		e := w.metrics(ctx)
-		if e == nil {
+		if err := ctx.Err(); err != nil {
+			return fmt.Errorf("S2 observation stopped (%s): %w", last, err)
+		}
+		err := read(ctx)
+		// Cancellation cannot be converted into a successful Gate by a late read.
+		if stopped := ctx.Err(); stopped != nil {
+			return fmt.Errorf("S2 observation stopped (%s): %w", last, stopped)
+		}
+		if err == nil {
 			return nil
 		}
-		var p Pending
-		if !errors.As(e, &p) {
-			return e
+		var pending Pending
+		if !errors.As(err, &pending) {
+			return err
 		}
+		if string(pending) != last && progress != nil {
+			progress(string(pending))
+		}
+		last = string(pending)
+		timer := time.NewTimer(interval)
 		select {
 		case <-ctx.Done():
-			return e
-		case <-time.After(5 * time.Second):
+			timer.Stop()
+			return fmt.Errorf("S2 observation stopped (%s): %w", last, ctx.Err())
+		case <-timer.C:
 		}
 	}
+}
+
+// ObserveFor uses one contract and UID history for the entire CLI wait, just as
+// Deploy does. Repeated independent Observe calls would lose that history.
+func (w *Workflow) ObserveFor(ctx context.Context, result workload.Result, revision string, limit time.Duration) (Observation, error) {
+	if limit < 0 || limit > 15*time.Minute {
+		return Observation{}, errors.New("observation wait outside 0..15m")
+	}
+	if limit == 0 {
+		return w.Observe(ctx, result, revision)
+	}
+	ctx, cancel := context.WithTimeout(ctx, limit)
+	defer cancel()
+	return w.observeWait(ctx, result, revision, 5*time.Second)
+}
+func (w *Workflow) observeWait(ctx context.Context, result workload.Result, revision string, interval time.Duration) (report Observation, resultErr error) {
+	report = w.observationReport(result, revision)
+	defer func() {
+		if resultErr != nil {
+			report.Gate = &GateDecision{gateRejected, []string{resultErr.Error()}}
+			// A construction failure or deadline belongs to this phase, never the
+			// preceding successful snapshot. No terminal Gate is saved as Ready.
+			if err := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); err != nil {
+				resultErr = errors.Join(resultErr, err)
+			}
+		}
+	}()
+	session, err := w.rolloutContract(ctx, result, revision)
+	if err != nil {
+		return report, err
+	}
+	err = pollRead(ctx, interval, w.Progress, func(ctx context.Context) error {
+		var err error
+		report, err = w.observe(ctx, result, revision, session)
+		if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
+			return e
+		}
+		return err
+	})
+	return report, err
 }

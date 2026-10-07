@@ -98,23 +98,12 @@ func runWorkload(args []string) error {
 		if e != nil {
 			return e
 		}
-		end := time.Now().Add(*wait)
-		for {
-			report, e := w.Observe(ctx, r, *revision)
-			if e == nil {
-				fmt.Print(string(workload.JSON(report)))
-				return nil
-			}
-			var p workloadrun.Pending
-			if !errors.As(e, &p) || time.Now().After(end) {
-				return e
-			}
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(5 * time.Second):
-			}
+		report, e := w.ObserveFor(ctx, r, *revision, *wait)
+		if e != nil {
+			return e
 		}
+		fmt.Print(string(workload.JSON(report)))
+		return nil
 	}
 	p, e := w.ReadPlan()
 	if e != nil {

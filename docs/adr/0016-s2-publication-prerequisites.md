@@ -43,7 +43,10 @@ Plan schema 2 明确绑定三个无凭据阶段的输出摘要与固定阶段序
 混合 Pending/fatal 永远返回 fatal；真实 Kustomize 渲染与完整 task quality。
 本地检查不是新实例 Runtime PASS。
 
-## r4 首次观察边界（2026-10-08，仍为 Proposed）
+## r4 首次观察边界（历史修正，2026-10-08）
+
+以下记录 fc8ce63 的窄修复。[Proposed ADR-0017](0017-s2-rollout-gates.md)
+已替代 generation=1/空 status/reason 字符串特判；四阶段发布决策保留。
 
 r4 的 permissions Gate 通过后，Project Application 由 Argo 创建；S2 在约一秒内读取到
 其精确 spec、generation=1、tracking/SSA 和 UID，但 controller 尚未写入任何 status。

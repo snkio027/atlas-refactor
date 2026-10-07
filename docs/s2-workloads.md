@@ -127,9 +127,20 @@ Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和
 并对紧邻前一阶段重新执行只读 Gate；receipt 本身不等于 Ready。STOP 或无 receipt 的 intent
 都禁止重推。完成后同一 Project/namespace 的受限 update 仍为 consumer 单阶段。
 
-应用 Gate 遍历完整快照，按名字稳定输出，fatal 优先于缺失/Progressing；多余应用、UNKNOWN
-与实际错误不变成等待。失败快照和 controller condition.message 只写入 owner-only 本地报告，
-终端/公开报告仅包含分类与原因码；首次 deploy 保存各阶段的通过报告，失败时冻结 stop-observation.json。
+观察协议见 [Proposed ADR-0017](adr/0017-s2-rollout-gates.md)。每阶段由 exact plan、回执链、
+直接 Git parent 和当前编译输出建立只读契约，区分 Ready / Waiting / Rejected：
+
+- 身份、tracking/SSA、完整 spec、错误条件和状态字段类型先核对；全快照 Rejected 优先。
+- 本阶段首次声明的 Application 可等待创建和首次 comparison，兼容已知空/部分初始化 status；
+  事实仍记录 UNKNOWN。已有对象丢失状态、换 UID、未知 revision 或明确错误立即拒绝。
+- 在途更新只接受 target 或 exact predecessor 内容。已观察到 target 后回退 previous、第三种
+  spec/资源内容均为漂移。改变 Application source/destination 后还必须取得对应的新 comparison。
+- 一次 wait 保留 UID 与首次 comparison 事实；前置 Gate 将新 UID 带入后续阶段。CLI `observe --wait`
+  和 deploy 共享同一观察循环；standalone publish 也保存前置 Gate。STOP/final/已完成阶段关闭过渡许可。
+- 等待只重复读操作，固定 deadline 不重置，取消/超时保留最后原因；缺少终态证明不能进入下一阶段。
+
+原始 S1 facts 和 controller condition.message 只写入 owner-only 本地报告，终端错误/公开总结
+仅含分类与原因码。首次 deploy 保存各阶段通过报告，失败时冻结 stop-observation.json。
 
 所有 Git 发布都保留完整 parent tree，仅替换编译器声明的 delta，并用 exact-parent lease 拒绝并发更新。
 已有无关文件、可执行位及 Git 历史不重建。重复成功 `deploy` 只观察；重复发布相同 consumer 不产生新 commit。

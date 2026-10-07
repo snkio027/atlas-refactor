@@ -222,8 +222,12 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 		if e != nil {
 			return receipt, e
 		}
-		if _, e = w.observeLatest(ctx, r, expectedParent); e != nil {
-			return receipt, fmt.Errorf("%s gate: %w", prior.Phase, e)
+		report, err := w.observeLatest(ctx, r, expectedParent)
+		if err != nil {
+			return receipt, fmt.Errorf("%s gate: %w", prior.Phase, err)
+		}
+		if err = w.retainGate(p, report); err != nil {
+			return receipt, err
 		}
 	}
 	if current != expectedParent {
@@ -335,16 +339,9 @@ func (w *Workflow) precedingPublication(p Plan, phase string) (*Publication, err
 	parent := p.Parent
 	var prior *Publication
 	for _, step := range p.Phases[:index] {
-		b, e := regular(w.publicationPath(p, step), true)
+		receipt, e := w.readPublication(p, step, parent, p.PhaseSHA256[step])
 		if e != nil {
 			return nil, e
-		}
-		var receipt Publication
-		if e = workload.StrictDecode(b, &receipt); e != nil {
-			return nil, e
-		}
-		if receipt.Schema != 1 || receipt.PlanSHA256 != workload.Digest(workload.JSON(p)) || receipt.Phase != step || receipt.Parent != parent || !fullSHA.MatchString(receipt.Commit) || receipt.TreeSHA256 != p.PhaseSHA256[step] || receipt.TreeSHA256 == "" {
-			return nil, errors.New("publication predecessor receipt mismatch: " + step)
 		}
 		parent, prior = receipt.Commit, &receipt
 	}

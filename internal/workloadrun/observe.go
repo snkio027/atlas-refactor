@@ -23,6 +23,7 @@ func (e Pending) Error() string { return string(e) }
 type Observation struct {
 	Schema                int                           `json:"schema"`
 	Phase                 string                        `json:"phase"`
+	Gate                  *GateDecision                 `json:"gate,omitempty"`
 	ApplicationFacts      []observation.ApplicationFact `json:"applicationFacts,omitempty"`
 	ApplicationConditions map[string][]Object           `json:"applicationConditions,omitempty"`
 	ClusterUID            string                        `json:"clusterUID"`
@@ -186,8 +187,36 @@ func matches(want, live Object) bool {
 	}
 	return true
 }
+func (w *Workflow) observationReport(result workload.Result, revision string) Observation {
+	return Observation{Schema: 1, Phase: result.Inventory.Phase, ClusterUID: w.Install.Record.ClusterUID, Revision: revision, Project: "UNKNOWN", Workload: "UNKNOWN", Binding: "UNKNOWN", Runtime: "UNPROVEN", Applications: map[string]string{}, Resources: map[string]string{}, UID: map[string]string{}}
+}
 func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision string) (Observation, error) {
-	report := Observation{Schema: 1, Phase: result.Inventory.Phase, ClusterUID: w.Install.Record.ClusterUID, Revision: revision, Project: "UNKNOWN", Workload: "UNKNOWN", Binding: "UNKNOWN", Runtime: "UNPROVEN", Applications: map[string]string{}, Resources: map[string]string{}, UID: map[string]string{}}
+	session, err := w.rolloutContract(ctx, result, revision)
+	if err != nil {
+		report := w.observationReport(result, revision)
+		report.Gate = &GateDecision{gateRejected, []string{err.Error()}}
+		return report, err
+	}
+	return w.observe(ctx, result, revision, session)
+}
+func (w *Workflow) observe(ctx context.Context, result workload.Result, revision string, session *rolloutSession) (report Observation, resultErr error) {
+	report = w.observationReport(result, revision)
+	defer func() {
+		state := gateReady
+		if resultErr != nil {
+			state = gateRejected
+			var pending Pending
+			if errors.As(resultErr, &pending) {
+				state = gateWaiting
+			}
+		}
+		if report.Gate == nil || report.Gate.State == gateReady {
+			report.Gate = &GateDecision{State: state}
+			if resultErr != nil {
+				report.Gate.Reasons = []string{resultErr.Error()}
+			}
+		}
+	}()
 	if !fullSHA.MatchString(revision) {
 		return report, errors.New("exact observation revision required")
 	}
@@ -238,38 +267,26 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 	}
 	// Read-only equivalence is confined to the immutable D1 base and current
 	// approved publication parents. It never changes a mutation fence.
-	accepted := map[string]bool{revision: true, w.Install.Record.FullCommit: true}
-	if p, e := w.ReadPlan(); e == nil {
-		accepted[p.Parent] = true
-		for _, phase := range p.Phases {
-			if b, e := regular(w.publicationPath(p, phase), true); e == nil {
-				var r Publication
-				if workload.StrictDecode(b, &r) == nil && r.PlanSHA256 == workload.Digest(workload.JSON(p)) {
-					accepted[r.Commit] = true
-				}
-			}
-		}
-	}
-	baseline, e := w.baselineUIDs()
-	if e != nil {
-		return report, e
-	}
 	expectedApps := []observation.ExpectedApplication{}
 	for name, want := range apps {
 		observed := str(at(liveApps[name], "status", "sync", "revision"))
 		expected := revision
-		if observed != revision && accepted[observed] && name != "platform-control" && name != "project-bootstrap" && name != "workload-control" && sourceEqual(ctx, w, want, gitFiles, observed) {
-			expected = observed
+		if observed != revision && session.accepted[observed] && name != "platform-control" && name != "project-bootstrap" && name != "workload-control" {
+			equal, err := sourceEqual(ctx, w, want, gitFiles, observed)
+			if err != nil {
+				return report, err
+			}
+			if equal {
+				expected = observed
+			}
 		}
-		expectedApps = append(expectedApps, observation.ExpectedApplication{Name: name, UID: baseline["argoproj.io/Application/argocd/"+name], Spec: mapping(want["spec"]), Revision: expected})
+		expectedApps = append(expectedApps, observation.ExpectedApplication{Name: name, UID: session.uid[appIdentity(name)], Spec: mapping(want["spec"]), Revision: expected})
 	}
-	initial, e := w.initialApplicationOwners(ctx, result, revision)
-	if e != nil {
-		return report, e
-	}
-	report.ApplicationFacts, e = classifyApplications(expectedApps, liveApps, initial)
+	var decision GateDecision
+	report.ApplicationFacts, decision = session.applications(expectedApps, liveApps)
+	report.Gate = &decision
 	report.ApplicationConditions = applicationConditions(liveApps)
-	if e != nil {
+	if e = decision.err(); e != nil {
 		return report, e
 	}
 	first := map[string]Object{}
@@ -294,13 +311,17 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 		if e != nil {
 			return report, e
 		}
-		if baseline[r.Identity] != "" && baseline[r.Identity] != str(at(live, "metadata", "uid")) {
-			return report, errors.New("existing resource UID changed: " + r.Identity)
-		}
-		if !matches(want, live) {
-			return report, Pending("resource content has not converged: " + r.Identity)
-		}
 		dest := str(at(apps[r.Owner], "spec", "destination", "namespace"))
+		invariant := observation.ClassifyResource(observation.ExpectedResource{Ref: ref, UID: session.uid[r.Identity], Tracking: observation.Tracking(r.Owner, dest, ref), RequireSSA: true, Readiness: "identity-content"}, live, nil)
+		if invariant.Classification != observation.Verified && invariant.Classification != observation.Progressing {
+			return report, fmt.Errorf("resource ownership %s: %s %v", r.Identity, invariant.Classification, invariant.Reasons)
+		}
+		if e = session.pin(r.Identity, invariant.UID); e != nil {
+			return report, e
+		}
+		if e = session.content(r.Identity, want, live); e != nil {
+			return report, e
+		}
 		rule := "identity-content"
 		if ref.Kind == "Namespace" {
 			rule = "namespace-active"
@@ -338,10 +359,19 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 		first[r.Identity] = live
 	}
 	// A closing proof rejects concurrent identity/content/operation changes.
-	for id, old := range first {
+	ids := make([]string, 0, len(first))
+	for id := range first {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
+		old := first[id]
 		ref := observation.Reference(old)
 		live, e := w.get(ctx, resourceArgument(ref), ref.Namespace, ref.Name)
 		if e != nil {
+			return report, e
+		}
+		if e = session.pin(id, str(at(live, "metadata", "uid"))); e != nil {
 			return report, e
 		}
 		if !observation.SameProof(old, live, "identity-content") {
@@ -371,10 +401,10 @@ func resourceArgument(ref observation.Ref) string {
 	}
 	return ref.Kind
 }
-func sourceEqual(ctx context.Context, w *Workflow, app Object, current Files, old string) bool {
+func sourceEqual(ctx context.Context, w *Workflow, app Object, current Files, old string) (bool, error) {
 	files, e := w.ReadTree(ctx, old)
 	if e != nil {
-		return false
+		return false, e
 	}
 	dir := str(at(app, "spec", "source", "path")) + "/"
 	count := 0
@@ -382,16 +412,16 @@ func sourceEqual(ctx context.Context, w *Workflow, app Object, current Files, ol
 		if strings.HasPrefix(name, dir) {
 			count++
 			if !bytes.Equal(b, files[name]) {
-				return false
+				return false, nil
 			}
 		}
 	}
 	for name := range files {
 		if strings.HasPrefix(name, dir) && current[name] == nil {
-			return false
+			return false, nil
 		}
 	}
-	return count > 0
+	return count > 0, nil
 }
 func (w *Workflow) baselineUIDs() (map[string]string, error) {
 	p, e := w.ReadPlan()
@@ -488,49 +518,6 @@ func (w *Workflow) readBaseline(ctx context.Context, p Plan) (map[string]string,
 		return nil, errors.New("Project namespace already exists live")
 	}
 	return ids, nil
-}
-
-// A whole-snapshot decision: any fatal observation wins over all progress.
-// Sorting makes both the decision and its diagnostics independent of map order.
-func classifyApplications(expected []observation.ExpectedApplication, live map[string]Object, initial map[string]string) ([]observation.ApplicationFact, error) {
-	expected = append([]observation.ExpectedApplication(nil), expected...)
-	sort.Slice(expected, func(i, j int) bool { return expected[i].Name < expected[j].Name })
-	facts := []observation.ApplicationFact{}
-	wanted := map[string]bool{}
-	fatal, pending := []string{}, []string{}
-	for _, want := range expected {
-		wanted[want.Name] = true
-		fact := observation.ClassifyApplication(want, live[want.Name], nil)
-		facts = append(facts, fact)
-		if live[want.Name] == nil {
-			pending = append(pending, "Application missing: "+want.Name)
-			continue
-		}
-		if awaitingFirstObservation(want, fact, live[want.Name], initial[want.Name]) {
-			pending = append(pending, "Application awaiting first observation: "+want.Name)
-			continue
-		}
-		switch fact.Classification {
-		case observation.Verified:
-		case observation.Progressing:
-			pending = append(pending, "Application progressing: "+want.Name)
-		default:
-			fatal = append(fatal, fmt.Sprintf("Application %s: %s %v", want.Name, fact.Classification, fact.Reasons))
-		}
-	}
-	for name := range live {
-		if !wanted[name] {
-			fatal = append(fatal, "unexpected Application: "+name)
-		}
-	}
-	sort.Strings(fatal)
-	if len(fatal) > 0 {
-		return facts, errors.New(strings.Join(fatal, "; "))
-	}
-	if len(pending) > 0 {
-		return facts, Pending(strings.Join(pending, "; "))
-	}
-	return facts, nil
 }
 
 // Raw controller messages may include rendered values. Keep them only in the

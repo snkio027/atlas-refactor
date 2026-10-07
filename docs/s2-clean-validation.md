@@ -176,7 +176,7 @@ D1 从零安装、独立 verify、352 项身份/owner 基线、13 个冻结文�
 相同 UID 随后自然达到 Synced/Healthy，不能改写原 attempt 的 STOP。
 
 根因是把新对象的创建成功与异步 controller 首次写入 status 视为同一步。
-修复边界见 ADR-0016：当前 receipted 阶段首次声明且身份/ownership 完整的空 status
+历史 fc8ce63 修复边界见 ADR-0016：当前 receipted 阶段首次声明且身份/ownership 完整的空 status
 仅允许 Pending；UNKNOWN facts 保留，不放行写入或降低终态要求。回归覆盖
 `TestNewApplicationFirstObservationWaitsWithoutInventingProof`、
 `TestFirstObservationCannotMaskUnknownDriftOrPreviousState`、
@@ -187,3 +187,25 @@ infrastructure/consumer 未发布，S2 metrics、功能 probe、final 和重复�
 STOP 后只读检查：四节点 Ready，352 项旧资源身份/owner、13 个冻结 D1 文件及 Bootstrap
 authority 不变。保留 r4 集群、分支、密钥备份和完整 evidence；不清锁续跑。
 当前 S2 Runtime 仍未通过。上述本地修复不构成新执行授权。
+
+## r4 后的观察协议修正（Proposed ADR-0017，未执行新 runtime）
+
+用户授权结合工程实践重新设计，改动限于 S2 观察协议与回归，详见
+[ADR-0017](adr/0017-s2-rollout-gates.md)。r4 的 STOP、已发布 Git、密钥备份和运行现场不改写。
+原 fc8ce63 的 generation=1/空 status/reason 三元组特判已替换，四阶段编译及外部写入保持原范围。
+
+| 问题 | 修正 / 长期回归 |
+| --- | --- |
+| 创建与首次 comparison 被视为原子操作 | 发布契约限定初始化 Waiting；`TestRolloutAllowsSkippedRepeatedAndPartialInitialObservations` |
+| 新 UID 未跨轮询/阶段保留 | 会话首次 UID + immutable phase Gate；`TestRolloutRejectsIdentityLossAndComparisonRegression`、`TestRolloutContractUsesIntroductionAndPriorGateUIDs` |
+| 旧 target 更新被一律误判或无限等待 | 仅允许 exact predecessor → target；`TestRolloutTargetSpecConvergenceIsMonotoneAndPlanBounded`、`TestResourceConvergenceRejectsThirdContentAndBackwardTransition` |
+| 新 spec 仍使用旧 source comparison | 核对 Argo comparedTo；`TestRolloutCannotUseStaleComparisonAfterSourceChange` |
+| receipt / Gate 绑定或只读取消边界不完整 | `TestRolloutContractRejectsCurrentReceiptDrift`、`TestRolloutContractRequiresCompletePredecessorEvidence`、`TestReadPollCancellationAndDeadlineNeverAllowLateSuccess` |
+
+契约测试使用真正的本地 compiler 输出及锁定 resource model；API fixture 与时序测试均不访问
+现有集群。`FuzzRolloutCannotInventApplicationProof` 验证删减证据不能构造 Ready。
+本地通过不构成 S2 Runtime PASS；下一次验收必须使用新实现与新精确计划。
+
+本轮本地验证：Go 1.27.1，完整 `task quality` PASS（race/vet、锁定 kubectl 隔离 API fixture、
+真实 Helm/Kustomize、S1/D1/OT-1 契约）；256 种删减证据组合及 10 秒 fuzz PASS。
+未执行新的 live mutation；r4 的 157 份冻结证据与 2 份备份均通过原摘要复核。
