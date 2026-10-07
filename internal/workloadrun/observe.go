@@ -263,7 +263,11 @@ func (w *Workflow) Observe(ctx context.Context, result workload.Result, revision
 		}
 		expectedApps = append(expectedApps, observation.ExpectedApplication{Name: name, UID: baseline["argoproj.io/Application/argocd/"+name], Spec: mapping(want["spec"]), Revision: expected})
 	}
-	report.ApplicationFacts, e = classifyApplications(expectedApps, liveApps)
+	initial, e := w.initialApplicationOwners(ctx, result, revision)
+	if e != nil {
+		return report, e
+	}
+	report.ApplicationFacts, e = classifyApplications(expectedApps, liveApps, initial)
 	report.ApplicationConditions = applicationConditions(liveApps)
 	if e != nil {
 		return report, e
@@ -488,7 +492,7 @@ func (w *Workflow) readBaseline(ctx context.Context, p Plan) (map[string]string,
 
 // A whole-snapshot decision: any fatal observation wins over all progress.
 // Sorting makes both the decision and its diagnostics independent of map order.
-func classifyApplications(expected []observation.ExpectedApplication, live map[string]Object) ([]observation.ApplicationFact, error) {
+func classifyApplications(expected []observation.ExpectedApplication, live map[string]Object, initial map[string]string) ([]observation.ApplicationFact, error) {
 	expected = append([]observation.ExpectedApplication(nil), expected...)
 	sort.Slice(expected, func(i, j int) bool { return expected[i].Name < expected[j].Name })
 	facts := []observation.ApplicationFact{}
@@ -500,6 +504,10 @@ func classifyApplications(expected []observation.ExpectedApplication, live map[s
 		facts = append(facts, fact)
 		if live[want.Name] == nil {
 			pending = append(pending, "Application missing: "+want.Name)
+			continue
+		}
+		if awaitingFirstObservation(want, fact, live[want.Name], initial[want.Name]) {
+			pending = append(pending, "Application awaiting first observation: "+want.Name)
 			continue
 		}
 		switch fact.Classification {

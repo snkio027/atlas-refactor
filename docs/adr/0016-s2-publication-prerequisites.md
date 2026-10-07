@@ -42,3 +42,20 @@ Plan schema 2 明确绑定三个无凭据阶段的输出摘要与固定阶段序
 回归必须验证：任意应用调谐顺序下只发布已满足依赖的资源；阶段跳过/乱序/receipt 漂移拒绝；
 混合 Pending/fatal 永远返回 fatal；真实 Kustomize 渲染与完整 task quality。
 本地检查不是新实例 Runtime PASS。
+
+## r4 首次观察边界（2026-10-08，仍为 Proposed）
+
+r4 的 permissions Gate 通过后，Project Application 由 Argo 创建；S2 在约一秒内读取到
+其精确 spec、generation=1、tracking/SSA 和 UID，但 controller 尚未写入任何 status。
+把资源创建与首次调谐观察视为原子事件，是另一项执行器时序缺口。
+
+只在当前已发布且有精确 receipt 的未完成阶段，比较直接 Git parent，识别本阶段首次声明的
+Application。该对象须无既有 baseline UID、generation=1、spec 完全一致、正确 Argo
+tracking/SSA，且 status 缺省或为空对象，无 operation。此时仅返回有界 Pending，保留
+原始 UNKNOWN facts；既不生成 revision/健康证明，也不开放下一次 publication。
+
+显式 Unknown、非空/畸形 status、错误条件、缺少 UID、spec/owner 漂移仍 fatal。
+已有或前一阶段的 Application 不适用；当前阶段 Gate、final 或 STOP 存在时也不适用。
+全快照其他 fatal 仍优先。最终放行仍要求原完整 Gate，等待沿用现有 15 分钟上限。
+不改 S1 classifier、证据 schema、compiler、输出、依赖版本或 mutation surface。
+这不是 r4 continuation；r4 永久 STOP，新实现 runtime 必须独立验证。

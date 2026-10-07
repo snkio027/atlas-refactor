@@ -27,7 +27,7 @@ func TestApplicationGateFatalAlwaysWinsOverProgressAndMissing(t *testing.T) {
 		if i%2 == 1 {
 			wants = []observation.ExpectedApplication{c, b, a}
 		}
-		facts, err := classifyApplications(wants, map[string]Object{a.Name: la, b.Name: lb})
+		facts, err := classifyApplications(wants, map[string]Object{a.Name: la, b.Name: lb}, nil)
 		var pending Pending
 		if err == nil || errors.As(err, &pending) || !strings.Contains(err.Error(), "APPLICATION_ERROR") || strings.Contains(err.Error(), "private-diagnostic-canary") {
 			t.Fatal("fatal was hidden/leaked", err)
@@ -55,7 +55,7 @@ func TestApplicationGateExactInventoryAndUnknownRemainFatal(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := classifyApplications([]observation.ExpectedApplication{a}, tc.live)
+			_, err := classifyApplications([]observation.ExpectedApplication{a}, tc.live, nil)
 			var p Pending
 			if (err == nil) != tc.pass || errors.As(err, &p) != tc.pending {
 				t.Fatal(err)
@@ -65,15 +65,15 @@ func TestApplicationGateExactInventoryAndUnknownRemainFatal(t *testing.T) {
 	for _, field := range []string{"sync", "health"} {
 		_, app := gateApp("a")
 		mapping(at(app, "status", field))["status"] = "Unknown"
-		_, err := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": app})
+		_, err := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": app}, nil)
 		var p Pending
 		if err == nil || errors.As(err, &p) {
 			t.Fatal("unknown accepted", err)
 		}
 	}
 	before := workload.JSON(la)
-	one, _ := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": la})
-	two, _ := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": la})
+	one, _ := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": la}, nil)
+	two, _ := classifyApplications([]observation.ExpectedApplication{a}, map[string]Object{"a": la}, nil)
 	if !reflect.DeepEqual(one, two) || string(before) != string(workload.JSON(la)) {
 		t.Fatal("classification changes its input")
 	}

@@ -154,3 +154,36 @@ Project 原始 condition.message 未被旧程序保存，不能声称拥有其�
 
 旧 STOP、分支、集群、Trust Root 和完整私有证据不改动。该修正尚无新实例 Runtime PASS；
 需要新实现与四阶段计划的独立执行决定，不能清锁续跑 r3。
+
+## r4：创建与首次 controller 状态之间的观察窗口（2aec769）
+
+按精确总计划 `98579b7b7dcefffc825abdf7b33649a0ab8adb14410061494aab88f306d4ec7c`
+删除 r3 四节点并保留历史证据后，创建 `atlas-s2-r4`，cluster UID
+`895c2b95-4624-4e08-a63b-c5fb20834d6e`。实现
+`2aec76954585277d242a9a8cb85740bea6ec5d33`，唯一 S2 plan
+`a57c4ff1bbd62c606197dc09ce36450a9987baa7f39918441a0c5a092b62c96a`。
+
+D1 从零安装、独立 verify、352 项身份/owner 基线、13 个冻结文件、隔离 provider fixture、
+三个阶段双编译及 consumer preflight 均 PASS。D1 FullCommit
+`a094f85a8de392d32da705b400924eb4b3ece216`；permissions
+`de4a523eeb0383a77136acf7b7104d83c5117513` 发布并通过 Gate；project
+`fd3c34d06ccce2897f4677a38bd47f59a5da4053` 发布后 STOP。
+
+2026-10-07 16:12:54.434 UTC，审计记录 Project Application 创建成功（201）。
+16:12:55.395 S2 已因 `REVISION_EVIDENCE_MISSING / SYNC_UNKNOWN / HEALTH_UNKNOWN`
+退出；下一条 controller update 为 16:12:55.867。STOP fact 记录 generation=1、
+精确 spec 摘要、正确 tracking/SSA、UID 与 RV，未有 revision、sync、health 或 operation。
+相同 UID 随后自然达到 Synced/Healthy，不能改写原 attempt 的 STOP。
+
+根因是把新对象的创建成功与异步 controller 首次写入 status 视为同一步。
+修复边界见 ADR-0016：当前 receipted 阶段首次声明且身份/ownership 完整的空 status
+仅允许 Pending；UNKNOWN facts 保留，不放行写入或降低终态要求。回归覆盖
+`TestNewApplicationFirstObservationWaitsWithoutInventingProof`、
+`TestFirstObservationCannotMaskUnknownDriftOrPreviousState`、
+`TestFirstObservationDisabledAfterGateStopOrCompletion`、
+`TestFirstObservationRequiresBoundCurrentPublication` 和混合 fatal 优先。
+
+infrastructure/consumer 未发布，S2 metrics、功能 probe、final 和重复部署未执行。
+STOP 后只读检查：四节点 Ready，352 项旧资源身份/owner、13 个冻结 D1 文件及 Bootstrap
+authority 不变。保留 r4 集群、分支、密钥备份和完整 evidence；不清锁续跑。
+当前 S2 Runtime 仍未通过。上述本地修复不构成新执行授权。
