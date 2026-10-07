@@ -1,0 +1,286 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "web-api",
+        "namespace": "demo"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "atlas.io/project": "demo",
+            "atlas.io/workload": "web-api"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": 1,
+            "maxUnavailable": 0
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "atlas.io/project": "demo",
+              "atlas.io/s3-binding": "5d5f8f616377",
+              "atlas.io/workload": "web-api"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "ATLAS_S3_ENDPOINT",
+                    "value": "http://seaweedfs.atlas-storage.svc.cluster.local:8333"
+                  },
+                  {
+                    "name": "ATLAS_S3_BUCKET",
+                    "value": "uploads"
+                  },
+                  {
+                    "name": "ATLAS_S3_REGION",
+                    "value": "us-east-1"
+                  },
+                  {
+                    "name": "ATLAS_S3_FORCE_PATH_STYLE",
+                    "value": "true"
+                  },
+                  {
+                    "name": "AWS_ACCESS_KEY_ID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "AWS_ACCESS_KEY_ID",
+                        "name": "s3-5d5f8f616377",
+                        "optional": false
+                      }
+                    }
+                  },
+                  {
+                    "name": "AWS_SECRET_ACCESS_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "AWS_SECRET_ACCESS_KEY",
+                        "name": "s3-5d5f8f616377",
+                        "optional": false
+                      }
+                    }
+                  }
+                ],
+                "image": "atlas.local/s2-web:v1@sha256:d77da4cc37503ca65d02fd08a2948b8750843bb118852c24de43994281393fa0",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 6,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": "http"
+                  },
+                  "periodSeconds": 5,
+                  "timeoutSeconds": 2
+                },
+                "name": "web",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "http"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 6,
+                  "httpGet": {
+                    "path": "/readyz",
+                    "port": "http"
+                  },
+                  "periodSeconds": 5,
+                  "timeoutSeconds": 2
+                },
+                "resources": {
+                  "limits": {
+                    "cpu": "500m",
+                    "memory": "256Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "volumeMounts": [
+                  {
+                    "mountPath": "/tmp",
+                    "name": "tmp"
+                  }
+                ]
+              }
+            ],
+            "nodeSelector": {
+              "kubernetes.io/os": "linux",
+              "node-role.local/compute": "true"
+            },
+            "securityContext": {
+              "runAsGroup": 65532,
+              "runAsNonRoot": true,
+              "runAsUser": 65532,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "serviceAccountName": "web-api",
+            "volumes": [
+              {
+                "emptyDir": {
+                  "medium": "Memory",
+                  "sizeLimit": "32Mi"
+                },
+                "name": "tmp"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "labels": {
+          "atlas.io/project": "demo",
+          "atlas.io/workload": "web-api"
+        },
+        "name": "web-api",
+        "namespace": "demo"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "http",
+            "port": 8080,
+            "targetPort": "http"
+          }
+        ],
+        "selector": {
+          "atlas.io/project": "demo",
+          "atlas.io/workload": "web-api"
+        }
+      }
+    },
+    {
+      "apiVersion": "gateway.networking.k8s.io/v1",
+      "kind": "HTTPRoute",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "web-api-http",
+        "namespace": "demo"
+      },
+      "spec": {
+        "hostnames": [
+          "api-demo.atlas.test"
+        ],
+        "parentRefs": [
+          {
+            "group": "gateway.networking.k8s.io",
+            "kind": "Gateway",
+            "name": "development",
+            "namespace": "atlas-gateway",
+            "sectionName": "s2-fa6fb71d81c8-http"
+          }
+        ],
+        "rules": [
+          {
+            "filters": [
+              {
+                "requestRedirect": {
+                  "port": 48443,
+                  "scheme": "https",
+                  "statusCode": 301
+                },
+                "type": "RequestRedirect"
+              }
+            ],
+            "matches": [
+              {
+                "path": {
+                  "type": "PathPrefix",
+                  "value": "/"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "gateway.networking.k8s.io/v1",
+      "kind": "HTTPRoute",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "web-api-https",
+        "namespace": "demo"
+      },
+      "spec": {
+        "hostnames": [
+          "api-demo.atlas.test"
+        ],
+        "parentRefs": [
+          {
+            "group": "gateway.networking.k8s.io",
+            "kind": "Gateway",
+            "name": "development",
+            "namespace": "atlas-gateway",
+            "sectionName": "s2-fa6fb71d81c8-https"
+          }
+        ],
+        "rules": [
+          {
+            "backendRefs": [
+              {
+                "group": "",
+                "kind": "Service",
+                "name": "web-api",
+                "port": 8080,
+                "weight": 1
+              }
+            ],
+            "matches": [
+              {
+                "path": {
+                  "type": "PathPrefix",
+                  "value": "/"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "kind": "List"
+}
