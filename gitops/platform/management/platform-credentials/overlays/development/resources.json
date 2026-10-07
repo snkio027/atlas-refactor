@@ -1,5 +1,77 @@
 {
   "apiVersion": "v1",
-  "items": [],
+  "items": [
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "grafana-admin",
+        "namespace": "atlas-monitoring"
+      },
+      "spec": {
+        "encryptedData": {
+          "admin-password": "AgACLEj5Jw6c1mEwSVn0Y0wKS751y74dylTS0gittc8Wz+1KaXgVfY+EhdI5VHW6fhxWrgvj3XQoi/uUSNm2cf59Xw1wlF79f2LzwOxIdwXSRnljTZ3LL8AT394R7wDzxTPzXwM1Mq/S8ohDKo5G6J7goAOcMm4c8A/flCCwdCiZ/vTWC7v/mXptwsfNHPl4oTlG0T6jpDpyFP/ga2PHwdVFweVEaTqbwXo0snf0TtuneBYlE4D9HrC9iwEVJ8NlixTfy5GFxJ1hoJU9F5o1dGMkGgNJZc09nxCnUTeZyTupeejDjQ3bLKlEznFNR+PlFxXDqAdRpXzABQ2I9MGiyC6qORYKA31ErJy0aoSyom1K4cJcPRp6Yc45aa8/4QlMjBWoIfo9FnzuqqH/2lc1gP9UfYKapKumygXweOENaPm6+kwaOLUp1UcQa4HJJRlR8b8Hs+i+nZZjwnYLv1nq7SIYn6LFSypRb2diYrncyWEwZeUgGyzHYZHF9a4ZiPSrVHMRuBJTDn2CMbHP12vJk73+0y36zCNES4GilZ/pOl/TVGf4pQOmCvkqXX0Lr3VZCkcTEA9Be2D49ahBnFJ2CpnlollJYFVw5IJ9SYAzRr8Or8stYsU+xipUzYVKcsgu4ueOQe99tvwHGw4XBATyHzg+Im/2tTjtpf1uy3JRzgFcPFwL7AOkgU0xJGJIRtioWqmAF1wddtUt/zqs9LAf2y/u/tmjPh+ltyeRoHn04VvZg972aMlqlul8ZR2l",
+          "admin-user": "AgCPrQOVrg8gi3gtGgQd5AW+Zypw9rLQFjRhkN0hNYv2vr+c9iWV1jeyxOdul/4tskIFUxuT5wxikmOkEXkUArrdG1gr75xRFTBD7v3IPHAENFD2g+H7VEAXHmNvG5Ar5Z/tASKc5C5umJM0gIcsjGS8sqG/ADMZUdoEuyFFQbSD2SaNDkWlRQk+AqyWz/J2dWs2k7ddaKaLXdW+x4riMl/hJKRvvDJjJCjrloRwV00zqFwQlV4EM58q9dSeC9S/TUEcgaDzHf/de/caY8lkhLxRLOMB0ixfUQup+/nd0ir0ukpJiNoVK0QRC/n+yW/DuC+b/WQfbPuOOlEsKLV8FHj1G2R7r7HkFQH5Pp3AH10edyS051R5nh+v7HCo8NHZE2/1g1CFUX266lR8y95XappBaMPGDhyhoudNvXjV9clm2cJPhSY06+biNS4FBJXMirHoO+PprdyBhmrvH/BgFPhJ681ZgNXp+pJQiXjC9JTsCwCmYj3bU8IgwDs+EsT5/cdMwLa6I5wqYPf//SXcWlnBHShSUApSwYjed+J4r2bW/FEOT55kTVG8EKCXuHIrtKfgUjXSk0GJmff/sPHpS7AkSRhEdRXdufQtIXm80E7grbSQo2lz5G8q0yo4lSzHqVEUFdWMMgJeHqOvvy1jwjG8djX81Qk0QNSyDPjneDA+QRFgCGGOlOPx8i107BCI/SDbRU20dw=="
+        },
+        "template": {
+          "metadata": {
+            "name": "grafana-admin",
+            "namespace": "atlas-monitoring"
+          },
+          "type": "Opaque"
+        }
+      }
+    },
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "seaweedfs-auth",
+        "namespace": "atlas-storage"
+      },
+      "spec": {
+        "encryptedData": {
+          "seaweedfs_s3_config": "AgB7UVgehhqi0Y/TniIigjurV9QkRcu8hofwKpCTgo/fYy5Pv/3zLO0WfBE/tTKAUrM7AXZkx3xRTIHOfVvE6fgQdv7qyRdOKuZcoOuUQE2A+lqvjc/0hUbtoZrt/CRMOZ+qpkTvo5iX68rYi0PTn30nvhS9b/7DvQ4AfiwQUXaeD63h4F71wb52slP2Nb0SNPcDq6hmDMxRquJxGVhqrN37tXsQo83OszZAi5p/wh6ucTieKqBGY+Y7rOIBT1Yc96kz8ahTnZvlT0tTecdg8Pu3VqblY08N3CYt+nnrS0tfoHSL34B7CIzzP+YQArkpk3/aOdNvzoVyq5ADZ3IjRH/6gx3IRj3enEE78iZZeHPgDupXkkusGv8T25cMjIRiFQiIiAvG8jQ057TBRf1jk+kZ1dS/y8LdROgzZ13THJe8PvVc1t53RxzQWs3BWExYAxJXM8PUrZxoo2up8soSycPcDq1V3Z8MxpDpCsc5EDyQ6095ltIdROin4MVzqDqY8X2Whvb1Yffn66owaUGsFKd1P3TtqUjNmehYvbLVjG4DVH9ol4/CeD0z+890HpVqMXAITsYdc0/c+TrQ976B8MOmAL+NEWtw0Ymu9/nBwtfUXeWq6XDrGpK88pAW/rufLUfwkSOvunC4RMHx+iUHjPVaQTcybEoDl0r9Ax0rNZgqgcsow/5IUMx7y15tfRxi1ZwSthPxXfOztCPkFBnotsW7yxCCF8Z4xcBxXJzNgvOZkEe/iuLMBOsNX51Xifbq1e2afCO/SoOJanzW//N3Si4MUH5ItKCTQv34alWNPg5gQ02LRgJo1HUHmuKKOLjMPdOkJD0MpN6kyoqSpIfyYYjOApuYNDX6W3nV0Ac6UoSDFfFMWM87eomir8BliNpCS3Yfd8vemt1UygP3jm402FWExNlI74+OK9iIN3rcpbzYie6VhPeDhoqpzS5sVC1xvG7e8QU/HHiG1jvX/hbe5H9zi/oi6Oi8nWTMIDKKj22WjHVUot5Na5YI/dfdFXVR19VNhNbSeSykL6rGqK30O3bOGuHy04eb6EXHVRvDh3tnx1dn62+pDDNmaJEZ6ndZkxhyx4w3tkIg+y/Clwf+AfUebJt1kuiVmOwM3RyTuACibkOe2MZFU7aaQZeGkv77waSmjnH2mMXliYRmD/uMGpR98NXC3eJG9KVlpTiqJwBN0ovIFvlBDEY32/BzNM2fnh8="
+        },
+        "template": {
+          "metadata": {
+            "name": "seaweedfs-auth",
+            "namespace": "atlas-storage"
+          },
+          "type": "Opaque"
+        }
+      }
+    },
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "s3-client",
+        "namespace": "workload-web"
+      },
+      "spec": {
+        "encryptedData": {
+          "AWS_ACCESS_KEY_ID": "AgB7fbJ9hrbE2PYJq8ZDKk/DpyxxmyH1xb5iL7lFv+cpNoOuinfg5P6wZ5OiW5glEPs8svL2Ybsqt6itBRRdLTX3K8su0vi3aYy2rf8w4pAZ2tD6E4A6x48iq6Vc2XzMcseo+AujMzbQVkNrTExe0DBodWkQ3NWv1xUpfMrMgMzlZ2y+UIOILzXNWsnPia0H6NRtmovsJkVB3fwVPRGh+8CC5wVGTBZ+laUlYvDl97D0QYjZhlfZIT6VpSdtGJIp//qCefhJ/4/uzhL+a6isE7IJjGj1gUJnnma6X3O81mcbMM7lD49+I8+Ahs7hOj4FT1xgmhXMs8DXLdTdiCKv468u5kppVvp6cMv5ClAs4/Wb58zOJtfwptbBpqSVQ3ymPYqy4q3hC8AB68E3qRvnsSUgtP9Y+LPNxbvTYuxQJvYiPn9vb66mslsRCcZkbZt5jQgqUpsIV8anlqiIGM7zzsXspRHCn7vfcROD38NP2HBkCLDw84Y4p1u1vLmjULm4Vv1IIbwttu+8QSaEWlHqOCli7E75jZkgn1x2FVw57XmElf279IllYnZl91oKEfPOnmYSuvO07ndbrCqqd/lT9wazm2lNWhJ6PnpzfGopcrsHd5xFdRUYx1T70ge6o5uEbn6SsXrGKYlASDteLH7FuPyMi+cgkQ64Gew2+a6sQFdI9a4V4rzfc0MKgZKB4U1ZnNAoWzzTvdqsQrgwmzQ2IK6wO7Q1B4C322n0xL7sqdy7at4ucY/Uoy1sea9E",
+          "AWS_SECRET_ACCESS_KEY": "AgBRuVzykfxEwuqVpGIkBDIjk2dXa1HRdmB4sihNY3P0EJEe/3hxAnSp1lpyMMx97Vv8V8MYp1NjGSvPh1X1+HJNl/QHe3FcrHCswiCE7j7UsupDMVYy2YLANlb1KsrxDb3Jqph8OFSofJGDwabvKfaoKNyD1ZbICOagbJu7CXS9WGZtS0XA0GDWbqWoA4rNtgh6b7Jnz4KNoSj9lrGxBYMtWJSIJOMthtJ0zEoOJqudK/yUUoc9f9aBF3j9v/zlZR3rNbGGIygQzcT3lYymnzZSBBRLaraBLHyfIPQ9oaWu18Nqk3p+FKSOzy2BUpdu+l0OoaRKpxwT/Ycqn5mGivwz58L3ZjkGQ3WjV/8n1caCuHRBgse1DRfkQHNFAxiERZjz54Aqn/PiDlKqmwCK61MfJ6jM4JGfEZoJYnvHG4sVSUAED2twoHesDgAr60a+6NLbBZaniS2x8WfdxanOHN2kjFCXMInFnu+4FpdH31DmcsLcjYI4+mC+PhR8dNpL3Kt89hWhC5Dy2XHbilDsdQ9+YdyrsmI5dzzFwbx3YHNLP+6eVA8cVeTRfHqhAxm3LWurGhc/3dagtCkCGf6IUblOvgbuZ5cDDAaj2hITklvo/ee7Ah8fDeiqAPYAKEHEE2iu3lzNXGA3z/8FQvKN9o2fFkpHB9WAhcQg6pdcPNqbqE1lGAfqmqNBEaN/JChUNSzwt82YyfnsuAfVGQDqx35B+8WZrPfOY4By9sAcbQbnROm0YkQBD1vmVYtf"
+        },
+        "template": {
+          "metadata": {
+            "name": "s3-client",
+            "namespace": "workload-web"
+          },
+          "type": "Opaque"
+        }
+      }
+    }
+  ],
   "kind": "List"
 }
