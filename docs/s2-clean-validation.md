@@ -209,3 +209,39 @@ authority 不变。保留 r4 集群、分支、密钥备份和完整 evidence；
 本轮本地验证：Go 1.27.1，完整 `task quality` PASS（race/vet、锁定 kubectl 隔离 API fixture、
 真实 Helm/Kustomize、S1/D1/OT-1 契约）；256 种删减证据组合及 10 秒 fuzz PASS。
 未执行新的 live mutation；r4 的 157 份冻结证据与 2 份备份均通过原摘要复核。
+
+
+## r5：四阶段通过，Probe 入口单次观察 STOP（fc59e33）
+
+2026-10-08，按独立批准的总计划
+`1971bea222db964f31b99e487044b98ab18086a40920d6792daf27295c168ce6`
+删除精确 r4 四节点并保留其证据/Git/备份，创建 `atlas-s2-r5`。实现
+`fc59e33e8383968db383614a8b358228a9203882`，cluster UID
+`fbb4877b-6de7-4cd9-9c15-69935fcfb919`；唯一 S2 plan
+`0744bd4b9276fbd11b290f5b4bb3cb9868b5558d64fca398386c7e30d47352e7`。
+
+D1 首装及独立 verify、352 项旧身份/owner 基线、13 份冻结文件、隔离 provider fixture、
+三阶段双编译和 consumer preflight 全部 PASS。permissions、project、infrastructure、consumer
+均完成 publication/Gate；Project / Workload / Binding VERIFIED。r4 创建窗口修正已在本轮
+实际走通，未执行手工 refresh、spec/tracking patch、回滚或 continuation。
+
+S2 在 2026-10-07 22:56:05 UTC 返回 exit 1（非超时）：
+`observation changed during capture: argoproj.io/Application/argocd/envoy-gateway`。
+metrics 等待已经返回；Probe 入口单次 Observe 将 closing proof 变化的 Pending 直接返回，
+没有复用发布 Gate 的有界只读等待。审计中该 S2 区间 admin pods/exec 和 SubjectAccessReview
+均为 0；结合后观察之前必有两类 exec 的控制流，确认 STOP 在功能写入前。原双读 raw pair
+未保存，不能宣称已知道 envoy-gateway 的具体变化字段，也不放宽 semantic proof。
+
+Runtime UNPROVEN；final.json 不存在；HTTPS→S3、隔离功能及成功后的幂等未执行。
+STOP 后 4 节点 Ready、30 Applications；旧持久身份/owner、冻结 D1 文件、Bootstrap authority、
+历史分支和主机默认配置均未变。170 份私有证据及 2 份独立备份冻结保留。r5 的开发备份
+例外是 same-host，不构成物理隔离。公开报告不附入凭据、私钥、kubeconfig 或其关联摘要。
+
+修正限定于 [ADR-0017 的 Probe 读边界](adr/0017-s2-rollout-gates.md)：同一 contract/UID 会话、
+同一个 15 分钟总 deadline、前后只读轮询、期间功能操作一次；明确错误、取消和 deadline
+立即失败。共享观察记录器在失败时保存本次 Rejected，而非上一份 Ready。
+`TestProbeClosingChangesRetryReadsNotFunctionalEffects` 使用真实 semantic proof 和生产轮询器
+复现前/后采集变化；`TestProbeObservationFailuresStopWithoutRepeatingEffects` 覆盖双侧六类
+fatal 并检查失败报告；`TestProbeFunctionalFailureNeverRetriesEvenIfPending` 防止重复功能写入；
+`TestProbeDeadlineSpansBothReadsAndFunctionalPass` 用 Go 虚拟时钟证明后观察不重置预算；
+取消及 UID inventory 回归也必须通过。fixture 不访问任何现有集群，不构成 Runtime PASS。

@@ -1,6 +1,6 @@
 # S2：把 Web/API 项目编译到已安装平台
 
-状态：r3 的 D1 首装通过；S2 因权限与依赖发布竞争在 infrastructure Gate STOP，Runtime 尚未通过。
+状态：r5 的 D1 首装及 S2 四阶段 Gate 均通过；Probe 入口观察 STOP，Runtime 尚未通过。
 本次结果和编译器修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
 [S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
 本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
@@ -138,6 +138,9 @@ Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和
 - 一次 wait 保留 UID 与首次 comparison 事实；前置 Gate 将新 UID 带入后续阶段。CLI `observe --wait`
   和 deploy 共享同一观察循环；standalone publish 也保存前置 Gate。STOP/final/已完成阶段关闭过渡许可。
 - 等待只重复读操作，固定 deadline 不重置，取消/超时保留最后原因；缺少终态证明不能进入下一阶段。
+- Probe 前后也复用此只读循环，并共享同一个 receipt/UID 会话和 15 分钟总 deadline（受命令剩余时间限制）。
+  功能探测只在前置证明完成后执行一次；后置观察 Pending 只重读，不重放功能操作。
+  功能操作本身的 Pending、未知写结果或错误立即失败；终态仍检查完整证明和前后 UID 一致。
 
 原始 S1 facts 和 controller condition.message 只写入 owner-only 本地报告，终端错误/公开总结
 仅含分类与原因码。首次 deploy 保存各阶段通过报告，失败时冻结 stop-observation.json。

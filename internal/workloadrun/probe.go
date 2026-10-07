@@ -119,91 +119,18 @@ func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
 	if e != nil {
 		return e
 	}
-	before, e := w.Observe(ctx, result, published.Commit)
+	// Keep one receipt-bound contract and UID history across both read windows.
+	session, contractErr := w.rolloutContract(ctx, result, published.Commit)
+	after, facts, e := probeWithEvidence(ctx, func(ctx context.Context) (Observation, error) {
+		return w.waitObservation(ctx, w.observationReport(result, published.Commit), 10*time.Second, func(ctx context.Context) (Observation, error) {
+			if contractErr != nil {
+				return w.observationReport(result, published.Commit), contractErr
+			}
+			return w.observe(ctx, result, published.Commit, session)
+		})
+	}, w.probeFunctional)
 	if e != nil {
 		return e
-	}
-	if e = w.VerifyMaterialized(ctx); e != nil {
-		return e
-	}
-	var bound, unbound int
-	facts := Object{}
-	nonce := make([]byte, 16)
-	if _, e = rand.Read(nonce); e != nil {
-		return e
-	}
-	body := []byte("Atlas S2 " + hex.EncodeToString(nonce) + "\n")
-	for _, r := range w.Model.Workloads {
-		v := r.Definition
-		pod, e := w.readyPod(ctx, v)
-		if e != nil {
-			return e
-		}
-		client, e := w.httpsClient(v.Exposure.Hostname)
-		if e != nil {
-			return e
-		}
-		req, e := http.NewRequestWithContext(ctx, "POST", "https://"+v.Exposure.Hostname+"/roundtrip", bytes.NewReader(body))
-		if e != nil {
-			return e
-		}
-		res, e := client.Do(req)
-		if e != nil {
-			return errors.New("HTTPS request failed")
-		}
-		raw, readErr := io.ReadAll(io.LimitReader(res.Body, 1<<20))
-		res.Body.Close()
-		client.CloseIdleConnections()
-		if readErr != nil {
-			return readErr
-		}
-		if r.Binding != nil {
-			bound++
-			var got Object
-			if json.Unmarshal(raw, &got) != nil || res.StatusCode != 200 || got["sha256"] != workload.Digest(body) || got["cleanup"] != "deleted" {
-				return errors.New("HTTPS → Web → S3 roundtrip failed")
-			}
-			if e = w.execProbe(ctx, pod, "probe-permissions"); e != nil {
-				return e
-			}
-			facts[v.Name] = Object{"https": "PASS", "s3PutGetDelete": "PASS", "crossBucketDenied": "PASS", "bucketConfigurationDenied": "PASS", "podUID": at(pod, "metadata", "uid")}
-		} else {
-			unbound++
-			if res.StatusCode != 503 {
-				return errors.New("unbound WebService accepted S3 operation")
-			}
-			if e = w.execProbe(ctx, pod, "probe-network"); e != nil {
-				return e
-			}
-			facts[v.Name] = Object{"noBinding": "PASS", "s3NetworkDenied": "PASS", "dnsResolved": "PASS", "podUID": at(pod, "metadata", "uid")}
-		}
-		// SubjectAccessReview is a finite diagnostic request, not a grant or a
-		// Secret read. It is included in the approved probe's API operations.
-		b, e = w.kube(ctx, "auth", "can-i", "get", "secrets", "-n", "workload-web", "--as=system:serviceaccount:"+v.Project+":"+v.Name)
-		// kubectl exits 1 for the expected denial; never accept another failure.
-		if strings.TrimSpace(string(b)) != "no" {
-			if e != nil {
-				return errors.New("RBAC denial could not be proven")
-			}
-			return errors.New("Workload can read foreign Secrets")
-		}
-		if e = w.metric(ctx, v); e != nil {
-			return e
-		}
-	}
-	if bound == 0 || unbound == 0 {
-		return errors.New("final acceptance requires both bound and unbound WebServices")
-	}
-	if e = w.verifyLegacy(ctx); e != nil {
-		return e
-	}
-	facts["legacyD1"] = Object{"s3Credentials": "PASS", "https": "PASS"}
-	after, e := w.Observe(ctx, result, published.Commit)
-	if e != nil {
-		return e
-	}
-	if !bytes.Equal(workload.JSON(before.UID), workload.JSON(after.UID)) {
-		return errors.New("resource identity changed during probe")
 	}
 	after.Runtime = "VERIFIED"
 	out := Object{"result": "PASS", "exitCode": 0, "planSHA256": approval, "deploymentCommit": published.Commit, "compilerSHA256": w.BinarySHA256, "inventory": result.Inventory, "observation": after, "functional": facts, "scope": "single-owner local development; bucket mutation denial tested only in isolated synthetic fixture"}
@@ -218,6 +145,120 @@ func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
 	}
 	return save(filepath.Join(w.Config.StateDirectory, "provider.json"), provider, false)
 }
+
+// A single deadline covers both evidence windows and the one functional pass.
+// Only the read callback may poll; neither a Pending functional result nor an
+// uncertain write is retried. This is not a resume or recovery entry point.
+func probeWithEvidence(ctx context.Context, read func(context.Context) (Observation, error), exercise func(context.Context) (Object, error)) (Observation, Object, error) {
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Minute)
+	defer cancel()
+	before, err := read(ctx)
+	if err != nil {
+		return before, nil, fmt.Errorf("pre-probe observation: %w", err)
+	}
+	if err = ctx.Err(); err != nil {
+		return before, nil, err
+	}
+	facts, err := exercise(ctx)
+	if err != nil {
+		return before, nil, fmt.Errorf("functional probe: %w", err)
+	}
+	if err = ctx.Err(); err != nil {
+		return before, nil, err
+	}
+	after, err := read(ctx)
+	if err != nil {
+		return after, nil, fmt.Errorf("post-probe observation: %w", err)
+	}
+	if err = ctx.Err(); err != nil {
+		return after, nil, err
+	}
+	if !bytes.Equal(workload.JSON(before.UID), workload.JSON(after.UID)) {
+		return after, nil, errors.New("resource identity changed during probe")
+	}
+	return after, facts, nil
+}
+
+// Functional effects occur once, strictly outside all read retry closures.
+func (w *Workflow) probeFunctional(ctx context.Context) (Object, error) {
+	if e := w.VerifyMaterialized(ctx); e != nil {
+		return nil, e
+	}
+	var bound, unbound int
+	facts := Object{}
+	nonce := make([]byte, 16)
+	if _, e := rand.Read(nonce); e != nil {
+		return nil, e
+	}
+	body := []byte("Atlas S2 " + hex.EncodeToString(nonce) + "\n")
+	for _, r := range w.Model.Workloads {
+		v := r.Definition
+		pod, e := w.readyPod(ctx, v)
+		if e != nil {
+			return nil, e
+		}
+		client, e := w.httpsClient(v.Exposure.Hostname)
+		if e != nil {
+			return nil, e
+		}
+		req, e := http.NewRequestWithContext(ctx, "POST", "https://"+v.Exposure.Hostname+"/roundtrip", bytes.NewReader(body))
+		if e != nil {
+			return nil, e
+		}
+		res, e := client.Do(req)
+		if e != nil {
+			return nil, errors.New("HTTPS request failed")
+		}
+		raw, readErr := io.ReadAll(io.LimitReader(res.Body, 1<<20))
+		res.Body.Close()
+		client.CloseIdleConnections()
+		if readErr != nil {
+			return nil, readErr
+		}
+		if r.Binding != nil {
+			bound++
+			var got Object
+			if json.Unmarshal(raw, &got) != nil || res.StatusCode != 200 || got["sha256"] != workload.Digest(body) || got["cleanup"] != "deleted" {
+				return nil, errors.New("HTTPS → Web → S3 roundtrip failed")
+			}
+			if e = w.execProbe(ctx, pod, "probe-permissions"); e != nil {
+				return nil, e
+			}
+			facts[v.Name] = Object{"https": "PASS", "s3PutGetDelete": "PASS", "crossBucketDenied": "PASS", "bucketConfigurationDenied": "PASS", "podUID": at(pod, "metadata", "uid")}
+		} else {
+			unbound++
+			if res.StatusCode != 503 {
+				return nil, errors.New("unbound WebService accepted S3 operation")
+			}
+			if e = w.execProbe(ctx, pod, "probe-network"); e != nil {
+				return nil, e
+			}
+			facts[v.Name] = Object{"noBinding": "PASS", "s3NetworkDenied": "PASS", "dnsResolved": "PASS", "podUID": at(pod, "metadata", "uid")}
+		}
+		// SubjectAccessReview is a finite diagnostic request, not a grant or a
+		// Secret read. It is included in the approved probe's API operations.
+		b, e := w.kube(ctx, "auth", "can-i", "get", "secrets", "-n", "workload-web", "--as=system:serviceaccount:"+v.Project+":"+v.Name)
+		// kubectl exits 1 for the expected denial; never accept another failure.
+		if strings.TrimSpace(string(b)) != "no" {
+			if e != nil {
+				return nil, errors.New("RBAC denial could not be proven")
+			}
+			return nil, errors.New("Workload can read foreign Secrets")
+		}
+		if e = w.metric(ctx, v); e != nil {
+			return nil, e
+		}
+	}
+	if bound == 0 || unbound == 0 {
+		return nil, errors.New("final acceptance requires both bound and unbound WebServices")
+	}
+	if e := w.verifyLegacy(ctx); e != nil {
+		return nil, e
+	}
+	facts["legacyD1"] = Object{"s3Credentials": "PASS", "https": "PASS"}
+	return facts, nil
+}
+
 func (w *Workflow) VerifyMaterialized(ctx context.Context) error {
 	b, e := regular(filepath.Join(w.Config.StateDirectory, "keys.json"), true)
 	if e != nil {

@@ -168,29 +168,37 @@ func (w *Workflow) ObserveFor(ctx context.Context, result workload.Result, revis
 	defer cancel()
 	return w.observeWait(ctx, result, revision, 5*time.Second)
 }
-func (w *Workflow) observeWait(ctx context.Context, result workload.Result, revision string, interval time.Duration) (report Observation, resultErr error) {
-	report = w.observationReport(result, revision)
+func (w *Workflow) observeWait(ctx context.Context, result workload.Result, revision string, interval time.Duration) (Observation, error) {
+	initial := w.observationReport(result, revision)
+	session, contractErr := w.rolloutContract(ctx, result, revision)
+	return w.waitObservation(ctx, initial, interval, func(ctx context.Context) (Observation, error) {
+		if contractErr != nil {
+			return initial, contractErr
+		}
+		return w.observe(ctx, result, revision, session)
+	})
+}
+
+// The same bounded read protocol serves publication, CLI and probe boundaries.
+// Its callback only observes; a functional probe must never enter this poll.
+func (w *Workflow) waitObservation(ctx context.Context, initial Observation, interval time.Duration, read func(context.Context) (Observation, error)) (report Observation, resultErr error) {
+	report = initial
 	defer func() {
 		if resultErr != nil {
 			report.Gate = &GateDecision{gateRejected, []string{resultErr.Error()}}
-			// A construction failure or deadline belongs to this phase, never the
-			// preceding successful snapshot. No terminal Gate is saved as Ready.
+			// Persist this failing read, never the preceding successful Gate.
 			if err := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); err != nil {
 				resultErr = errors.Join(resultErr, err)
 			}
 		}
 	}()
-	session, err := w.rolloutContract(ctx, result, revision)
-	if err != nil {
-		return report, err
-	}
-	err = pollRead(ctx, interval, w.Progress, func(ctx context.Context) error {
+	resultErr = pollRead(ctx, interval, w.Progress, func(ctx context.Context) error {
 		var err error
-		report, err = w.observe(ctx, result, revision, session)
+		report, err = read(ctx)
 		if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
 			return e
 		}
 		return err
 	})
-	return report, err
+	return report, resultErr
 }

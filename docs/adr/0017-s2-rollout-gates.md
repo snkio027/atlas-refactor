@@ -54,3 +54,22 @@ ignoreDifferences、放宽终态 proof、延长 timeout、自动回滚或 STOP �
 错误优先、UID 替换、状态回退、receipt/gate 漂移、取消与超时；变形测试保证 Ready 不可由
 缺失终态证明得到。再运行完整 task quality。历史 r4 永久 STOP；新 Runtime PASS 需要
 新实现和精确执行计划，不能用本地测试或 r4 后续自然 Healthy 替代。
+
+
+## r5 后的 Probe 读边界修正
+
+r5 已完整通过四阶段发布 Gate，但功能 Probe 前的单次 Observe 遇到 closing proof 变化，
+Pending 被直接作为失败返回。具体变化字段未保存，不能把它归因于 RV 或无害时间戳；
+S1 semantic proof 保持不变。该历史 attempt 为 STOP，不能续跑或拼接成 Runtime PASS。
+
+Probe 复用发布 Gate/CLI 的同一只读轮询与错误快照记录器。前后两次观察共享一个
+receipt-bound contract 和单调 UID 会话；功能操作位于两个观察窗口之间，至多执行一次。
+整个前观察 → 功能操作 → 后观察共用一个 15 分钟 deadline，且受父命令更早的 deadline
+限制；不在后观察或 Pending 时重置预算。只有 Pending 的读可重试；功能结果即使是
+Pending 也立即失败，不重试 POST、exec、SubjectAccessReview 或任一凭据操作。
+终态仍需完整 closing proof、前后 UID 一致及功能事实；失败读保存当前 Rejected 报告。
+
+没有新配置、计划/evidence schema、依赖、controller 或恢复接口。保持 compiler、四阶段
+publication、D1 包和所有已冻结 runtime 证据。局部修正和本地回归不授权 r5 continuation，
+新干净验收仍需新实现和精确计划。回归覆盖双侧暂态、双侧 fatal/UID/spec/SSA/Git drift、
+功能 Pending/未知结果不重试、共享 deadline、取消和迟到成功。
