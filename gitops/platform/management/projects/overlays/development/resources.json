@@ -91,6 +91,10 @@
           {
             "namespace": "atlas-storage",
             "server": "https://kubernetes.default.svc"
+          },
+          {
+            "namespace": "demo",
+            "server": "https://kubernetes.default.svc"
           }
         ],
         "namespaceResourceWhitelist": [
@@ -216,6 +220,10 @@
         "destinations": [
           {
             "namespace": "workload-web",
+            "server": "https://kubernetes.default.svc"
+          },
+          {
+            "namespace": "demo",
             "server": "https://kubernetes.default.svc"
           }
         ],
