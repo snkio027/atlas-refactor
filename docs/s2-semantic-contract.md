@@ -1,19 +1,20 @@
 # S2-0 — Project / Workload / CapabilityBinding 语义契约
 
-状态：**Proposed / S2 实现契约；运行验收尚未完成**。日期：2026-10-01。
+状态：**Accepted / 单所有者本地开发 S2 契约**。提出：2026-10-01；接受：2026-10-09。
 
 目标：平台所有者用三个严格类型对象声明一个 Web/API 项目，经确定性编译和 Git 审查，
 让该应用在自己的 namespace 内通过 HTTPS 提供服务、消费现有 S3、被现有 Prometheus 监测。
-本次固定实现的语义边界与验收条件；ADR 仍保持 Proposed，运行与合并门禁分别验证。
+语义边界由已接受的 ADR-0015/0016/0017 固定；r7 Runtime PASS 与 `fc809be` 增量回归分别绑定，
+PR #9 已合入 main（`6dcc6d3`）。运行授权、实测证据与决策接受仍各自独立。
 
 ## 1. 基线与实施入口
 
 PR #8 已经审核并合入 main，merge commit 为 `531d2340867f05097ff9055003da154633bf070c`。
-本分支 `codex/s2-typed-workloads` 从该 main 独立创建，一个 PR 完成 S2-A～D。
+开发分支 `codex/s2-typed-workloads` 从该 main 独立创建，PR #9 已完成 S2-A～D 并合入。
 D1 验证产物 `v0.1.0-d1.4` 与 S1 历史证据保持冻结。
 原 Atlas Operating Model §§2.2、2.3、5.1、5.3，GitOps §§2、10.3、13、20，Network §§4–6
 约束此实现。ADR-0007、0011、0014 的已有权限、authority 和安装身份边界继续适用；
-本次配置与权限投影由 [ADR-0015](adr/0015-typed-project-workload-binding.md) 提出。
+本次配置与权限投影由 [ADR-0015](adr/0015-typed-project-workload-binding.md) 接受。
 
 ## 2. 第一条 slice 与排除项
 
@@ -375,10 +376,11 @@ SeaweedFS mini/领域 Operator 与密码学身份的差距继续显式记录，�
 
 三种类型、resolved semantic model、确定性编译器、固定前置条件发布和有限观察/探测入口已实现。
 命令、字段映射、凭据策略与验证边界见 [S2 工作流](s2-workloads.md)。本地静态/单元检查与
-隔离 SeaweedFS 合成权限测试已有结果；真实 S2 集群验收尚未完成，不能把这些检查计作 Gate-D PASS。
-S2 的实际验收结果在完成后单独记录，S1/D1 历史 evidence 不改写。
+隔离 SeaweedFS 合成权限测试通过；[r7](s2-r7-validation.md) 在 `d011813` 完成真实 Gate-D。
+`fc809be` 的入口/终态修复通过增量回归、完整质量检查与维护者复审，未重跑或改绑 r7。
+S1/D1 历史 evidence 和各次 STOP 保持原绑定。
 
-接受本契约需确认三项产品语义：单新增 Project 的开发范围；每 Binding 独立凭据与现有 provider
+本次接受三项产品语义：单新增 Project 的开发范围；每 Binding 独立凭据与现有 provider
 聚合配置的受限增量；S2 后使用独立扩展验收，旧 D1.4 安全拒绝后续 commit。
 代码合并/发布、密文公开发布、具体集群执行分别保持其原有门禁；无需为 A/B/C 各开一个 PR。
 

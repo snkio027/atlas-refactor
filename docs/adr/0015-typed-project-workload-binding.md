@@ -1,9 +1,9 @@
 # ADR-0015：Typed Project / WebService / S3 Binding
 
-Status: Proposed — S2 实现决策。日期：2026-10-01。
+Status: Accepted — 仅限单所有者本地开发。提出：2026-10-01；维护者复审接受：2026-10-09。
 
-本记录只提出独立 atlas-refactor 的后续配置与权限投影，不修改原 Atlas 的 normative 文档，
-不接受任何既有 Proposed ADR，不批准具体集群或公开密文发布。
+本记录采纳独立 atlas-refactor 的 S2 配置与权限投影，不修改原 Atlas 的 normative 文档，
+不自动接受其他 Proposed ADR，不批准具体集群或公开密文发布。
 
 ## 问题
 
@@ -11,7 +11,7 @@ D1 能安装平台，但新增业务仍需理解 namespace、HTTPRoute、网络�
 provider auth 配置和监测选择器。单独包装三个 JSON 文件不能消除这些跨域关系，也不能
 把共享平台对象拆成多个 Application owner。
 
-## 决策提案
+## 决策
 
 采纳 [S2-0 语义契约](../s2-semantic-contract.md)：三个严格类型 authored 对象 Project、Workload(WebService)、
 CapabilityBinding。首版一个新增 Project/namespace，绑定现有 object-storage/uploads，
@@ -53,5 +53,9 @@ provider 若不能实现承诺的权限，停止启用并回来审查契约，�
 ## 接受与实施
 
 PR #8 已合入 `531d234`，S2 从该 main 独立分支，一个 PR 完成语义模型、编译、静态契约与真实 slice。
-本记录保持 Proposed，owner 的契约接受、代码审核、具体执行授权和最终 runtime PASS 独立。
+维护者完成增量复审后，PR #9 以 merge commit `6dcc6d36642df56eca9e5bfd72b93793ee2c3356` 合入 main。
+接受范围仅为本文已实现的单所有者本地开发模型，不包含生产、多租户、删除/退役或恢复能力。
+[r7 验收](../s2-r7-validation.md) 的 Runtime PASS 绑定 `d011813`；`fc809be` 的入口/终态修复
+由增量回归与 [Quality CI](https://github.com/snkio027/atlas-refactor/actions/runs/37851541576) 验证。
+契约接受、代码审核、具体执行授权和 runtime 证据仍相互独立；合并不部署或改绑 r7 实测。
 S1/D1 frozen evidence 不修改；S2 不以继续扩张 OT-1 或安装器功能来满足验收。

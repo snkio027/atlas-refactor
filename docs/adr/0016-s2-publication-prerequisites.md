@@ -1,6 +1,15 @@
 # ADR-0016：S2 前置条件先收敛，再发布依赖者
 
-Status: Proposed — 修复 r3 暴露的发布顺序缺陷。日期：2026-10-04。
+Status: Accepted — 仅限单所有者本地开发。提出：2026-10-04；维护者复审接受：2026-10-09。
+
+接受范围是固定四阶段发布、逐阶段前置 Gate 与 Certificate Ready 先于 Gateway listener。
+r4 的首次观察特判仅作历史记录，由 [ADR-0017](0017-s2-rollout-gates.md) 的观察契约替代。
+本决定不批准新执行、不引入通用调度器或恢复协议，也不接受生产使用。
+
+接受依据：[r7 验收](../s2-r7-validation.md) 绑定 `d011813`；`fc809be` 的入口/终态增量修复
+与 [Quality CI](https://github.com/snkio027/atlas-refactor/actions/runs/37851541576) 未改变发布协议。
+维护者复审后，PR #9 以 `6dcc6d36642df56eca9e5bfd72b93793ee2c3356` 合入 main。
+以下历史 STOP 与各节当时的未验证结论保留。
 
 ## 原因
 
@@ -13,7 +22,7 @@ r3 在同一个 infrastructure Git 提交中增加 AppProject destination、Proj
 内的排序；[自动同步](https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/) 是各应用的
 独立行为。这是 Atlas 发布协议缺少前置条件，不以升级 Argo、增加 timeout 或忽略错误解决。
 
-## 决策提案
+## 决策
 
 保留 ADR-0015 的语义、唯一 owner、权限集合和最终 consumer 输出。首次发布固定为：
 
@@ -48,7 +57,7 @@ Plan schema 2 明确绑定三个无凭据阶段的输出摘要与固定阶段序
 
 ## r4 首次观察边界（历史修正，2026-10-08）
 
-以下记录 fc8ce63 的窄修复。[Proposed ADR-0017](0017-s2-rollout-gates.md)
+以下记录 fc8ce63 的窄修复。[ADR-0017](0017-s2-rollout-gates.md)
 已替代 generation=1/空 status/reason 字符串特判；四阶段发布决策保留。
 
 r4 的 permissions Gate 通过后，Project Application 由 Argo 创建；S2 在约一秒内读取到

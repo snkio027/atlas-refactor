@@ -9,9 +9,10 @@
 [首装文档](docs/first-install.md)、[D1 验收记录](docs/d1-validation.md) 和
 [Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。本轮按所有者决定，使用当前主机和当前仓库的新部署分支验收；不能称为独立机器验证。实际 CI 包已完成四节点首装、服务功能、访问和重复安装验证；发布 Gate 仍待审核。
 
-**S2 正在独立分支实现**：Project / WebService / CapabilityBinding、确定性编译和 Web→S3 slice。
+**S2 已合入 main，功能冻结**：Project / WebService / CapabilityBinding、确定性编译和 Web→S3 slice。
+[r7 Runtime PASS](docs/s2-r7-validation.md) 绑定 `d011813`；`fc809be` 完成入口/终态增量修复、回归与复审，
+PR #9 以 `6dcc6d3` 合入。ADR-0015/0016/0017 已按单所有者本地开发范围接受。
 语义见 [S2 契约](docs/s2-semantic-contract.md)，命令与验证边界见 [S2 工作流](docs/s2-workloads.md)。
-当前真实集群验收未完成；S1/D1 的通过记录不能替代 S2 结果。
 
 项目代码采用 [MIT License](LICENSE)，第三方组件保留各自许可证。
 

@@ -1,7 +1,9 @@
 # ADR-0017：S2 发布契约与只读收敛 Gate
 
-Status: Proposed。日期：2026-10-08。替代 ADR-0016 中 r4 的首次观察特判；保留四阶段发布。
-本轮用户授权重新设计和本地验证，不授权续跑 r4 或新集群 mutation。
+Status: Accepted — 仅限单所有者本地开发。提出：2026-10-08；维护者复审接受：2026-10-09。
+替代 ADR-0016 中 r4 的首次观察特判；保留四阶段发布。
+接受当前 receipt-bound 只读收敛协议及 Probe 入口/终态边界，不引入通用恢复或生产保证。
+最初修订仅获重新设计和本地验证授权；本次决策接受也不授权续跑任何 STOP 或新集群 mutation。
 
 ## 问题与工程依据
 
@@ -18,7 +20,7 @@ fc8ce63 用 generation=1、空 status 和一组三个 reason 字符串识别初�
 将 comparison 结果与 status 持久化分开，并用 comparedTo 判断 source/destination 是否变化。
 工程上将不可变约束、暂未收敛和已就绪分离；用可重复的快照/时序测试验证，限制重试在只读观察内。
 
-## 决策提案
+## 决策
 
 1. 每阶段从 exact plan、完整 publication receipt 链、直接 Git parent、当前 compiler 输出
    建立不可变观察契约。区分本阶段新增、已存在且修改、保持不变的 Application。
@@ -73,3 +75,18 @@ Pending 也立即失败，不重试 POST、exec、SubjectAccessReview 或任一�
 publication、D1 包和所有已冻结 runtime 证据。局部修正和本地回归不授权 r5 continuation，
 新干净验收仍需新实现和精确计划。回归覆盖双侧暂态、双侧 fatal/UID/spec/SSA/Git drift、
 功能 Pending/未知结果不重试、共享 deadline、取消和迟到成功。
+
+## 最终复审与接受（2026-10-09）
+
+维护者完成增量复审后，PR #9 以 merge commit `6dcc6d36642df56eca9e5bfd72b93793ee2c3356` 合入 main。
+[r7 Runtime PASS](../s2-r7-validation.md) 保留其 `d011813` 实测绑定；后续 `fc809be` 仅以
+定向回归和 [Quality CI](https://github.com/snkio027/atlas-refactor/actions/runs/37851541576) 验证。
+
+独立 Probe 与 Deploy 在功能边界拒绝既有 final、STOP 或 probe intent；首次功能操作前须
+独占创建 `probe-started.json`，完成文件及目录同步。已有相同内容也不能再次取得执行资格。
+这保证同一 plan/attempt 的功能执行资格至多取得一次，结果不明时禁止重放；不承诺分布式
+exactly-once 效果。必要的 provider 收尾先提交，`final.json` 是最后成功标记；PASS 与 STOP
+并存明确拒绝，STOP 证据保存失败与原业务错误合并报告。没有新增恢复接口或多文件事务系统。
+
+接受范围不包含多租户强隔离、解绑/退役、凭据轮换或自动恢复。r7 现场、部署引用、binary、
+凭据和历史证据保持原绑定；契约接受与主线合并均不构成另一次部署授权。

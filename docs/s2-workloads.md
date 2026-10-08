@@ -1,12 +1,13 @@
 # S2：把 Web/API 项目编译到已安装平台
 
 最新验收：**r7 Runtime PASS**，实测实现 `d011813ac94559e623f29d54efbde231cab261fc`。
-当前状态：功能冻结、最终代码审核中；本轮入口/终态修复以定向回归和质量检查验证，
-不把 r7 结果改绑到新提交。适用范围是单所有者、本地开发。
+当前状态：功能冻结；[PR #9](https://github.com/snkio027/atlas-refactor/pull/9) 已合入 main（`6dcc6d3`）。
+`fc809be` 的入口/终态修复通过增量复审与 exact-head Quality，不把 r7 结果改绑到新提交。
+ADR-0015/0016/0017 已接受，适用范围仅为单所有者、本地开发。
 脱敏通过项与证据索引见 [r7 最终验收](s2-r7-validation.md)；历史 STOP 与各自实现绑定
 保留在 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
-[S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
-本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
+[S2 契约](s2-semantic-contract.md) 和 [ADR-0015](adr/0015-typed-project-workload-binding.md)。
+S2 开发分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
 
 ## 用户输入与编译
 
@@ -124,7 +125,7 @@ Git 进程屏蔽 global/system 配置与 hooks，凭据由现有 gh store 提供
 7. 执行 HTTPS→Web→S3 put/get/delete、无 Binding 网络拒绝、跨桶/管理读取拒绝、SA 跨 namespace Secret 拒绝、metrics 发现、旧 D1 HTTPS/S3 凭据验证。
 8. 保存绑定 implementation/binary/plan/Git/cluster/resource UID 的 final evidence。
 
-首次部署的四阶段由 [Proposed ADR-0016](adr/0016-s2-publication-prerequisites.md) 定义。
+首次部署的四阶段由 [ADR-0016](adr/0016-s2-publication-prerequisites.md) 定义。
 Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和固定顺序绑定到审核；
 不能用旧二阶段计划授权新流程。每次 standalone `publish` 也必须校验完整前序 receipt 链，
 并对紧邻前一阶段重新执行只读 Gate；receipt 本身不等于 Ready。Certificate Ready 还须
@@ -132,7 +133,7 @@ Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和
 都禁止重推。完成后同一 Project/namespace 的受限 update 仍为 consumer 单阶段，只支持已有
 Workload；新增 Workload 会引入未通过前置 Gate 的 TLS 依赖，因此在 plan 阶段拒绝。
 
-观察协议见 [Proposed ADR-0017](adr/0017-s2-rollout-gates.md)。每阶段由 exact plan、回执链、
+观察协议见 [ADR-0017](adr/0017-s2-rollout-gates.md)。每阶段由 exact plan、回执链、
 直接 Git parent 和当前编译输出建立只读契约，区分 Ready / Waiting / Rejected：
 
 - 身份、tracking/SSA、完整 spec、错误条件和状态字段类型先核对；全快照 Rejected 优先。

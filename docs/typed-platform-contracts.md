@@ -2,6 +2,8 @@
 
 这是供后续 owner 审查的设计方向；现有 AH-1～AH-4 见 [ADR-0007](adr/0007-platform-contract-hardening.md)，
 S1 的本地实现见 [ADR-0009](adr/0009-foundation-ownership-rehearsal.md)。此文不修改原 Atlas 规范、生产 authority，也不承诺所有示例 API 已实现。
+S2 已按 [ADR-0015](adr/0015-typed-project-workload-binding.md) 及 ADR-0016/0017 接受并合入主线，
+仅限单所有者本地开发；本页其余长期方向仍是 Proposed。
 
 Atlas 的长期职责是把受类型约束的意图编译成可审查的 GitOps desired state，并验证权限、
 依赖和生命周期。Bootstrap 保持有限实例化；Argo 持续调谐 Git 定义；Kubernetes 和领域
@@ -18,7 +20,7 @@ controller 承担运行时。新增能力不应把本地 Go 程序变成第二�
 | L4 Workload | 可执行意图及 exposure/storage/observability/scaling/scheduling 需求 | S2 先支持 Web/API service；高层模型不固定等同于 Pod/Deployment |
 | L5 Runtime Objects | Kubernetes / Operator 消费的对象 | Deployment、HTTPRoute、PVC 等是编译目标；未来其他目标须由真实需求驱动 |
 
-Binding 表示 Project/Workload 对能力接口的消费关系。S2 将把当前分散的 SecretRef、
+Binding 表示 Project/Workload 对能力接口的消费关系。S2 已把此前分散的 SecretRef、
 NetworkPolicy 两端、身份标签、S3 桶权限与 endpoint 约定纳入一个受检查的契约。
 不要先创建空壳 CRD/operator；优先 Git-time compilation，敏感明文仍不进入 Git。
 
@@ -50,7 +52,7 @@ verify --revision 接口；没有观察 daemon、refresh annotation 或自动修
 | Slice | 一次交付 | 当前状态 |
 | --- | --- | --- |
 | S1 | Observation + Evidence + 精确 OT-1 状态机、有限 executor、实例化 profile | PR #6：干净单次 29/29、1→3→1、部分回退和四次 Gate-B 已通过；功能冻结，审核/ADR/发布 Gate 独立 |
-| S2 | Project + Workload + CapabilityBinding + 首个消费 S3 的 Web/API 实例 | 路线图；没有新增 schema 或空壳 Operator |
+| S2 | Project + Workload + CapabilityBinding + 首个消费 S3 的 Web/API 实例 | PR #9 已合入；[r7 Runtime PASS](s2-r7-validation.md) 与入口/终态增量复审完成，单所有者本地开发范围内功能冻结 |
 | S3 | 确定性 scopegen、metrics-server 候选、按预算/需求选择 Loki/Alloy、CI/release hardening | 路线图；CI required check 与 remote supply-chain proof 尚未建立 |
 
 S2 用同一个项目编译 namespace/quota/network、Deployment/Service/HTTPRoute、可选 metrics、

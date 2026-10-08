@@ -1,6 +1,7 @@
 # S2 r7 最终验收与收口边界
 
-2026-10-09，**完整干净实例 Runtime PASS**。S2 停止功能扩展，PR #9 进入最终代码/架构审核。
+2026-10-09，**完整干净实例 Runtime PASS**。S2 停止功能扩展；后续增量复审通过，
+[PR #9](https://github.com/snkio027/atlas-refactor/pull/9) 以 `6dcc6d3` 合入 main。
 同一 implementation、唯一派生计划、同一新 target、单次 attempt 完成 D1 → S2 → 无副作用重复验收。
 本页仅为脱敏摘要；原始私有证据保留本地，未随代码上传。
 
@@ -73,7 +74,10 @@ provider 更新完成后才提交 final；PASS+STOP 明确拒绝；STOP 证据�
 
 这次修复只验证增量源码与完整质量检查，不重建 r8、不更换 r7 binary/plan、不重复功能 probe。
 **r7 Runtime PASS 永久绑定 d011813，不等于修复后提交已经实测。** 编译器、清单、凭据策略、
-四阶段发布、功能探测内容保持冻结。ADR-0015/0016/0017 继续 Proposed，等待维护者审核。
+四阶段发布、功能探测内容保持冻结。增量修复提交为 `fc809bea7385b820bb2ef39d50a8b6a186a38d53`，
+[exact-head Quality](https://github.com/snkio027/atlas-refactor/actions/runs/37851541576) PASS。
+维护者于 2026-10-09 完成复审并接受 ADR-0015/0016/0017，范围仅为单所有者本地开发；
+这项决策不扩大本页实测范围，也不将历史 STOP 改为成功。
 
 本验收是有校验缓存的同机、单所有者本地开发实例；Trust Root 备份使用独立批准的同机开发例外。
 不覆盖空缓存新机器、物理隔离备份/DR、生产就绪、HA、强多租户或原 Atlas cutover。
