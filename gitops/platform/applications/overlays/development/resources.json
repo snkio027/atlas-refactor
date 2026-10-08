@@ -770,6 +770,41 @@
           ]
         }
       }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-5"
+        },
+        "name": "s2-b-demo-web-api-storage-5d5f8f616377",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "destination": {
+          "namespace": "demo",
+          "server": "https://kubernetes.default.svc"
+        },
+        "project": "platform-project",
+        "source": {
+          "path": "gitops/platform/bindings/demo/web-api-storage",
+          "repoURL": "https://github.com/snkio027/atlas-refactor.git",
+          "targetRevision": "atlas-s2-r7"
+        },
+        "syncPolicy": {
+          "automated": {
+            "enabled": true,
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true",
+            "FailOnSharedResource=true"
+          ]
+        }
+      }
     }
   ],
   "kind": "List"

@@ -37,7 +37,7 @@
       },
       "spec": {
         "encryptedData": {
-          "seaweedfs_s3_config": "AgCGNvWegFe7r29oc9SwTKTNRCMxTlwTi9w50OlmYAvEA8gusbzq/zJOO6BtCBWcAoj/+AWPdWwv48WiL/DIC094ZgNIT84vFVDfKIS0DK+MKO2eZvbRUuw3Nan3pCVz041/cPQAnhztBSb8BxQFdqX9qB24l9ScSYIqpKLjAZKd3KiG5FyIa46RERt2S54WmZDICNw6iEfiZRsYlLKiED8323ZNd3vLOKCiydcrqfSCxdNMErTPgx13MKYpHwSrB1iFYjEWYW90Z5CWTllTiIkdhTl1hZ71SCkyv0uJv6wp1qRUn9izMZvt/CPkzYsnXGn6WSCv4tTBp++A14HsMbfOT7HUllq5T8PuvNsAQZ+QT3n/kVOOdDpl2m5VBX9zUJBsFcpLzlIJsZG07tlQkJRSWQ/p3vqEYCsnJwGTePE3qKqy0k9ZA/x+tqkKw0FjGUtL2vVxpqes/uql0jQHjNg51IVIGGDBghQ/tjbD7DivonJromGoIrM31UTRThYuKW5Ed954BVVat2fppgjw6QkFjLrEug6KHuls1yXI/hv4MIox4rGDS9PjkLzv/EiKqz2K+d/AQOqPjNw/PagIQqOkrqq+vfzuffIFMEaqqu5PpRUK13Wh2O/1qJ7T9S5XjaPLD/mPi1fBlOEkryIMDlqybf5ZH0UdMfhLXI+we8Vdr09OcIqVTIAK4OUwtpaTXKiugWmZNAdJmLTrwp8iHsOCkLjeyWDTtc1h8n7OMAZB1ftuvG37TYkYG0+uLUMXsrrRpC+suEw29JYRdk7NW07cifPWtiiwodDF3RJrQvzdB28dmnz10NQwvqvX8pGx9yyk/lgvhroW9whSJn/Sm2E3amcFpVXLtGBTu3YuvQ4Saatvx/7LRB9upXw5dDhMLKbVG/SarfxRAoxI+8fcbpVRBkmVEovWRzKgsKVWuq90dFxhpYaXhguh7Xy8184v7qPH2MRsh5pY92E5iB8xsJlH9Zyh2qZ2jDUkoTyqjXhxxepBI6GeITRuQKsvxsEaGvWtyWX4VEELakNPJMT3Y2AdaQ5NAqddK2ohJkpch4ZTrEVfryvdwSYp1O20ixdT69cE85v/ZXlduCoC4HIJBrRV9kBZkrnVcDyIpzm2MOayCDYFh+1r5mEd+ptgJYJZZMvtpoB6DF/tfjmf7nwRUnhS9hcQEys0ua4hwLeizhbARIBo3z3cuvDR2BgZ+RcuoBg="
+          "seaweedfs_s3_config": "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"
         },
         "template": {
           "metadata": {
@@ -67,6 +67,30 @@
           "metadata": {
             "name": "s3-client",
             "namespace": "workload-web"
+          },
+          "type": "Opaque"
+        }
+      }
+    },
+    {
+      "apiVersion": "bitnami.com/v1alpha1",
+      "kind": "SealedSecret",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "s3-5d5f8f616377",
+        "namespace": "demo"
+      },
+      "spec": {
+        "encryptedData": {
+          "AWS_ACCESS_KEY_ID": "AgCb9L3DwxtDllkw+De86LctTDSyltXmF1XNATRTcohryRrmd6UpwDEnebujerOTGsGKlfXpyhtKswyDVY9Jfb0hC23eHJb5whEzMKFJqJwPA1zFSg6N+KXx/k77bea6AOKHHrrJnwdMV7DgpvjTvd88diAqRegrDdSFimXbWwOwwsZ3xXmqO31VMIK0hKDxUHHe0f+LpATQZdSaQRTLyA7SEIgI6uKM/WXWlRmIjIdZxKIM0U05svz2FwG295dQ9n38EWASjWMAOEvcJCWCvW3EipyUf9ZTOP6VLryK0Ex7IxTdAOjmGrLr8ByXjAzwlYIjq8zKMYP+n6KvomyxL+hskXm2XLyiLjb1u0rB/loDR/OjK+IKcqj+aO2Y7OkgCoEaFnZfZjP9A4FjUm41mKTRrZsDj5LUzmut+GG8ZLU0+44y3uFm8LLHn1XUbtWYfcePYEcuNlVpeI0o5ExCyulwdVFkH1dp+eK9xKmfhTK85pWYeLqKvxjx6lJUxgDbj7YzZx7EqpMB9XCV//yTk0mHaLDxeALAUVMbe7Y+sq+Xrt49OSaTOP7Y5QNR9xv7BVXH5L3hH2YDrSCoNIfXzGu4atKSO+865PuXlSeIVfCojFJ2qCWO5Qoe92+EKfRxF3IBYjKV1pTti90FgsrcU41DRMDky3G1cbv8cFJ8qwdqQwDHsSBkxEnqAZCRKiMxYo6HDUBEBQPtb+QDAIjNfurRy0PmIkOWstcKgSjGnDQiqN9qtxV13QFq/Yun",
+          "AWS_SECRET_ACCESS_KEY": "AgA5VfF3HApSdR/VgPWA9Sd9HJx+bZTnnMUI3+HlY/Wu5QydPClc+I5wlWEdgSAwIZn2QIhQtzVkwN8Lht3tt4JFrj57vE+0nrvo/xtbK7p3YcZK6VAGci1Wh+/FcXOHDRHx7YGbnoGYVaYOr8SPQCqDfUqCWX/kqcwT4JvSfdFz71nC/Ryw20xISwAfFsdiVdVrpyzo9io/F2qc3P8XDs13zayU0ZPY5pHZbj1EzwXI91ZCzzuNQmDx8Czvkqs2R5/dUGEb7INyIwUCp7k2QMmtGyy34Ke1iSES8wqOWfOio6kRDHKr0lIKRlP+W5mEtoA/oLGozSeAEY8D8fE2sczHZjSOboeQ3G1Oz+86FOy6wjoXfFc5wasRoEJseJjPK1zA1XYLPHitNQPzbf9C8RjzpMVdLWaDsr6NIpqgajgaZpzkd8phNduoD0ABOyK1NxF+9DhwmdrNIN+MooI8fmEbP72BHCtLIPEDMyz0QTYnSGq2g/1goY8t6bMZNd33D7Y+tBAja5pR7Y8qiBBjwkerFSu6mTXBQ30M2Wi5b/Hc/C+BVNGoDxSoMChg1z0rFwi5EArX88IDg9vKeLY4b+6jC4Zpt+sN8WxjHsBTb71CVFfbRdkHYODlQNk29PEPocEquEqlHyLm6G7MfSS34y/dU30sJO8hdYnsEFidiohCPZ07akeYTnByYxtUs9vKN14sT4cNAdd6fGVi8sKYng4RbYTNhoMIV2ZgY0sN7yEoJzlfECBuYroJDXgN"
+        },
+        "template": {
+          "metadata": {
+            "name": "s3-5d5f8f616377",
+            "namespace": "demo"
           },
           "type": "Opaque"
         }
