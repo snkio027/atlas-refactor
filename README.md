@@ -5,9 +5,13 @@
 已冻结的架构验证基线是 [S1 单次 29/29 验收与冻结](docs/s1-final-validation.md)。
 下文的最小 Bootstrap 与 dev02 数字属于各自历史基线；不能据此判断当前本机集群。
 进入 S2 前的代码与操作质量检查见 [工程审查](docs/pre-s2-engineering-review.md)。
-**D1 可安装预览版已通过本机全新首装验收**，当前候选包等待审核与发布，之后才进入 S2。入口与验收边界见
+**D1 可安装预览版已通过本机全新首装验收**，PR #8 已审核合入。入口与验收边界见
 [首装文档](docs/first-install.md)、[D1 验收记录](docs/d1-validation.md) 和
 [Proposed ADR-0014](docs/adr/0014-installable-development-preview.md)。本轮按所有者决定，使用当前主机和当前仓库的新部署分支验收；不能称为独立机器验证。实际 CI 包已完成四节点首装、服务功能、访问和重复安装验证；发布 Gate 仍待审核。
+
+**S2 正在独立分支实现**：Project / WebService / CapabilityBinding、确定性编译和 Web→S3 slice。
+语义见 [S2 契约](docs/s2-semantic-contract.md)，命令与验证边界见 [S2 工作流](docs/s2-workloads.md)。
+当前真实集群验收未完成；S1/D1 的通过记录不能替代 S2 结果。
 
 项目代码采用 [MIT License](LICENSE)，第三方组件保留各自许可证。
 
