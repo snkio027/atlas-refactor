@@ -1,7 +1,10 @@
 # S2：把 Web/API 项目编译到已安装平台
 
-状态：r5 的 D1 首装及 S2 四阶段 Gate 均通过；Probe 入口观察 STOP，Runtime 尚未通过。
-本次结果和编译器修复见 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
+最新验收：**r7 Runtime PASS**，实测实现 `d011813ac94559e623f29d54efbde231cab261fc`。
+当前状态：功能冻结、最终代码审核中；本轮入口/终态修复以定向回归和质量检查验证，
+不把 r7 结果改绑到新提交。适用范围是单所有者、本地开发。
+脱敏通过项与证据索引见 [r7 最终验收](s2-r7-validation.md)；历史 STOP 与各自实现绑定
+保留在 [S2 clean validation](s2-clean-validation.md)。语义与权限边界见
 [S2 契约](s2-semantic-contract.md) 和 [Proposed ADR-0015](adr/0015-typed-project-workload-binding.md)。
 本分支从 PR #8 合入后的 `531d234` 开始；S1 与 D1 的历史结果保持冻结。
 
@@ -155,6 +158,18 @@ Workload；新增 Workload 会引入未通过前置 Gate 的 TLS 依赖，因此
 `prepare-credentials`、`baseline`、`publish`、`probe` 是同一精确计划的显式分步入口，便于审查诊断；
 不构成 recovery/resume 接口。外部状态变更后失败保留 intent/receipt/terminal evidence，不自动回滚或清除 STOP。
 
+独立 `probe` 与 deploy 的功能边界共用持久化防重放保护。已有 STOP、final 或
+`authority/<planSHA>/probe-started.json` 均拒绝再次功能调用，即使现场后来恢复 Healthy。
+在前置只读 Gate 成功后、第一次功能操作前，以 exclusive create 写入并同步 intent；
+已有相同内容也不能取得执行资格。写入或同步失败不执行功能；不完整 intent 保留并阻止重放。
+CLI 的安装锁排除正常并发，exclusive intent 额外保证同一 plan 不能取得两次功能执行资格。
+
+功能与后置观察通过后，先更新本地 `provider.json`，最后才提交 `final.json`。
+provider 读写失败不能留下本次 PASS；final 写入失败仍保留 intent，不自动重试功能。
+Deploy 在任何成功重复路径前检查 final 与 terminal；两者并存明确报矛盾，不让 final 覆盖 STOP。
+失败时尽力保留 stop-observation 与 terminal，读/写失败均与原错误一起返回并标明证据不完整。
+这些保护不新增阶段、恢复能力或公共 schema，也不改变功能探测内容。
+
 日常只读观察：
 
 ```sh
@@ -181,9 +196,13 @@ ATLAS_S2_PROVIDER_FIXTURE=1 go test ./internal/workloadrun \
   -run '^TestSeaweed447PolicyFixture$' -count=1 -v
 ```
 
-`task quality` 包括 S2 两种 phase 的真实 Kustomize 构建；不会启动 Docker/Kind 或使用实例凭据。
+`task quality` 包括 S2 四阶段的真实 Kustomize 构建；不会启动 Docker/Kind 或使用实例凭据。
 隔离 provider fixture 已验证对象读写、Head/List/Tagging/multipart，以及跨桶、CreateBucket、DeleteBucket、
 PutBucketCORS 的 403。危险的 bucket mutation 负例仅作用于这个空的合成 fixture，绝不在真实 uploads 上试删。
+
+## 历史执行与修复记录
+
+以下为各次执行当时的状态，不代表当前最新验收；后续 PASS 不改写历史 STOP。
 
 本机首次执行在只读 baseline 阶段 STOP，尚未导入镜像、生成凭据或发布 Git；真实 slice 尚未通过。
 原因是 Helm 的空 annotations、core ServiceAccount 空 apiGroup、API 省略的探针零延迟与 false 字段

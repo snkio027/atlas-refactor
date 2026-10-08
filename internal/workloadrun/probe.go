@@ -104,6 +104,9 @@ func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
 	if e := w.approve(p, approval); e != nil {
 		return e
 	}
+	if e := probeAvailable(filepath.Join(w.Config.StateDirectory, "authority", approval)); e != nil {
+		return e
+	}
 	b, e := regular(w.publicationPath(p, "consumer"), true)
 	if e != nil {
 		return e
@@ -121,7 +124,7 @@ func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
 	}
 	// Keep one receipt-bound contract and UID history across both read windows.
 	session, contractErr := w.rolloutContract(ctx, result, published.Commit)
-	after, facts, e := probeWithEvidence(ctx, func(ctx context.Context) (Observation, error) {
+	return w.runProbe(ctx, published, result.Inventory, func(ctx context.Context) (Observation, error) {
 		return w.waitObservation(ctx, w.observationReport(result, published.Commit), 10*time.Second, func(ctx context.Context) (Observation, error) {
 			if contractErr != nil {
 				return w.observationReport(result, published.Commit), contractErr
@@ -129,21 +132,40 @@ func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
 			return w.observe(ctx, result, published.Commit, session)
 		})
 	}, w.probeFunctional)
+}
+
+// Both public execution paths use this boundary. Read retries never acquire a
+// second intent; an interrupted/failed functional pass cannot be replayed.
+func (w *Workflow) runProbe(ctx context.Context, published Publication, inventory workload.Inventory, read func(context.Context) (Observation, error), exercise func(context.Context) (Object, error)) error {
+	approval := published.PlanSHA256
+	dir := filepath.Join(w.Config.StateDirectory, "authority", approval)
+	if e := probeAvailable(dir); e != nil {
+		return e
+	}
+	after, facts, e := probeWithEvidence(ctx, read, func(ctx context.Context) (Object, error) {
+		intent := workload.JSON(Object{"planSHA256": approval, "deploymentCommit": published.Commit, "compilerSHA256": w.BinarySHA256})
+		if e := claimProbe(dir, intent); e != nil {
+			return nil, e
+		}
+		return exercise(ctx)
+	})
 	if e != nil {
 		return e
 	}
 	after.Runtime = "VERIFIED"
-	out := Object{"result": "PASS", "exitCode": 0, "planSHA256": approval, "deploymentCommit": published.Commit, "compilerSHA256": w.BinarySHA256, "inventory": result.Inventory, "observation": after, "functional": facts, "scope": "single-owner local development; bucket mutation denial tested only in isolated synthetic fixture"}
-	if e = save(filepath.Join(w.Config.StateDirectory, "authority", approval, "final.json"), workload.JSON(out), true); e != nil {
-		return e
-	}
+	out := Object{"result": "PASS", "exitCode": 0, "planSHA256": approval, "deploymentCommit": published.Commit, "compilerSHA256": w.BinarySHA256, "inventory": inventory, "observation": after, "functional": facts, "scope": "single-owner local development; bucket mutation denial tested only in isolated synthetic fixture"}
 	// Only after the live provider is verified may a later create/update use it
 	// as its credential predecessor. D1 credentials remain byte-for-byte intact.
 	provider, e := regular(filepath.Join(w.Config.StateDirectory, "provider-prepared.json"), true)
 	if e != nil {
 		return e
 	}
-	return save(filepath.Join(w.Config.StateDirectory, "provider.json"), provider, false)
+	if e = save(filepath.Join(w.Config.StateDirectory, "provider.json"), provider, false); e != nil {
+		return e
+	}
+	// This is the last fallible operation: PASS commits the entire workflow,
+	// including its local provider predecessor, not only the functional result.
+	return save(filepath.Join(dir, "final.json"), workload.JSON(out), true)
 }
 
 // A single deadline covers both evidence windows and the one functional pass.

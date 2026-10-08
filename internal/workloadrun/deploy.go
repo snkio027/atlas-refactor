@@ -28,8 +28,12 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 	if e := w.approve(p, approval); e != nil {
 		return e
 	}
-	final := filepath.Join(w.Config.StateDirectory, "authority", approval, "final.json")
-	if _, e := regular(final, true); e == nil {
+	dir := filepath.Join(w.Config.StateDirectory, "authority", approval)
+	complete, e := attemptComplete(dir)
+	if e != nil {
+		return e
+	}
+	if complete {
 		b, e := regular(w.publicationPath(p, "consumer"), true)
 		if e != nil {
 			return e
@@ -39,13 +43,8 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 			return e
 		}
 		return w.wait(ctx, "consumer", receipt.Commit)
-	} else if !os.IsNotExist(e) {
-		return e
 	}
-	terminal := filepath.Join(w.Config.StateDirectory, "authority", approval, "terminal.json")
-	if _, e := regular(terminal, true); e == nil {
-		return errors.New("prior attempt stopped; inspect external state before a new reviewed execution")
-	} else if !os.IsNotExist(e) {
+	if e := probeAvailable(dir); e != nil {
 		return e
 	}
 	for _, phase := range p.Phases {
@@ -74,10 +73,7 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 	external := false
 	defer func() {
 		if resultErr != nil && external {
-			if b, e := regular(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), true); e == nil {
-				_ = save(filepath.Join(filepath.Dir(terminal), "stop-observation.json"), b, true)
-			}
-			_ = save(terminal, workload.JSON(Object{"result": "STOP", "planSHA256": approval, "reason": resultErr.Error(), "externalStateMayHaveChanged": true}), true)
+			resultErr = w.retainStop(approval, resultErr)
 		}
 	}()
 	external = true // Credential evidence and node image imports are retained too.
@@ -102,7 +98,7 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 		if e != nil {
 			return e
 		}
-		if e = save(filepath.Join(filepath.Dir(terminal), phase+"-gate.json"), gate, true); e != nil {
+		if e = save(filepath.Join(dir, phase+"-gate.json"), gate, true); e != nil {
 			return e
 		}
 	}

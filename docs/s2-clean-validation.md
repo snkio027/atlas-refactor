@@ -1,4 +1,11 @@
-# S2 clean validation — atlas-s2-r1
+# S2 clean validation
+
+最新验收：**r7 Runtime PASS**，实测实现 `d011813ac94559e623f29d54efbde231cab261fc`；
+见 [r7 最终验收与证据索引](s2-r7-validation.md)。S2 功能冻结，最终代码审核中。
+以下保留各次历史执行的原提交、STOP 与当时未证明事项；不将其改写为通过，也不将 r7
+实测归属于后续入口/终态修复。适用范围仍为单所有者、本地开发。
+
+## r1：consumer Gate STOP
 
 2026-10-03。结果：**D1 PASS；S2 consumer Gate STOP；Runtime UNPROVEN**。
 这份记录对应一次新实例验证，不能与旧实例的部分结果拼接为完整验收。
@@ -229,8 +236,9 @@ S2 在 2026-10-07 22:56:05 UTC 返回 exit 1（非超时）：
 `observation changed during capture: argoproj.io/Application/argocd/envoy-gateway`。
 metrics 等待已经返回；Probe 入口单次 Observe 将 closing proof 变化的 Pending 直接返回，
 没有复用发布 Gate 的有界只读等待。审计中该 S2 区间 admin pods/exec 和 SubjectAccessReview
-均为 0；结合后观察之前必有两类 exec 的控制流，确认 STOP 在功能写入前。原双读 raw pair
-未保存，不能宣称已知道 envoy-gateway 的具体变化字段，也不放宽 semantic proof。
+均为 0，但 Metadata 策略不覆盖 GET/streaming，因此 exec 事件缺失不能证明功能没有发生。
+本次停止在功能调用之前的依据是 Probe 入口观察错误及该实现的返回路径，不是 exec 计数。
+原双读 raw pair 未保存，不能宣称已知道 envoy-gateway 的具体变化字段，也不放宽 semantic proof。
 
 Runtime UNPROVEN；final.json 不存在；HTTPS→S3、隔离功能及成功后的幂等未执行。
 STOP 后 4 节点 Ready、30 Applications；旧持久身份/owner、冻结 D1 文件、Bootstrap authority、
