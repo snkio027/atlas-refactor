@@ -1,12 +1,16 @@
 {
   "schema": 1,
-  "phase": "permissions",
+  "phase": "project",
   "productSHA256": "ce28f76918b7b8d7be1dbfbf1d5e79911c6dfaf93ef00819965ff10863f09aec",
   "compilerSHA256": "fdfc4115528b684c030d106ea193836a3df4d3dcb6dd35f5424806965436a092",
   "baseSHA256": "910996c73d69d5e696814abc1504594b9a382b8ecb76eca4750798fe059fdecf",
   "intentSHA256": "712795e88f579e02ac4ac6cbc268318ca76e597bbc3bc2e584a234046592119a",
   "files": {
+    "gitops/platform/applications/overlays/development/resources.json": "381d2f35ee4b79be78c1d4e6b0721aa2527c6d81afc4d0d6da8a0687d2d7d4ca",
+    "gitops/platform/management/local-pki/overlays/development/resources.json": "9f8161c1e41ab2241a151d947490cbcec2d024c0ab93108c7b231b79dad6937d",
     "gitops/platform/management/projects/overlays/development/resources.json": "d6a79080c7901341fb424ee400f7815545dec1b3372d48859927f83f19ff4982",
+    "gitops/platform/projects/demo/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/projects/demo/resources.json": "8f03fb4b58da1665786f3186137d1a7c01fab370c955098c55862e5b01281d73",
     "platform/bindings/demo/web-api-storage.json": "ed403b41867c6c590cd5fe31bc3728c26fcf1de003aa6970aeeb297603a7da5b",
     "platform/projects/demo.json": "dc3a70c7b642f881f6cb9c302f2c77ca215333f181ea5247a0285d272ba3b7a2",
     "platform/workloads/demo/unbound.json": "e9dea12a005d858172b32a2e92143f09e12ca59731f56c82f2de02253c361d78",
@@ -272,6 +276,12 @@
       "sha256": "83300ea6b88cb4d3d19e508e643d10332ae8b29a026ac566f1f80aa8198b23df"
     },
     {
+      "identity": "/LimitRange/demo/defaults",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "45f90168b42dc7be73cd7f610be3f14d5a8dfcd65f272babe5e45305ed1ed4dc"
+    },
+    {
       "identity": "/LimitRange/workload-web/web-defaults",
       "owner": "foundation",
       "path": "gitops/platform/foundation/overlays/development/resources.json",
@@ -306,6 +316,12 @@
       "owner": "foundation",
       "path": "gitops/platform/foundation/overlays/development/resources.json",
       "sha256": "5a3e62e39811b6f9d09b0f2877985add0c5c53c5ab3c7c814c32c3792b0e73bc"
+    },
+    {
+      "identity": "/Namespace//demo",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "4793f8d23c472e03d771f5d36c90ca9e4e17db2b13bde998342d617ffc9ad030"
     },
     {
       "identity": "/Namespace//envoy-gateway-system",
@@ -360,6 +376,12 @@
       "owner": "storage-foundation",
       "path": "gitops/platform/foundation/storage/overlays/development/resources.json",
       "sha256": "635acccef020cd1a644860adea520228a21b9ceeae2c29b3ab129e5e1c1e47c8"
+    },
+    {
+      "identity": "/ResourceQuota/demo/project-budget",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "535bbf90d44be7f5e0829f1275ab1a6dcf88404d992d6ce56bff0c2cbbc7ce9f"
     },
     {
       "identity": "/ResourceQuota/workload-web/web-budget",
@@ -570,6 +592,18 @@
       "owner": "cert-manager",
       "path": "gitops/platform/management/cert-manager/overlays/development/rendered.yaml",
       "sha256": "6a194ebbf81f62f4e812ca3b64ca3713701469ec2769f96507604ea7f423848f"
+    },
+    {
+      "identity": "/ServiceAccount/demo/unbound",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "cc95c5aefc817ed15a117161113a409da118eb99b76bfd526bc8ea18b913f591"
+    },
+    {
+      "identity": "/ServiceAccount/demo/web-api",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "c318cd2d73aa9e8ab41b95ffa04a0084f35462b8d0a8255873ea8ad938e1ea86"
     },
     {
       "identity": "/ServiceAccount/envoy-gateway-system/eg-gateway-helm-certgen",
@@ -1100,6 +1134,12 @@
       "sha256": "a335fa54eee5b407cfddb9a7f8fb20abb10f379968a1c12715fa249178847869"
     },
     {
+      "identity": "argoproj.io/Application/argocd/s2-p-demo-11d0a453ed37",
+      "owner": "platform-control",
+      "path": "gitops/platform/applications/overlays/development/resources.json",
+      "sha256": "2cd07cd67ca5260302114dd7bd6d4eab669c30721ad276c1d298ba0d4c2a2a06"
+    },
+    {
       "identity": "argoproj.io/Application/argocd/secrets-controller",
       "owner": "platform-control",
       "path": "gitops/platform/applications/overlays/development/resources.json",
@@ -1176,6 +1216,18 @@
       "owner": "local-pki",
       "path": "gitops/platform/management/local-pki/overlays/development/resources.json",
       "sha256": "59959a92d4b97d989ccc394160e1a14d3e1b303dc816ba421f316c415336371f"
+    },
+    {
+      "identity": "cert-manager.io/Certificate/atlas-gateway/s2-1d2730626355-tls",
+      "owner": "local-pki",
+      "path": "gitops/platform/management/local-pki/overlays/development/resources.json",
+      "sha256": "ee4bc2d7d424a8bf47e9477fb3171940c9391a5114af3ac3482a2b8b76dafd07"
+    },
+    {
+      "identity": "cert-manager.io/Certificate/atlas-gateway/s2-fa6fb71d81c8-tls",
+      "owner": "local-pki",
+      "path": "gitops/platform/management/local-pki/overlays/development/resources.json",
+      "sha256": "69c1c43a44ea5eb7ec34e07653acd30a9a791745df13260cc0f02ae97ce4de24"
     },
     {
       "identity": "cert-manager.io/Certificate/atlas-gateway/web-tls",
@@ -1560,6 +1612,36 @@
       "owner": "storage-foundation",
       "path": "gitops/platform/foundation/storage/overlays/development/resources.json",
       "sha256": "88f831189e29187027cea9f325b85665bca663def3b91322b1c750d211b5fa2c"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/allow-dns",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "1a9a90c20e96d08763eec8eec8f6f8f7b4d4e2d67282331403e70ba27b92f9b5"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/default-deny",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "da1155ecdd33884d2e9c404bab0c4e5d6156421026fdc2d6e738e111fc857dc2"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/gateway-unbound",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "9732b4a1c5b084f56bee6f5ba7ea2bd7af87aacc2272eb57d47fc19d513f87b7"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/gateway-web-api",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "dfb7cf7248936d478de25b842992be64a9141ce48e4ac5785dd8359c1fd24f75"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/demo/metrics-web-api",
+      "owner": "s2-p-demo-11d0a453ed37",
+      "path": "gitops/platform/projects/demo/resources.json",
+      "sha256": "aa3d42efcd377b375ef6d6299c0478857f5b46b27227fb223bebb1e2446a61ad"
     },
     {
       "identity": "networking.k8s.io/NetworkPolicy/workload-web/allow-dns",
