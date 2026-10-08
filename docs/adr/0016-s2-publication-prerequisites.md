@@ -18,13 +18,16 @@ r3 在同一个 infrastructure Git 提交中增加 AppProject destination、Proj
 保留 ADR-0015 的语义、唯一 owner、权限集合和最终 consumer 输出。首次发布固定为：
 
 1. permissions：仅扩充两个既有 AppProject 的精确 destination；没有新 leaf/namespace/RBAC。
-2. project：新增 Project leaf，创建 Namespace、quota、基线 NetworkPolicy、ServiceAccount。
-3. infrastructure：原 owner 下增加 controller RBAC/namespace、TLS/Gateway、monitoring 适配。
+2. project：新增 Project leaf，创建 Namespace、quota、基线 NetworkPolicy、ServiceAccount；
+   在既有 local-pki owner 下先发布 workload Certificate，并等待当前 generation Ready。
+3. infrastructure：原 owner 下增加 controller RBAC/namespace、Gateway listeners、monitoring 适配；
+   listeners 引用的 TLS Secret 必须已由上一阶段的 Certificate Ready 证明签发。
 4. consumer：原来的业务/Binding/密文和 provider rollout。
 
 每次发布之前，前一阶段必须经只读 Gate 证明完整 live content、UID、tracking/SSA、
 应用状态和精确 Git parent；发布依旧使用 exact-parent lease。阶段是固定序列，不是 DAG、
-resume 或新 controller。Project namespace 的 Active 与安全基线先于新增跨应用写入。
+resume 或新 controller。Project namespace 的 Active 与安全基线先于新增跨应用写入；
+Certificate 的 Ready 先于新增 Gateway listener。前置 Gate 不仅检查 Application Healthy。
 静态 consumer preflight 在 permissions 编译时已执行，不能延迟到第一次 external mutation 后。
 
 Plan schema 2 明确绑定三个无凭据阶段的输出摘要与固定阶段序列；consumer 仍绑定登记密文。
@@ -62,3 +65,28 @@ tracking/SSA，且 status 缺省或为空对象，无 operation。此时仅返�
 全快照其他 fatal 仍优先。最终放行仍要求原完整 Gate，等待沿用现有 15 分钟上限。
 不改 S1 classifier、证据 schema、compiler、输出、依赖版本或 mutation surface。
 这不是 r4 continuation；r4 永久 STOP，新实现 runtime 必须独立验证。
+
+## TLS 发布依赖修正（2026-10-09）
+
+同一 infrastructure 提交曾同时发布 local-pki 的 Certificate 与 edge 的 Gateway listener。
+若 edge 先调谐，listener 引用的 TLS Secret 尚未签发，Gateway 和父 Application 可进入
+Degraded；随后证书 Ready 后自行恢复，并不能使先前失败的 Gate 成为 PASS。
+
+修正只将 Certificate 提前至现有 project 阶段。infrastructure/consumer 的最终对象、owner、
+权限、阶段数量与 evidence schema 不变，阶段摘要由新 compiler 重新计算。
+Project Gate 和 infrastructure 发布前的重新观察都要求 `Ready=True`，且该条件的
+`observedGeneration == metadata.generation`。过期 Ready、尚未签发或缺少 Ready 均不放行；
+畸形、重复条件、缺少/非法 generation 拒绝。条件检查在 UID、spec、tracking/SSA 检查后执行，
+closing proof 继续检测并发变化。不读取 TLS Secret 私钥，也不通过写操作催促调谐。
+
+此判断依赖锁定 [cert-manager v1.21.2 的 Certificate Ready 契约](https://github.com/cert-manager/cert-manager/blob/v1.21.2/pkg/apis/certmanager/v1/types_certificate.go)：
+Ready 描述目标 Secret 中可用的证书与密钥，condition generation 表示被观察的 spec 版本。
+Degraded 继续立即拒绝，15 分钟 Gate 上限保持不变。已完成安装的 consumer-only update
+在生成计划时拒绝增删 Workload，现有 hostname 变更仍由语义规则拒绝，防止绕过首次四阶段流程
+引入新的 TLS 依赖。已有 Workload 的镜像/副本更新保留。新增 Workload 的发布协议留待独立设计；
+此限制属于当前执行器，不缩减 authored intent / compiler 的多 Workload 表达能力。
+
+回归模拟 edge 先于 local-pki 调谐：每一个 Gateway TLS 引用必须对应**前一已通过 Gate 的
+Git tree**中相同的 Certificate 声明；同一提交中的 Certificate 不构成前置条件。
+另验证 project 不发布 listeners/controller/密文，证书 owner 不变，以及 stale/False/Unknown/
+缺失/畸形/重复 Ready 不能开放后续阶段。此修复不续跑历史 STOP，不宣称 Runtime PASS。

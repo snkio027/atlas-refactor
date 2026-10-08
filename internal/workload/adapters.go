@@ -26,6 +26,26 @@ func projectPermissions(files Files, m *Model) error {
 	})
 }
 
+// Certificate issuance is a prerequisite of the Gateway listeners published
+// in infrastructure. Separate owners may reconcile in any order.
+func certificatePrerequisites(files Files, m *Model) error {
+	return edit(files, PKIPath, func(xs []Object) ([]Object, error) {
+		template, e := find(xs, "Certificate", "atlas-gateway", "web-tls")
+		if e != nil {
+			return nil, e
+		}
+		for _, w := range m.Intent.Workloads {
+			o := clone(template)
+			name := "s2-" + ShortID("Workload", w.Project, w.Name) + "-tls"
+			meta(o)["name"] = name
+			obj(o["spec"])["secretName"] = name
+			obj(o["spec"])["dnsNames"] = []string{w.Exposure.Hostname}
+			xs = append(xs, o)
+		}
+		return xs, nil
+	})
+}
+
 func platformAdapters(files Files, m *Model) error {
 	ns := m.Intent.Project.Name
 	if e := edit(files, EdgePath, func(xs []Object) ([]Object, error) {
@@ -46,23 +66,6 @@ func platformAdapters(files Files, m *Model) error {
 				}
 				s["listeners"] = append(arr(s["listeners"]), l)
 			}
-		}
-		return xs, nil
-	}); e != nil {
-		return e
-	}
-	if e := edit(files, PKIPath, func(xs []Object) ([]Object, error) {
-		template, e := find(xs, "Certificate", "atlas-gateway", "web-tls")
-		if e != nil {
-			return nil, e
-		}
-		for _, w := range m.Intent.Workloads {
-			o := clone(template)
-			name := "s2-" + ShortID("Workload", w.Project, w.Name) + "-tls"
-			meta(o)["name"] = name
-			obj(o["spec"])["secretName"] = name
-			obj(o["spec"])["dnsNames"] = []string{w.Exposure.Hostname}
-			xs = append(xs, o)
 		}
 		return xs, nil
 	}); e != nil {

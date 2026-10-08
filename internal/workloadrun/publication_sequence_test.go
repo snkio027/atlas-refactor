@@ -124,3 +124,39 @@ func TestStoppedOrAmbiguousPublicationCannotBeRetried(t *testing.T) {
 		})
 	}
 }
+
+func TestConsumerOnlyUpdateCannotIntroduceTLSDependency(t *testing.T) {
+	c, phases := compiledRollout(t)
+	files := phases["infrastructure"].Files
+	intent, err := workload.ReadIntent("../../examples/s2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, addWorkload := range []bool{false, true} {
+		in := intent
+		in.Workloads = append([]workload.Workload(nil), intent.Workloads...)
+		if addWorkload {
+			w := in.Workloads[0]
+			w.Name = "extra"
+			w.Exposure.Hostname = "extra.atlas.test"
+			in.Workloads = append(in.Workloads, w)
+		} else {
+			in.Workloads[0].Replicas = 2
+			in.Workloads[0].Image = "atlas.local/s2-web:v2@sha256:" + strings.Repeat("a", 64)
+		}
+		model, err := workload.Resolve(in, true)
+		if err != nil {
+			t.Fatal(err)
+		}
+		w := &Workflow{Context: c, Model: model}
+		w.Install.ProductDigest = c.ProductSHA256
+		err = w.validatePredecessor(files)
+		if addWorkload {
+			if err == nil || !strings.Contains(err.Error(), "new TLS dependencies") {
+				t.Fatalf("accepted new ungated listener: %v", err)
+			}
+		} else if err != nil {
+			t.Fatal("existing image/replica update rejected", err)
+		}
+	}
+}

@@ -346,12 +346,8 @@ func (w *Workflow) observe(ctx context.Context, result workload.Result, revision
 			}
 		}
 		if ref.Kind == "Certificate" {
-			ok := false
-			for _, c := range array(at(live, "status", "conditions")) {
-				ok = ok || at(mapping(c), "type") == "Ready" && at(mapping(c), "status") == "True"
-			}
-			if !ok {
-				return report, Pending("TLS certificate not Ready")
+			if e = certificateReady(live, fact.Generation); e != nil {
+				return report, e
 			}
 		}
 		report.UID[r.Identity] = fact.UID

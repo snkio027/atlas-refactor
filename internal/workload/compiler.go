@@ -229,6 +229,9 @@ func compile(c CompileContext, m *Model, phase string, sealed *Artifacts, prefli
 		if e = addLeaf(files, c, p.AppName(), "gitops/platform/projects/"+p.Name, p.Name, "platform-project", "-105", xs); e != nil {
 			return Result{}, e
 		}
+		if e = certificatePrerequisites(files, m); e != nil {
+			return Result{}, e
+		}
 	}
 	if phase == "infrastructure" || phase == "consumer" {
 		if e = platformAdapters(files, m); e != nil {

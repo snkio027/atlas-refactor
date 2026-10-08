@@ -156,6 +156,12 @@ func (w *Workflow) validatePredecessor(files Files) error {
 	if e != nil {
 		return e
 	}
+	// Consumer-only updates have no prerequisite Gate before new TLS listeners.
+	// Keep additive authoring separate from the currently supported publication
+	// protocol; existing Workload updates preserve their Certificate identity.
+	if len(old.Intent.Workloads) != len(w.Model.Intent.Workloads) {
+		return errors.New("consumer-only update cannot add or remove Workloads; new TLS dependencies require prerequisite publication")
+	}
 	return workload.ValidateUpdate(old, w.Model)
 }
 

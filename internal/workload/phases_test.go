@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Reproduce the r3 race without assuming any cross-Application sync order.
+// Reproduce the namespace and TLS races without any cross-Application sync order.
 // Every newly reachable source must be safe even if it reconciles first.
 func TestPublicationPrerequisitesUnderAdversarialReconcileOrder(t *testing.T) {
 	c, m := compileFixture(t)
@@ -59,6 +59,7 @@ func TestPublicationPrerequisitesUnderAdversarialReconcileOrder(t *testing.T) {
 					}
 				}
 			}
+			assertTLSPrerequisites(t, previous, result.Files)
 			switch phase {
 			case "permissions":
 				for path := range result.Inventory.Files {
@@ -67,9 +68,29 @@ func TestPublicationPrerequisitesUnderAdversarialReconcileOrder(t *testing.T) {
 					}
 				}
 			case "project":
-				for _, path := range []string{SealPath, SealExtraPath, EdgePath, PKIPath, MonitorPath, CredentialsPath, StoragePath, WorkloadAppsPath} {
+				for _, path := range []string{SealPath, SealExtraPath, EdgePath, MonitorPath, CredentialsPath, StoragePath, WorkloadAppsPath} {
 					if !bytes.Equal(c.Base[path], result.Files[path]) {
 						t.Fatalf("project stage releases platform consumer: %s", path)
+					}
+				}
+				certs, err := objects(result.Files[PKIPath])
+				if err != nil {
+					t.Fatal(err)
+				}
+				for _, w := range m.Intent.Workloads {
+					name := "s2-" + ShortID("Workload", w.Project, w.Name) + "-tls"
+					cert, err := find(certs, "Certificate", "atlas-gateway", name)
+					if err != nil || val(cert, "spec", "secretName") != name {
+						t.Fatal("Project phase must issue TLS prerequisites", name, err)
+					}
+					owner := ""
+					for _, r := range result.Inventory.Resources {
+						if r.Identity == identity(cert) {
+							owner = r.Owner
+						}
+					}
+					if owner != "local-pki" {
+						t.Fatal("TLS prerequisite changed owner", owner)
 					}
 				}
 				xs, _ := objects(result.Files["gitops/platform/projects/demo/resources.json"])
@@ -105,5 +126,49 @@ func TestPublicationPrerequisitesUnderAdversarialReconcileOrder(t *testing.T) {
 			}
 			previous = result.Files
 		})
+	}
+}
+
+// Model the worst case: edge reconciles immediately after each publication,
+// while local-pki has applied only the preceding, gated Git tree. A Certificate
+// in the same commit cannot satisfy that dependency.
+func assertTLSPrerequisites(t *testing.T, previous, current Files) {
+	t.Helper()
+	before, err := objects(previous[PKIPath])
+	if err != nil {
+		t.Fatal(err)
+	}
+	after, err := objects(current[PKIPath])
+	if err != nil {
+		t.Fatal(err)
+	}
+	xs, err := objects(current[EdgePath])
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, g := range xs {
+		if g["kind"] != "Gateway" {
+			continue
+		}
+		for _, l := range arr(val(g, "spec", "listeners")) {
+			for _, ref := range arr(val(obj(l), "tls", "certificateRefs")) {
+				name := str(obj(ref)["name"])
+				var prior, target Object
+				for i, certs := range [][]Object{before, after} {
+					for _, cert := range certs {
+						if cert["kind"] == "Certificate" && meta(cert)["namespace"] == meta(g)["namespace"] && val(cert, "spec", "secretName") == name {
+							if i == 0 {
+								prior = cert
+							} else {
+								target = cert
+							}
+						}
+					}
+				}
+				if prior == nil || target == nil || !bytes.Equal(JSON(prior), JSON(target)) {
+					t.Fatalf("Gateway references TLS Secret %s before its Certificate was gated", name)
+				}
+			}
+		}
 	}
 }

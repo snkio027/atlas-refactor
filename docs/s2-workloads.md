@@ -115,8 +115,8 @@ Git 进程屏蔽 global/system 配置与 hooks，凭据由现有 gh store 提供
 1. 核对 cluster UID、D1 authority、四节点和当前 Git；拒绝接管已占用的 namespace；记录相关旧资源 UID。
 2. 校验并导入已登记 OCI；校验现有 public certificate/backup receipt，保留 D1 旧 identity，为每个新 Binding 生成独立凭据。
 3. 发布 permissions：只扩充既有 AppProject 的精确 destination；只读 Gate 验证 live 内容、ownership 与应用收敛。
-4. 发布 project：创建 Project leaf 的 namespace/quota/SA/policy；等待 Namespace Active 和完整安全边界。
-5. 发布 infrastructure：已有 owner 下扩充 controller RBAC、TLS、monitoring selector；再次等待完整 Gate。
+4. 发布 project：创建 Project leaf 的 namespace/quota/SA/policy，并由既有 local-pki owner 签发 workload Certificate；等待 Namespace Active、完整安全边界和当前 generation 的 Certificate Ready。
+5. 发布 infrastructure：已有 owner 下扩充 controller RBAC、Gateway listeners、monitoring selector；listeners 只引用上一阶段已 Ready 的证书，再次等待完整 Gate。
 6. 发布 consumer：新 client SealedSecret、聚合 provider SealedSecret、Binding、Workload/Route 和受控 provider rollout。再次验证。
 7. 执行 HTTPS→Web→S3 put/get/delete、无 Binding 网络拒绝、跨桶/管理读取拒绝、SA 跨 namespace Secret 拒绝、metrics 发现、旧 D1 HTTPS/S3 凭据验证。
 8. 保存绑定 implementation/binary/plan/Git/cluster/resource UID 的 final evidence。
@@ -124,8 +124,10 @@ Git 进程屏蔽 global/system 配置与 hooks，凭据由现有 gh store 提供
 首次部署的四阶段由 [Proposed ADR-0016](adr/0016-s2-publication-prerequisites.md) 定义。
 Plan schema 2 将 permissions/project/infrastructure 的确定性输出摘要和固定顺序绑定到审核；
 不能用旧二阶段计划授权新流程。每次 standalone `publish` 也必须校验完整前序 receipt 链，
-并对紧邻前一阶段重新执行只读 Gate；receipt 本身不等于 Ready。STOP 或无 receipt 的 intent
-都禁止重推。完成后同一 Project/namespace 的受限 update 仍为 consumer 单阶段。
+并对紧邻前一阶段重新执行只读 Gate；receipt 本身不等于 Ready。Certificate Ready 还须
+匹配当前 metadata.generation，stale Ready 不允许发布 listener；Degraded 仍立即拒绝。STOP 或无 receipt 的 intent
+都禁止重推。完成后同一 Project/namespace 的受限 update 仍为 consumer 单阶段，只支持已有
+Workload；新增 Workload 会引入未通过前置 Gate 的 TLS 依赖，因此在 plan 阶段拒绝。
 
 观察协议见 [Proposed ADR-0017](adr/0017-s2-rollout-gates.md)。每阶段由 exact plan、回执链、
 直接 Git parent 和当前编译输出建立只读契约，区分 Ready / Waiting / Rejected：
