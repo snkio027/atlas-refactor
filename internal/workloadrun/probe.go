@@ -101,6 +101,9 @@ func (w *Workflow) execProbe(ctx context.Context, pod Object, verb string) error
 	return nil
 }
 func (w *Workflow) Probe(ctx context.Context, p Plan, approval string) error {
+	if w.application() {
+		return errors.New("application deployment has no platform acceptance probe; use your business tests")
+	}
 	if e := w.approve(p, approval); e != nil {
 		return e
 	}
