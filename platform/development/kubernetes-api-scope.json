@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "kubernetes": "1.36.1",
+  "kubernetes": "1.37.0",
   "source": {
-    "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.1/api/openapi-spec/swagger.json",
-    "sha256": "dcede2063da1d7ad62ecb5af8adb6d7fabd0b52385a7fa0048afb491dac90450"
+    "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.0/api/openapi-spec/swagger.json",
+    "sha256": "465276aedf437726de5a6ed23a41b86d78bb0d347edf251a755ae26a93cdd8a6"
   },
   "resources": [
     {
@@ -117,9 +117,14 @@
       "scope": "Cluster"
     },
     {
-      "apiVersion": "certificates.k8s.io/v1alpha1",
+      "apiVersion": "certificates.k8s.io/v1",
       "kind": "ClusterTrustBundle",
       "scope": "Cluster"
+    },
+    {
+      "apiVersion": "certificates.k8s.io/v1",
+      "kind": "PodCertificateRequest",
+      "scope": "Namespaced"
     },
     {
       "apiVersion": "certificates.k8s.io/v1beta1",
@@ -172,6 +177,16 @@
       "scope": "Cluster"
     },
     {
+      "apiVersion": "lifecycle.k8s.io/v1alpha1",
+      "kind": "Eviction",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "lifecycle.k8s.io/v1alpha1",
+      "kind": "EvictionRequest",
+      "scope": "Namespaced"
+    },
+    {
       "apiVersion": "networking.k8s.io/v1",
       "kind": "IPAddress",
       "scope": "Cluster"
@@ -193,16 +208,6 @@
     },
     {
       "apiVersion": "networking.k8s.io/v1",
-      "kind": "ServiceCIDR",
-      "scope": "Cluster"
-    },
-    {
-      "apiVersion": "networking.k8s.io/v1beta1",
-      "kind": "IPAddress",
-      "scope": "Cluster"
-    },
-    {
-      "apiVersion": "networking.k8s.io/v1beta1",
       "kind": "ServiceCIDR",
       "scope": "Cluster"
     },
@@ -239,6 +244,11 @@
     {
       "apiVersion": "resource.k8s.io/v1",
       "kind": "DeviceClass",
+      "scope": "Cluster"
+    },
+    {
+      "apiVersion": "resource.k8s.io/v1",
+      "kind": "DeviceTaintRule",
       "scope": "Cluster"
     },
     {
@@ -317,12 +327,27 @@
       "scope": "Cluster"
     },
     {
-      "apiVersion": "scheduling.k8s.io/v1alpha2",
+      "apiVersion": "scheduling.k8s.io/v1alpha3",
+      "kind": "CompositePodGroup",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1alpha3",
       "kind": "PodGroup",
       "scope": "Namespaced"
     },
     {
-      "apiVersion": "scheduling.k8s.io/v1alpha2",
+      "apiVersion": "scheduling.k8s.io/v1alpha3",
+      "kind": "Workload",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1beta1",
+      "kind": "PodGroup",
+      "scope": "Namespaced"
+    },
+    {
+      "apiVersion": "scheduling.k8s.io/v1beta1",
       "kind": "Workload",
       "scope": "Namespaced"
     },
@@ -357,8 +382,8 @@
       "scope": "Cluster"
     },
     {
-      "apiVersion": "storage.k8s.io/v1beta1",
-      "kind": "VolumeAttributesClass",
+      "apiVersion": "storagemigration.k8s.io/v1",
+      "kind": "StorageVersionMigration",
       "scope": "Cluster"
     },
     {

@@ -30,7 +30,7 @@ func customDefinition(scope string) Object {
 }
 func TestScopeRegistryAndCRDVersionFences(t *testing.T) {
 	reg := registryFixture(t)
-	m, e := newResourceModel(reg, "1.36.1", []Object{customDefinition("Cluster")})
+	m, e := newResourceModel(reg, "1.37.0", []Object{customDefinition("Cluster")})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -62,7 +62,7 @@ func TestScopeRegistryAndCRDVersionFences(t *testing.T) {
 		}
 	}
 	for _, scope := range []string{"Cluster", "Namespaced"} {
-		m, e = newResourceModel(reg, "1.36.1", []Object{customDefinition(scope)})
+		m, e = newResourceModel(reg, "1.37.0", []Object{customDefinition(scope)})
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -87,12 +87,12 @@ func TestScopeRegistryAndCRDVersionFences(t *testing.T) {
 	} {
 		r := registryFixture(t)
 		mutate(&r)
-		if _, e = newResourceModel(r, "1.36.1", nil); e == nil {
+		if _, e = newResourceModel(r, "1.37.0", nil); e == nil {
 			t.Fatal("invalid registry accepted")
 		}
 	}
 	for _, objects := range [][]Object{{customDefinition("Unknown")}, {customDefinition("Cluster"), customDefinition("Namespaced")}} {
-		if _, e = newResourceModel(reg, "1.36.1", objects); e == nil {
+		if _, e = newResourceModel(reg, "1.37.0", objects); e == nil {
 			t.Fatal("invalid/conflicting CRD accepted")
 		}
 	}

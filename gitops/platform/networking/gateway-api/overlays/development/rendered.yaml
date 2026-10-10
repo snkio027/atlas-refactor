@@ -4,7 +4,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "labels": {
@@ -795,7 +795,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "gatewayclasses.gateway.networking.k8s.io"
@@ -1274,7 +1274,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "gateways.gateway.networking.k8s.io"
@@ -3431,7 +3431,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "grpcroutes.gateway.networking.k8s.io"
@@ -4623,7 +4623,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "httproutes.gateway.networking.k8s.io"
@@ -5154,7 +5154,7 @@
                                         },
                                         "statusCode": {
                                           "default": 302,
-                                          "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: Core",
+                                          "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: statusCode 301 and 302 are Core; all others are Extended.",
                                           "enum": [
                                             301,
                                             302,
@@ -5849,7 +5849,7 @@
                                   },
                                   "statusCode": {
                                     "default": 302,
-                                    "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: Core",
+                                    "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: statusCode 301 and 302 are Core; all others are Extended.",
                                     "enum": [
                                       301,
                                       302,
@@ -7034,7 +7034,7 @@
                                         },
                                         "statusCode": {
                                           "default": 302,
-                                          "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: Core",
+                                          "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: statusCode 301 and 302 are Core; all others are Extended.",
                                           "enum": [
                                             301,
                                             302,
@@ -7729,7 +7729,7 @@
                                   },
                                   "statusCode": {
                                     "default": 302,
-                                    "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: Core",
+                                    "description": "StatusCode is the HTTP status code to be used in response.\n\nNote that values may be added to this enum, implementations\nmust ensure that unknown values will not cause a crash.\n\nUnknown values here must result in the implementation setting the\nAccepted Condition for the Route to `status: False`, with a\nReason of `UnsupportedValue`.\n\nSupport: statusCode 301 and 302 are Core; all others are Extended.",
                                     "enum": [
                                       301,
                                       302,
@@ -8411,7 +8411,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "listenersets.gateway.networking.k8s.io"
@@ -9010,7 +9010,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "referencegrants.gateway.networking.k8s.io"
@@ -9279,7 +9279,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "tcproutes.gateway.networking.k8s.io"
@@ -10001,7 +10001,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "tlsroutes.gateway.networking.k8s.io"
@@ -11142,7 +11142,7 @@
   "metadata": {
     "annotations": {
       "api-approved.kubernetes.io": "https://github.com/kubernetes-sigs/gateway-api/pull/4530",
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "udproutes.gateway.networking.k8s.io"
@@ -11863,7 +11863,7 @@
   "kind": "ValidatingAdmissionPolicy",
   "metadata": {
     "annotations": {
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "safe-upgrades.gateway.networking.k8s.io"
@@ -11909,7 +11909,7 @@
   "kind": "ValidatingAdmissionPolicyBinding",
   "metadata": {
     "annotations": {
-      "gateway.networking.k8s.io/bundle-version": "v1.6.1",
+      "gateway.networking.k8s.io/bundle-version": "v1.6.3",
       "gateway.networking.k8s.io/channel": "standard"
     },
     "name": "safe-upgrades.gateway.networking.k8s.io"

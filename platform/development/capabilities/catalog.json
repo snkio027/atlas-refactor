@@ -168,7 +168,7 @@
     },
     {
       "release": "atlas-monitoring",
-      "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
+      "chart": "vendor/platform/kube-prometheus-stack-92.3.0.tgz",
       "namespace": "atlas-monitoring",
       "values": [
         "platform/development/capabilities/values/monitoring.json",
@@ -190,7 +190,7 @@
     },
     {
       "release": "atlas-monitoring",
-      "chart": "vendor/platform/kube-prometheus-stack-91.7.0.tgz",
+      "chart": "vendor/platform/kube-prometheus-stack-92.3.0.tgz",
       "namespace": "atlas-monitoring",
       "values": [
         "platform/development/capabilities/values/monitoring.json"

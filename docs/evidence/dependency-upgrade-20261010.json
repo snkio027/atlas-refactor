@@ -1,0 +1,350 @@
+{
+  "checkedOn": "2026-10-10",
+  "scope": "repository candidate only; no live mutation",
+  "baseCommit": "f658affeedc51097f884ec234fd257ee808b4a79",
+  "exceptions": [
+    {
+      "dependency": "Kubernetes node",
+      "selected": "1.37.0",
+      "latestStable": "1.37.1",
+      "reason": "Official kindest/node:v1.37.1 absent; user approved latest official Kind 0.33.0 node. kubectl 1.37.1."
+    },
+    {
+      "dependency": "BusyBox",
+      "selected": "1.38.0",
+      "upstreamStatus": "unstable",
+      "reason": "User approved retaining tested 1.38.0 instead of downgrading to upstream-labelled stable 1.36.1."
+    }
+  ],
+  "imageVerification": "Registry manifest bytes SHA256 checked against response digest when supplied; linux/arm64 child and config digests verified. No signature or runtime compatibility claim.",
+  "images": [
+    {
+      "ref": "docker.io/bitnami/sealed-secrets-controller:0.40.0",
+      "digest": "sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3",
+      "pinned": "docker.io/bitnami/sealed-secrets-controller:0.40.0@sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3",
+      "arm64Manifest": "sha256:263a749112ee4112e326e95b40b7519f70d70d051012f3ddb81bedb061b6d7b6",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/chrislusf/seaweedfs:4.48",
+      "digest": "sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d",
+      "pinned": "docker.io/chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d",
+      "arm64Manifest": "sha256:f1f303474940e9e088edbd2c1658f7ac38cb0dd90f91a2b0a51916d74b8575a1",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/envoyproxy/envoy:distroless-v1.39.3",
+      "digest": "sha256:7369b033550a14997e5d698677b7b51f0210a80754f5d084c5caa1a78268267b",
+      "pinned": "docker.io/envoyproxy/envoy:distroless-v1.39.3@sha256:7369b033550a14997e5d698677b7b51f0210a80754f5d084c5caa1a78268267b",
+      "arm64Manifest": "sha256:c5da325a1f9e3337981964cde0488e4e0a72280edb316cfbae795fd0ec977531",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/envoyproxy/gateway:v1.9.2",
+      "digest": "sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926",
+      "pinned": "docker.io/envoyproxy/gateway:v1.9.2@sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926",
+      "arm64Manifest": "sha256:a8d5dd3bf27282a955a9b1277742502dbd5d68d68310c4e41edcd8bc32b64ccb",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/grafana/grafana:13.2.3-distroless",
+      "digest": "sha256:202e5d5b3f8499e70ccac7991eea6d7da72d2790eb2e0597e7987acf724e7180",
+      "pinned": "docker.io/grafana/grafana:13.2.3-distroless@sha256:202e5d5b3f8499e70ccac7991eea6d7da72d2790eb2e0597e7987acf724e7180",
+      "arm64Manifest": "sha256:c4ace20130ddd2025cc25e880868dc6c6f64407376fead0da2cf23dcb29ce31f",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/kindest/local-path-helper:v20260131-7181c60a",
+      "digest": "sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06",
+      "pinned": "docker.io/kindest/local-path-helper:v20260131-7181c60a@sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06",
+      "arm64Manifest": "sha256:4cdfa639b9ab83270bb01c974a7e0004e05452e5948003f151481137e4439544",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/kindest/node:v1.37.0",
+      "digest": "sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+      "pinned": "docker.io/kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+      "arm64Manifest": "sha256:6a3345f517a7df05185c648f83d18d464f2a94ea4a69eaee39b7e1de02611e59",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/library/busybox:1.38.0",
+      "digest": "sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+      "pinned": "docker.io/library/busybox:1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+      "arm64Manifest": "sha256:365a051f12e05767b598e643676f14a450fb678a75ccf2beb0052c95d5c73b83",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "ecr-public.aws.com/docker/library/redis:8.10.2-alpine",
+      "digest": "sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0",
+      "pinned": "ecr-public.aws.com/docker/library/redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0",
+      "arm64Manifest": "sha256:41a10b18bd238fa7837b1615b2b5b113edff1654233238ac82d87e6fb5531f44",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/argoproj/argocd:v3.5.4",
+      "digest": "sha256:49dff79439bb38b1b942b19a113fe1fec7e6b6c671ddf9fe6a4a7c46bde0b77b",
+      "pinned": "quay.io/argoproj/argocd:v3.5.4@sha256:49dff79439bb38b1b942b19a113fe1fec7e6b6c671ddf9fe6a4a7c46bde0b77b",
+      "arm64Manifest": "sha256:e5ea97f980c9ccdef4f3d591516f4054304929cd40884031265c618e1d10e7ce",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/cilium/cilium:v1.20.2",
+      "digest": "sha256:2939231d0d3e3ebddcd80fffa168b7ddcc78fdf0dc864d1c8c126ff523c54f01",
+      "pinned": "quay.io/cilium/cilium:v1.20.2@sha256:2939231d0d3e3ebddcd80fffa168b7ddcc78fdf0dc864d1c8c126ff523c54f01",
+      "arm64Manifest": "sha256:02dd062a1f48a6ef52f50e7396117f9e7c82fbe9e6408dcaebe212257414bbeb",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/cilium/operator-generic:v1.20.2",
+      "digest": "sha256:64d8798350e8569b8e7622563fed6e44dce2625f311e4651b774816516c744fc",
+      "pinned": "quay.io/cilium/operator-generic:v1.20.2@sha256:64d8798350e8569b8e7622563fed6e44dce2625f311e4651b774816516c744fc",
+      "arm64Manifest": "sha256:e614f51426eb2c56d86d97e44dc880f4eb394eb894da3993c70a47cded22710c",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/jetstack/cert-manager-acmesolver:v1.21.2",
+      "digest": "sha256:699b40d622211ab7accad8a21b04c5fbaa1841ef7a12621e8de492dbe27b2503",
+      "pinned": "quay.io/jetstack/cert-manager-acmesolver:v1.21.2@sha256:699b40d622211ab7accad8a21b04c5fbaa1841ef7a12621e8de492dbe27b2503",
+      "arm64Manifest": "sha256:c09b0b51d5915024373de9d6dc11ab7c98f0a863bc2ff772e479d75c1ac4d2ea",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/jetstack/cert-manager-cainjector:v1.21.2",
+      "digest": "sha256:c85268c64f2e0e76684bf5fe8906caff34b82523561c6affe0fae3546bd87562",
+      "pinned": "quay.io/jetstack/cert-manager-cainjector:v1.21.2@sha256:c85268c64f2e0e76684bf5fe8906caff34b82523561c6affe0fae3546bd87562",
+      "arm64Manifest": "sha256:37b8d8a31e45be7a6ee54d8a385e88936c10111f1193820f1c1735651869be4d",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/jetstack/cert-manager-controller:v1.21.2",
+      "digest": "sha256:70f532fd9cfde0b09d55687200942399d89838bc2d5d5b45152eb799a15912b8",
+      "pinned": "quay.io/jetstack/cert-manager-controller:v1.21.2@sha256:70f532fd9cfde0b09d55687200942399d89838bc2d5d5b45152eb799a15912b8",
+      "arm64Manifest": "sha256:72dc9c82e92ab6b192058fb2dce7ac21be8f7bee73dc7c72715599b2cfbf3bea",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/jetstack/cert-manager-webhook:v1.21.2",
+      "digest": "sha256:a60e2dac46dbb8a7f3df95c54ce941012f54c2fe022f0ee55aaa1ab40ed957ae",
+      "pinned": "quay.io/jetstack/cert-manager-webhook:v1.21.2@sha256:a60e2dac46dbb8a7f3df95c54ce941012f54c2fe022f0ee55aaa1ab40ed957ae",
+      "arm64Manifest": "sha256:f88c604159064290c77d94c655ca19a33d8e46781ef90b9ce6d8c3d4a808dc74",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/kiwigrid/k8s-sidecar:2.14.1",
+      "digest": "sha256:092dbe0c335fba9af414a27630ca68f34df6185784fa847d9954187e69dbfdd7",
+      "pinned": "quay.io/kiwigrid/k8s-sidecar:2.14.1@sha256:092dbe0c335fba9af414a27630ca68f34df6185784fa847d9954187e69dbfdd7",
+      "arm64Manifest": "sha256:83e1828550fe7c91c88d9959fe411d471beeb26ff5be2a73e60cec799d7d8092",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/prometheus-operator/prometheus-config-reloader:v0.94.1",
+      "digest": "sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b",
+      "pinned": "quay.io/prometheus-operator/prometheus-config-reloader:v0.94.1@sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b",
+      "arm64Manifest": "sha256:7ae9a15097fc5481d91e3ac3a13453a5d797b5bea23655c25c696578ab71e508",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/prometheus-operator/prometheus-operator:v0.94.1",
+      "digest": "sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a",
+      "pinned": "quay.io/prometheus-operator/prometheus-operator:v0.94.1@sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a",
+      "arm64Manifest": "sha256:635abf8c7159739b6f4cecd596b4dc7ff7bc92626e2793c31ccb34a1aa17b7f6",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/prometheus/alertmanager:v0.34.1",
+      "digest": "sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a",
+      "pinned": "quay.io/prometheus/alertmanager:v0.34.1@sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a",
+      "arm64Manifest": "sha256:47a1dc7e74f1e755e29f74d392262f8d1da41f2ada5653911199bf07219e41d9",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/prometheus/node-exporter:v1.12.1-distroless",
+      "digest": "sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106",
+      "pinned": "quay.io/prometheus/node-exporter:v1.12.1-distroless@sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106",
+      "arm64Manifest": "sha256:3202bd3924680726befa39b0dc7bc869acfed6ef07af0cd8753b9b870c8cbed0",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "quay.io/prometheus/prometheus:v3.15.0-distroless",
+      "digest": "sha256:b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01",
+      "pinned": "quay.io/prometheus/prometheus:v3.15.0-distroless@sha256:b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01",
+      "arm64Manifest": "sha256:2d4ccd1dcd60d6b22e031ca791ef19d1f298a74153dbfd9cffb705a8ccfd92bc",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0",
+      "digest": "sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b",
+      "pinned": "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b",
+      "arm64Manifest": "sha256:92b46557c71ecac53825772e4827dbcd9fca876b1950060f8fb2f2ef0d7a27af",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/envoyproxy/ratelimit:0482748e",
+      "digest": "sha256:5fdd8e3ae335ab6d64316f8d2fd9a886830075cbbb40a1d8065c869275909162",
+      "pinned": "docker.io/envoyproxy/ratelimit:0482748e@sha256:5fdd8e3ae335ab6d64316f8d2fd9a886830075cbbb40a1d8065c869275909162",
+      "arm64Manifest": "sha256:56cbe82829aa2b31d12da762e2856d7b67b4c25920faaa45d681d8780551b286",
+      "platform": "linux/arm64"
+    },
+    {
+      "ref": "docker.io/kindest/local-path-provisioner:v20260820-69b56db7",
+      "digest": "sha256:fdb5360219dcca6acc7967326f9e04c89b038e2c1e924463b2a41cad2dc752ab",
+      "pinned": "docker.io/kindest/local-path-provisioner:v20260820-69b56db7@sha256:fdb5360219dcca6acc7967326f9e04c89b038e2c1e924463b2a41cad2dc752ab",
+      "arm64Manifest": "sha256:7f1d529e9b269bbde7e1f0c233cf1e49abaa8fd4e8e8304f551cfbf812c0f6d8",
+      "platform": "linux/arm64"
+    }
+  ],
+  "tools": [
+    {
+      "name": "go1.27.2.darwin-arm64.tar.gz",
+      "url": "https://go.dev/dl/go1.27.2.darwin-arm64.tar.gz",
+      "sha256": "76812b213b1b2302c978d28fa52fa92d541704b9e7d9d5db8002c50e4018c4c5",
+      "verification": "publisher SHA256"
+    },
+    {
+      "name": "helm-v4.3.0-darwin-arm64.tar.gz",
+      "url": "https://get.helm.sh/helm-v4.3.0-darwin-arm64.tar.gz",
+      "sha256": "d3870437e1e95b67f8edbde964156c84a26503f560821d40c542441658934fba",
+      "verification": "publisher SHA256",
+      "binarySHA256": "ed7defb5950888de567b2ba32f6795efbba172227aba7dfd2ee110549194f5c4"
+    },
+    {
+      "name": "kubectl",
+      "url": "https://dl.k8s.io/release/v1.37.1/bin/darwin/arm64/kubectl",
+      "sha256": "fd65982c97ddad3106754b69ffa196d0e543aa591930ae52aed1adfb92f8c77f",
+      "verification": "publisher SHA256"
+    },
+    {
+      "name": "kind-darwin-arm64",
+      "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-darwin-arm64",
+      "sha256": "0c8c7dbe5e23594a198b786c4bc13dacc101fa6196b0cb0b23a1ca44e61f4b4f",
+      "verification": "publisher SHA256"
+    },
+    {
+      "name": "task_darwin_arm64.tar.gz",
+      "url": "https://github.com/go-task/task/releases/download/v3.54.0/task_darwin_arm64.tar.gz",
+      "sha256": "12a69fcf37bb8d5bc9150c44f9a936775b73e59ff044c2c245232f198c135637",
+      "verification": "publisher SHA256",
+      "binarySHA256": "47301f293af8e049a6906982c8dd88fedbf55d40357e2fbe99f9fc97ba491846"
+    },
+    {
+      "name": "yq_darwin_arm64",
+      "url": "https://github.com/mikefarah/yq/releases/download/v4.54.1/yq_darwin_arm64",
+      "sha256": "fee511a181bd8b3e6b7da98842b41973bfac8cd3bcd341ed29a584620b5b2844",
+      "verification": "publisher SHA256"
+    },
+    {
+      "name": "egctl_v1.9.2_darwin_arm64.tar.gz",
+      "url": "https://github.com/envoyproxy/gateway/releases/download/v1.9.2/egctl_v1.9.2_darwin_arm64.tar.gz",
+      "sha256": "1ced0512cc6c51048ff8e0f08e59b1f03e4a0ff80c674814136fd6bdb08728e3",
+      "binarySHA256": "e1700b8712ac2dbdf1deaeb431deee8156227ccfa8fc02df0a938f58cc28dfb3",
+      "verification": "publisher SHA256"
+    }
+  ],
+  "renderDelta": [
+    {
+      "path": "gitops/platform/management/argocd-self/overlays/development/rendered.yaml",
+      "before": 43,
+      "after": 43,
+      "added": [],
+      "removed": [],
+      "changed": 39,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/networking/envoy-crds/overlays/development/rendered.yaml",
+      "before": 8,
+      "after": 8,
+      "added": [],
+      "removed": [],
+      "changed": 1,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/networking/envoy-gateway/overlays/development/rendered.yaml",
+      "before": 14,
+      "after": 14,
+      "added": [],
+      "removed": [],
+      "changed": 14,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/networking/gateway-api/overlays/development/rendered.yaml",
+      "before": 12,
+      "after": 12,
+      "added": [],
+      "removed": [],
+      "changed": 12,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/observability/operator/overlays/development/rendered.yaml",
+      "before": 11,
+      "after": 11,
+      "added": [],
+      "removed": [],
+      "changed": 7,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/observability/stack/overlays/development/rendered.yaml",
+      "before": 90,
+      "after": 90,
+      "added": [],
+      "removed": [],
+      "changed": 84,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/storage/local-path/overlays/development/rendered.yaml",
+      "before": 7,
+      "after": 7,
+      "added": [],
+      "removed": [],
+      "changed": 2,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/storage/seaweedfs/overlays/development/resources.json",
+      "before": 3,
+      "after": 3,
+      "added": [],
+      "removed": [],
+      "changed": 1,
+      "rbacChanges": []
+    },
+    {
+      "path": "gitops/platform/networking/edge/overlays/development/resources.json",
+      "before": 4,
+      "after": 4,
+      "added": [],
+      "removed": [],
+      "changed": 1,
+      "rbacChanges": []
+    }
+  ],
+  "validation": {
+    "build": "PASS: task build and task build:matrix with Go 1.27.2",
+    "webOCI": "PASS: same real linux/arm64 ELF lowered twice to byte-identical OCI archives",
+    "webOCISHA256": "a8ba04d6cac6c3e88f6aaec95fd4e6ff6a8c825b1b626932b88deb9d3c1149ae",
+    "quality": "PASS: task quality exited 0; Go race tests, 348-resource platform check, OT-1 Python/Kustomize contracts and frozen tagged entry-point build/vet",
+    "runtime": "NOT RUN",
+    "remoteCI": "NOT RUN",
+    "render": "PASS: actual Helm rendering and 348-resource platform:check, including hashes, schemas, project boundaries and Kustomize",
+    "historicalRender": "PASS: both frozen OT-1 real-render tests with their original Helm/kubectl/yq",
+    "developmentPackage": {
+      "result": "PASS: built locally from the dirty candidate tree; archive internal checksums and current Envoy image verified",
+      "version": "v0.1.0-dev.stable-upgrade",
+      "sha256": "743502f2ea7be83ab93e55934e0f9abf5e22301feee80c7637945eb208644b91",
+      "releaseOrAttestation": false
+    }
+  },
+  "historicalTestTools": {
+    "sourceCommit": "697ebf04e9362abcce9a4b8db005ee747493417d",
+    "helm": "4.2.3",
+    "kubectl": "1.36.3",
+    "yq": "4.53.6",
+    "scope": "frozen OT-1 real-render regression only; excluded from current product package"
+  }
+}

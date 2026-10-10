@@ -4,7 +4,6 @@ import (
 	"atlas-refactor/internal/atlas"
 	"atlas-refactor/internal/developmentprofile"
 	"atlas-refactor/internal/observation"
-	"atlas-refactor/internal/platform"
 	"context"
 	"os"
 	"path/filepath"
@@ -12,10 +11,7 @@ import (
 )
 
 func TestIsolatedProfileRealRender(t *testing.T) {
-	helm := os.Getenv("ATLAS_TEST_HELM")
-	if helm == "" {
-		t.Skip("set ATLAS_TEST_HELM for real offline profile rendering")
-	}
+	tools := frozenRenderTools(t)
 	root, e := filepath.Abs("../..")
 	if e != nil {
 		t.Fatal(e)
@@ -24,7 +20,6 @@ func TestIsolatedProfileRealRender(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	tools := platform.Tools{Helm: helm, Kubectl: filepath.Join(filepath.Dir(helm), "kubectl"), YQ: filepath.Join(filepath.Dir(helm), "yq")}
 	before, e := os.ReadFile(filepath.Join(root, "platform/development/bootstrap/baseline-v3.json"))
 	if e != nil {
 		t.Fatal(e)

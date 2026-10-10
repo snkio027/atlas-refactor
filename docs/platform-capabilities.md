@@ -55,7 +55,7 @@ Application 和精确 AppProject 类型/namespace 增量由目录生成，需在
 | 指标 | kube-prometheus-stack 91.7.0；Prometheus、kube-state-metrics、node-exporter；节点、Pod、kubelet/cAdvisor、API Server、CoreDNS 指标 | Operator/KSM 在 compute；exporter 覆盖 4 节点；Prometheus 在 data，8Gi PVC，24h / 4GB retention |
 | 告警 | 上游 Kubernetes/Prometheus 规则、Alertmanager、S3 指标端点缺失与卷可用空间规则 | Alertmanager 在 data，1Gi PVC；当前 receiver 为 local-only，尚无外部通知渠道 |
 | 看板 | Grafana 及上游 Kubernetes 看板；Atlas 节点、Pod、PVC、S3 抓取状态看板 | data，2Gi PVC；登录使用 SealedSecret 引用；禁用匿名登录和在线插件安装 |
-| 对象存储 | SeaweedFS 4.47 mini，S3 path-style API，预建 uploads 桶；上传、下载、附件、预签名和分段上传 | data，16Gi Retain PVC；单副本；bucket 范围 Read/Write/List/Tagging 权限 |
+| 对象存储 | SeaweedFS 4.48 mini，S3 path-style API，预建 uploads 桶；上传、下载、附件、预签名和分段上传 | data，16Gi Retain PVC；单副本；bucket 范围 Read/Write/List/Tagging 权限 |
 | 凭据物化 | Sealed Secrets 0.40.0 / chart 2.20.0；只管理 atlas-secrets、atlas-monitoring、atlas-storage、workload-web | compute；不授予 argocd / kube-system Secret 写权限；自动 key renewal 关闭，变更另行审核 |
 
 此 profile 没有 Loki、Tempo、HPA、数据库、HA、远端备份或生产发布承诺。

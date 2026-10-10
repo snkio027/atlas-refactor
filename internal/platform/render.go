@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -106,6 +107,27 @@ func Load(root string, t Tools) (*Project, error) {
 	return p, nil
 }
 func hash(b []byte) string { s := sha256.Sum256(b); return hex.EncodeToString(s[:]) }
+
+// Select one versioned input from the checksum-verified lock, not from the
+// filesystem or a latest-version search. Frozen experiments retain their locks.
+func (p *Project) artifactPath(prefix, suffix string) (string, error) {
+	pattern := regexp.MustCompile("^" + regexp.QuoteMeta(prefix) + `[0-9]+\.[0-9]+\.[0-9]+` + regexp.QuoteMeta(suffix) + "$")
+	selected := ""
+	for path := range p.Lock.Artifacts {
+		if !pattern.MatchString(path) {
+			continue
+		}
+		if selected != "" {
+			return "", fmt.Errorf("ambiguous locked input: %s*%s", prefix, suffix)
+		}
+		selected = path
+	}
+	if selected == "" {
+		return "", fmt.Errorf("missing versioned locked input: %s*%s", prefix, suffix)
+	}
+	return selected, nil
+}
+
 func (p *Project) VerifyArtifacts() error {
 	if len(p.Lock.Artifacts) < 9 {
 		return errors.New("incomplete artifact lock")
@@ -227,14 +249,18 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 		return nil, e
 	}
 	files := map[string][]byte{}
-	jobs := []struct{ name, release, chart, ns, values string }{
-		{"cilium", "cilium", "vendor/platform/cilium-1.20.2.tgz", "kube-system", inputDir + "/values/cilium.json"},
-		{"cert-manager", "cert-manager", "vendor/platform/cert-manager-v1.21.2.tgz", "cert-manager", inputDir + "/values/cert-manager.json"},
-		{"envoy-gateway", "eg", "vendor/platform/gateway-helm-v1.9.1.tgz", "envoy-gateway-system", inputDir + "/values/envoy-gateway.json"},
-		{"argocd-self", "atlas-refactor-argocd", "vendor/charts/argo-cd-10.3.3.tgz", "argocd", "assets/argocd-values.yaml"},
+	jobs := []struct{ name, release, chartPrefix, ns, values string }{
+		{"cilium", "cilium", "vendor/platform/cilium-", "kube-system", inputDir + "/values/cilium.json"},
+		{"cert-manager", "cert-manager", "vendor/platform/cert-manager-v", "cert-manager", inputDir + "/values/cert-manager.json"},
+		{"envoy-gateway", "eg", "vendor/platform/gateway-helm-v", "envoy-gateway-system", inputDir + "/values/envoy-gateway.json"},
+		{"argocd-self", "atlas-refactor-argocd", "vendor/charts/argo-cd-", "argocd", "assets/argocd-values.yaml"},
 	}
 	for _, job := range jobs {
-		args := []string{"template", job.release, job.chart, "--namespace", job.ns, "--include-crds", "--skip-tests", "--kube-version", p.Lock.Kubernetes, "--values", job.values}
+		chart, e := p.artifactPath(job.chartPrefix, ".tgz")
+		if e != nil {
+			return nil, e
+		}
+		args := []string{"template", job.release, chart, "--namespace", job.ns, "--include-crds", "--skip-tests", "--kube-version", p.Lock.Kubernetes, "--values", job.values}
 		if job.name == "argocd-self" {
 			args = append(args, "--set", "configs.secret.createSecret=false")
 		}
@@ -278,8 +304,12 @@ func (p *Project) Render(ctx context.Context) (map[string][]byte, error) {
 			files[inputDir+"/bootstrap/"+job.name+"-seed.yaml"] = encoded(objs)
 		}
 	}
-	for _, job := range []struct{ name, path string }{{"gateway-api", "vendor/platform/gateway-api-v1.6.1-standard.yaml"}, {"envoy-crds", "vendor/platform/envoy-gateway-v1.9.1-install.yaml"}} {
-		b, e := os.ReadFile(filepath.Join(p.Root, job.path))
+	for _, job := range []struct{ name, prefix, suffix string }{{"gateway-api", "vendor/platform/gateway-api-v", "-standard.yaml"}, {"envoy-crds", "vendor/platform/envoy-gateway-v", "-install.yaml"}} {
+		path, e := p.artifactPath(job.prefix, job.suffix)
+		if e != nil {
+			return nil, e
+		}
+		b, e := os.ReadFile(filepath.Join(p.Root, path))
 		if e != nil {
 			return nil, e
 		}

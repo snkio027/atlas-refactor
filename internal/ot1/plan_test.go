@@ -37,12 +37,21 @@ func fakeCiphertextFixture(t *testing.T, repo string) {
 		}
 	}
 }
+func frozenRenderTools(t *testing.T) platform.Tools {
+	t.Helper()
+	dir := os.Getenv("ATLAS_TEST_OT1_TOOL_DIR")
+	if dir == "" {
+		if os.Getenv("ATLAS_TEST_HELM") != "" {
+			t.Fatal("OT-1 requires separate historical tools: set ATLAS_TEST_OT1_TOOL_DIR")
+		}
+		t.Skip("set ATLAS_TEST_OT1_TOOL_DIR for frozen offline rehearsal rendering")
+	}
+	return platform.Tools{Helm: filepath.Join(dir, "helm"), Kubectl: filepath.Join(dir, "kubectl"), YQ: filepath.Join(dir, "yq")}
+}
+
 func fullPlanFixture(t *testing.T) (Plan, string, string, platform.Tools) {
 	t.Helper()
-	helm := os.Getenv("ATLAS_TEST_HELM")
-	if helm == "" {
-		t.Skip("set ATLAS_TEST_HELM for complete offline rehearsal preparation")
-	}
+	tools := frozenRenderTools(t)
 	root, e := filepath.Abs("../..")
 	if e != nil {
 		t.Fatal(e)
@@ -54,7 +63,6 @@ func fullPlanFixture(t *testing.T) (Plan, string, string, platform.Tools) {
 	if e = os.Chmod(base, 0700); e != nil {
 		t.Fatal(e)
 	}
-	tools := platform.Tools{Helm: helm, Kubectl: filepath.Join(filepath.Dir(helm), "kubectl"), YQ: filepath.Join(filepath.Dir(helm), "yq")}
 	repo := filepath.Join(base, "baseline")
 	if _, e = PrepareRepository(context.Background(), root, repo, tools); e != nil {
 		t.Fatal(e)

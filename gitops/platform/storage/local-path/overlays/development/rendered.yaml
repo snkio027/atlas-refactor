@@ -191,7 +191,7 @@
                 "value": "/etc/config/"
               }
             ],
-            "image": "docker.io/kindest/local-path-provisioner:v20260521-9fb22683@sha256:b1de813bcdde9737a283ff1961725d66c412b235fe08f2a3dc707fece91674b8",
+            "image": "docker.io/kindest/local-path-provisioner:v20260820-69b56db7@sha256:fdb5360219dcca6acc7967326f9e04c89b038e2c1e924463b2a41cad2dc752ab",
             "imagePullPolicy": "IfNotPresent",
             "name": "local-path-provisioner",
             "volumeMounts": [
@@ -236,7 +236,7 @@
   "apiVersion": "v1",
   "data": {
     "config.json": "{\n        \"nodePathMap\":[\n        {\n                \"node\":\"DEFAULT_PATH_FOR_NON_LISTED_NODES\",\n                \"paths\":[\"/var/local-path-provisioner\"]\n        }\n        ]\n}",
-    "helperPod.yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: helper-pod\nspec:\n  priorityClassName: system-node-critical\n  tolerations:\n    - key: node-role.local/data\n      operator: Equal\n      value: \"true\"\n      effect: NoSchedule\n    - key: node.kubernetes.io/disk-pressure\n      operator: Exists\n      effect: NoSchedule\n  containers:\n  - name: helper-pod\n    image: docker.io/kindest/local-path-helper:v20260131-7181c60a@sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06\n    imagePullPolicy: IfNotPresent",
+    "helperPod.yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: helper-pod\nspec:\n  priorityClassName: system-node-critical\n  tolerations:\n    - key: node-role.local/data\n      operator: Equal\n      value: \"true\"\n      effect: NoSchedule\n    - operator: Exists\n      effect: NoSchedule\n    - operator: Exists\n      effect: NoExecute\n  containers:\n  - name: helper-pod\n    image: docker.io/kindest/local-path-helper:v20260131-7181c60a@sha256:ac7c7f08e86f7bef7d2ad6dee944ed89d3d2e7de0ebc00490d7ddf6c26628a06\n    imagePullPolicy: IfNotPresent",
     "setup": "#!/bin/sh\nset -eu\nmkdir -m 0777 -p \"$VOL_DIR\"",
     "teardown": "#!/bin/sh\nset -eu\nrm -rf \"$VOL_DIR\""
   },

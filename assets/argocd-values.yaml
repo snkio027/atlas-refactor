@@ -1,7 +1,7 @@
 global:
   image:
     repository: quay.io/argoproj/argocd
-    tag: v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8
+    tag: v3.5.4@sha256:49dff79439bb38b1b942b19a113fe1fec7e6b6c671ddf9fe6a4a7c46bde0b77b
     imagePullPolicy: IfNotPresent
 
 configs:
@@ -49,7 +49,7 @@ repoServer:
 redis:
   image:
     repository: ecr-public.aws.com/docker/library/redis
-    tag: 8.6.4-alpine@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763
+    tag: 8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
   resources:
     requests:
       cpu: 25m

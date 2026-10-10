@@ -1,17 +1,17 @@
 {
   "schema": 1,
-  "go": "1.27.1",
-  "helm": "4.2.3",
-  "kind": "0.32.0",
-  "kubectl": "1.36.3",
-  "kubernetes": "1.36.1",
-  "chart": "vendor/charts/argo-cd-10.3.3.tgz",
-  "chartSHA256": "ce254920357b323aad981e79ab8b1879c33835ef8efd4a1c91743f75e61d8007",
-  "nodeImage": "docker.io/kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "argoImage": "quay.io/argoproj/argocd:v3.5.1@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
-  "redisImage": "ecr-public.aws.com/docker/library/redis:8.6.4-alpine@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763",
+  "go": "1.27.2",
+  "helm": "4.3.0",
+  "kind": "0.33.0",
+  "kubectl": "1.37.1",
+  "kubernetes": "1.37.0",
+  "chart": "vendor/charts/argo-cd-10.10.2.tgz",
+  "chartSHA256": "1f2bdb0e23b87fdac5222d99d1acf6964e670db9bf63912c58ab4677e505638b",
+  "nodeImage": "docker.io/kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+  "argoImage": "quay.io/argoproj/argocd:v3.5.4@sha256:49dff79439bb38b1b942b19a113fe1fec7e6b6c671ddf9fe6a4a7c46bde0b77b",
+  "redisImage": "ecr-public.aws.com/docker/library/redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0",
   "assets": {
     "assets/argocd-cm.yaml": "c749c12529331af2dd24392d3948631804bb2acbcc5d62e777a58c22cfcf4024",
-    "assets/argocd-values.yaml": "858a688e647911cb76db048992ee47272ee8dbb6442779a0383aff4b02e74e31"
+    "assets/argocd-values.yaml": "66b25e9dc81425a911acc2feb5a7d1c38034ae93a2bc83a0f2ce99d08c1eb4d6"
   }
 }

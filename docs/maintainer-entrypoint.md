@@ -40,7 +40,7 @@ cert-manager、本地存储和受限业务 namespace。清单、本地验证和 
 
 ## 构建与检查
 
-需要 Go **1.27.1**。运行时实现只使用标准库，没有第三方 Go 模块。
+需要 Go **1.27.2**。运行时实现只使用标准库，没有第三方 Go 模块。
 
 ```sh
 task quality
@@ -49,10 +49,13 @@ task build
 ```
 
 `task quality` 检查格式、运行 `go vet`、race-enabled 契约测试、Lua 健康检查和开发清单校验，并编译/vet 三个冻结的 OT-1 专用入口；不访问集群。
-现在还需本地 Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）；
+现在还需本地 Helm 4.3.0、kubectl 1.37.1、yq 4.54.1、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）；
 Task 优先使用现有 `.state/tools/{helm,kubectl,yq,kubeseal}`，缺少时使用 PATH；
 显式 `PLATFORM_HELM`、`PLATFORM_KUBECTL`、`PLATFORM_YQ`、`KUBESEAL` 参数优先，Lua 使用 `PLATFORM_LUA` 或 PATH。不会自动安装工具。
 工具路径参数与清单渲染命令见[开发平台说明](development-platform.md#文件与复现)。
+冻结 OT-1 渲染另用原 Helm 4.2.3 / kubectl 1.36.3 / yq 4.53.6，位于 `.state/tools/ot1`
+或 `OT1_TOOLS` 指定目录；`packaging/prepare-ci.py` 从固定提交读取并校验这些测试工具。
+新产品包不包含它们。见[升级说明](dependency-upgrade-20261010.md)。
 Go 自动工具链获取与模块网络访问被关闭。若本机没有 Task，也可运行：
 
 ```sh
@@ -61,7 +64,7 @@ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off go vet ./...
 GOTOOLCHAIN=local CGO_ENABLED=0 go build -trimpath -o bin/atlas ./cmd/atlas
 ```
 
-真实 Helm 渲染校验使用预装的 **4.2.3** 可执行文件：
+真实 Helm 渲染校验使用预装的 **4.3.0** 可执行文件：
 
 ```sh
 task quality PLATFORM_HELM=/absolute/path/to/helm
