@@ -232,6 +232,40 @@
           "Ingress"
         ]
       }
+    },
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "ServiceMonitor",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "labels": {
+          "release": "atlas-monitoring"
+        },
+        "name": "experiment-archive",
+        "namespace": "archive"
+      },
+      "spec": {
+        "endpoints": [
+          {
+            "interval": "30s",
+            "path": "/metrics",
+            "port": "http"
+          }
+        ],
+        "namespaceSelector": {
+          "matchNames": [
+            "archive"
+          ]
+        },
+        "selector": {
+          "matchLabels": {
+            "atlas.io/project": "archive",
+            "atlas.io/workload": "experiment-archive"
+          }
+        }
+      }
     }
   ],
   "kind": "List"

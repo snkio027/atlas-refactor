@@ -1,0 +1,100 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "s3-c6df7a13462c-egress",
+        "namespace": "archive"
+      },
+      "spec": {
+        "egress": [
+          {
+            "ports": [
+              {
+                "port": 8333,
+                "protocol": "TCP"
+              }
+            ],
+            "to": [
+              {
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "kubernetes.io/metadata.name": "atlas-storage"
+                  }
+                },
+                "podSelector": {
+                  "matchLabels": {
+                    "app.kubernetes.io/name": "seaweedfs"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "podSelector": {
+          "matchLabels": {
+            "atlas.io/project": "archive",
+            "atlas.io/s3-binding": "c6df7a13462c",
+            "atlas.io/workload": "experiment-archive"
+          }
+        },
+        "policyTypes": [
+          "Egress"
+        ]
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=confirm,Delete=false"
+        },
+        "name": "s3-c6df7a13462c-ingress",
+        "namespace": "atlas-storage"
+      },
+      "spec": {
+        "ingress": [
+          {
+            "from": [
+              {
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "kubernetes.io/metadata.name": "archive"
+                  }
+                },
+                "podSelector": {
+                  "matchLabels": {
+                    "atlas.io/project": "archive",
+                    "atlas.io/s3-binding": "c6df7a13462c",
+                    "atlas.io/workload": "experiment-archive"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "port": 8333,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ],
+        "podSelector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "seaweedfs"
+          }
+        },
+        "policyTypes": [
+          "Ingress"
+        ]
+      }
+    }
+  ],
+  "kind": "List"
+}
