@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "kind": "Workload",
+  "type": "WebService",
+  "project": "archive",
+  "name": "experiment-archive",
+  "image": "atlas.local/experiment-archive:v1@sha256:7461927fe48447076e9c3610075517463281c1767a0126331c662e63c2180dd8",
+  "port": 8080,
+  "replicas": 1,
+  "resources": {
+    "requests": {
+      "cpuMillicores": 100,
+      "memoryMiB": 128
+    },
+    "limits": {
+      "cpuMillicores": 500,
+      "memoryMiB": 256
+    }
+  },
+  "exposure": {
+    "hostname": "experiment-archive.atlas.test",
+    "tls": true
+  },
+  "observability": {
+    "metrics": true
+  }
+}
