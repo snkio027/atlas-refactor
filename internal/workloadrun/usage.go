@@ -4,6 +4,7 @@ import (
 	"atlas-refactor/internal/platform"
 	"atlas-refactor/internal/workload"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -309,23 +310,9 @@ func (w *Workflow) ApplicationLogs(ctx context.Context, name string, out io.Writ
 		if err != nil {
 			return err
 		}
-		var list Object
-		if err = workload.StrictDecode(raw, &list); err != nil {
+		pod, err := logPod(raw, v)
+		if err != nil {
 			return err
-		}
-		pods := array(list["items"])
-		if len(pods) == 0 {
-			return errors.New("no workload Pods yet; inspect app status")
-		}
-		var pod Object
-		for _, item := range pods {
-			o := mapping(item)
-			if at(o, "metadata", "namespace") != v.Project || str(at(o, "metadata", "uid")) == "" || at(o, "spec", "serviceAccountName") != v.Name {
-				return errors.New("log Pod identity differs")
-			}
-			if pod == nil || str(at(o, "metadata", "name")) < str(at(pod, "metadata", "name")) {
-				pod = o
-			}
 		}
 
 		tool, args, err := w.kubeCommand("logs", "-n", v.Project, str(at(pod, "metadata", "name")), "--tail=100", "--timestamps=true")
@@ -341,6 +328,30 @@ func (w *Workflow) ApplicationLogs(ctx context.Context, name string, out io.Writ
 		return nil
 	}
 	return errors.New("unknown workload")
+}
+
+func logPod(raw []byte, v workload.Workload) (Object, error) {
+	// Kubernetes responses legitimately contain null (for example a condition's
+	// lastProbeTime). Authored intent's no-null rule does not apply to live data.
+	var list Object
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return nil, err
+	}
+	pods := array(list["items"])
+	if len(pods) == 0 {
+		return nil, errors.New("no workload Pods yet; inspect app status")
+	}
+	var pod Object
+	for _, item := range pods {
+		o := mapping(item)
+		if at(o, "metadata", "namespace") != v.Project || str(at(o, "metadata", "uid")) == "" || at(o, "spec", "serviceAccountName") != v.Name {
+			return nil, errors.New("log Pod identity differs")
+		}
+		if pod == nil || str(at(o, "metadata", "name")) < str(at(pod, "metadata", "name")) {
+			pod = o
+		}
+	}
+	return pod, nil
 }
 
 // ObservationView is a source-bound snapshot for returning users after a new
