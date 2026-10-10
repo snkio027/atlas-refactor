@@ -15,7 +15,8 @@
           "resourceNames": [
             "atlas-monitoring",
             "atlas-storage",
-            "workload-web"
+            "workload-web",
+            "archive"
           ],
           "resources": [
             "namespaces"

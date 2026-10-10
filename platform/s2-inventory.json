@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "phase": "project",
+  "phase": "infrastructure",
   "productSHA256": "999d6fffec92a6aa32d65d907e66b89dd54f529e738d20b9d59db39ff91d1725",
   "compilerSHA256": "12be04cca07b45fe7590d09c95148f75d9c722d114bcf49efb24e61847641eab",
   "baseSHA256": "e5f3bb166c7c9d9ac20339bce1453b461be95268ea8c5ac9623a470321fd71df",
@@ -9,6 +9,10 @@
     "gitops/platform/applications/overlays/development/resources.json": "a30f90a937794bc253d003782f6986595342af40ce4ee401a9359ab2bce7301b",
     "gitops/platform/management/local-pki/overlays/development/resources.json": "17fad02952e78ae520e6d23eca3e4125103d62e0076637178364dd62da8eb410",
     "gitops/platform/management/projects/overlays/development/resources.json": "adeeb3008b69d0a5a6e4cb84d6cda30507c0dd06bfe41775b90b6ae3de8023a6",
+    "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml": "693ba3448879734334bf787574f5db0757e5275d941c24c914dc14483988afb6",
+    "gitops/platform/management/sealed-secrets/overlays/development/resources.json": "8d0447168e063d6879d3a4b3a8fb30074533eaae60c67829b6e6aa99e83d46d6",
+    "gitops/platform/networking/edge/overlays/development/resources.json": "77ac6fddc10a7168543d9ebc12893282a445be86c4388f7e845ef702f7629fcf",
+    "gitops/platform/observability/stack/overlays/development/rendered.yaml": "971f88a16ac0e82b37dad457c265a51a40a7b0cc86f03bdd7afcba784c4e87d7",
     "gitops/platform/projects/archive/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
     "gitops/platform/projects/archive/resources.json": "c40f920df395554880de4a7a15d357328706bb7cdc6ccc6e57cf5be768c85825",
     "platform/bindings/archive/object-storage.json": "57ab22746395e40cf517d8468eebbe605bc001ece83a34d5423b5196f8d2ca3e",
@@ -950,7 +954,7 @@
       "identity": "apps/Deployment/atlas-secrets/sealed-secrets",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
-      "sha256": "acc33b4ac517a08932ce64a14c8b9fc70ac6294ab1848d5b79d4e0d017b32f70"
+      "sha256": "3aee92fe6d2efd08a387ef0f6c667a3cb077836d2ee3d80d9e8fe74cbeaba46c"
     },
     {
       "identity": "apps/Deployment/cert-manager/cert-manager",
@@ -1274,7 +1278,7 @@
       "identity": "gateway.networking.k8s.io/Gateway/atlas-gateway/development",
       "owner": "edge",
       "path": "gitops/platform/networking/edge/overlays/development/resources.json",
-      "sha256": "de74ba103c9a303a61e96edb2274d994940fcb5f4979a7be8bed24e8a546edb9"
+      "sha256": "e1949a6548c4cef41bc17332a83485e022acd2b4edb55faef8ccac35e937c429"
     },
     {
       "identity": "gateway.networking.k8s.io/GatewayClass//atlas-envoy",
@@ -1310,7 +1314,7 @@
       "identity": "monitoring.coreos.com/Prometheus/atlas-monitoring/atlas-monitoring-prometheus",
       "owner": "monitoring",
       "path": "gitops/platform/observability/stack/overlays/development/rendered.yaml",
-      "sha256": "6c40b0cb328a8cc2876d5465f4c3413962553dd90fd63a9ac80e88fdaea7077b"
+      "sha256": "6ff0948c5d0985087fb3d2e566535800e950ca446a085a68c05e4f7a674c8580"
     },
     {
       "identity": "monitoring.coreos.com/PrometheusRule/atlas-monitoring/atlas-monitoring-alertmanager.rules",
@@ -1784,7 +1788,7 @@
       "identity": "rbac.authorization.k8s.io/ClusterRole//sealed-secrets-namespace-reader",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/resources.json",
-      "sha256": "0dd99003964362e96b60771f917f3af7149ba54e78dfb011171b6eef001b35f9"
+      "sha256": "bd3afc737e7518a3114309e737ae629e5d917719695f832ea5682357a291a3b7"
     },
     {
       "identity": "rbac.authorization.k8s.io/ClusterRoleBinding//atlas-monitoring-kube-state-metrics",
@@ -1907,6 +1911,12 @@
       "sha256": "b7ad390278d4ee7d8512d7c01dd2d9f048b5a4cad696e03eb331ad4d56fe90bf"
     },
     {
+      "identity": "rbac.authorization.k8s.io/Role/archive/secrets-unsealer",
+      "owner": "secrets-controller",
+      "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
+      "sha256": "be75e2a1fdd0d7caf4632ea71ca28805fbeb07234b3a21ff5ec3ad9dfd924ad5"
+    },
+    {
       "identity": "rbac.authorization.k8s.io/Role/argocd/atlas-refactor-argocd-application-controller",
       "owner": "argocd-self",
       "path": "gitops/platform/management/argocd-self/overlays/development/rendered.yaml",
@@ -1946,7 +1956,7 @@
       "identity": "rbac.authorization.k8s.io/Role/atlas-monitoring/secrets-unsealer",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
-      "sha256": "510bff7010538c5fb39c6a17cae1937a51b8751a5c6e1874ae8b495dfb0f98e0"
+      "sha256": "67adf6b14c5c3be7949afa99eb5bc16161107fc3ed797743e31781ba628520ee"
     },
     {
       "identity": "rbac.authorization.k8s.io/Role/atlas-secrets/sealed-secrets-key-admin",
@@ -1964,13 +1974,13 @@
       "identity": "rbac.authorization.k8s.io/Role/atlas-secrets/secrets-unsealer",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
-      "sha256": "762c5ec37418d7488558e07efdf36427253a6a090c2ede821fb1effe3ba4fd6b"
+      "sha256": "18bbdf904096ba97307f88aa1edecac446bb70eac730b6d3d38efca45c3a174a"
     },
     {
       "identity": "rbac.authorization.k8s.io/Role/atlas-storage/secrets-unsealer",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
-      "sha256": "807ef63202df7f1d41dfe67b27a0c1af43a30cbb37d14a1257d25e73138ef621"
+      "sha256": "fd512c38ccbc662de1e705c5f74b31ca02ada7e3bcfee586a92f95c9ae841a05"
     },
     {
       "identity": "rbac.authorization.k8s.io/Role/cert-manager/cert-manager-webhook:dynamic-serving",
@@ -2030,7 +2040,13 @@
       "identity": "rbac.authorization.k8s.io/Role/workload-web/secrets-unsealer",
       "owner": "secrets-controller",
       "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
-      "sha256": "b94f767aff378b5601b9e0a8acc0fbe6a4daa5968dd61325016769585be47593"
+      "sha256": "ecfb576326a5081824c8a89f272088545f9e92cb14612ea0eaf2cfd3c25f99a2"
+    },
+    {
+      "identity": "rbac.authorization.k8s.io/RoleBinding/archive/sealed-secrets",
+      "owner": "secrets-controller",
+      "path": "gitops/platform/management/sealed-secrets/overlays/development/rendered.yaml",
+      "sha256": "69e707d59c0c7b9d258039a687ea7e485f0b15f6bfd16d49b13d1f8dc4835f30"
     },
     {
       "identity": "rbac.authorization.k8s.io/RoleBinding/argocd/atlas-refactor-argocd-application-controller",
