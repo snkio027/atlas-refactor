@@ -1,12 +1,16 @@
 {
   "schema": 1,
-  "phase": "permissions",
+  "phase": "project",
   "productSHA256": "999d6fffec92a6aa32d65d907e66b89dd54f529e738d20b9d59db39ff91d1725",
   "compilerSHA256": "1aaa8c754803bcc8ca1626b4c24ef90b81ae7986c4d133949818333f9c755639",
   "baseSHA256": "d17ce49445278eaa299a0b86454413c0b0227a2666823c462a53f16032090fc0",
   "intentSHA256": "6ae812fdd9e4d1601a5cb9363574c9a418c29078f1b2a65e0adc42ee6306bb9e",
   "files": {
+    "gitops/platform/applications/overlays/development/resources.json": "02e8248dcca75e46dc82d6760267f9531d63cb127afd2d2afecb5afe6be12476",
+    "gitops/platform/management/local-pki/overlays/development/resources.json": "17fad02952e78ae520e6d23eca3e4125103d62e0076637178364dd62da8eb410",
     "gitops/platform/management/projects/overlays/development/resources.json": "adeeb3008b69d0a5a6e4cb84d6cda30507c0dd06bfe41775b90b6ae3de8023a6",
+    "gitops/platform/projects/archive/kustomization.yaml": "31eaa91ba2f02764434bbdf2d1cd41c9858b384198757a472f8070dfa82debd6",
+    "gitops/platform/projects/archive/resources.json": "c40f920df395554880de4a7a15d357328706bb7cdc6ccc6e57cf5be768c85825",
     "platform/bindings/archive/object-storage.json": "57ab22746395e40cf517d8468eebbe605bc001ece83a34d5423b5196f8d2ca3e",
     "platform/projects/archive.json": "f3874c06ffcdffd921bef1a07663e55006056c9926acf07aba4e60f1f2f10b99",
     "platform/workloads/archive/experiment-archive.json": "9647cff28690369e7ff821bb0f619bb49a09ecb87134b41f2287c3025681d1bc"
@@ -253,6 +257,12 @@
       "sha256": "0b68043da6c5edec4daa880a8a678f4a5d1596d297c0132078315f14b601cb5c"
     },
     {
+      "identity": "/LimitRange/archive/defaults",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "6547116d9fa7943695f5866c0f3ee7fcef0b17470767313b97b04d1a1641fcdc"
+    },
+    {
       "identity": "/LimitRange/atlas-monitoring/defaults",
       "owner": "observability-foundation",
       "path": "gitops/platform/foundation/observability/overlays/development/resources.json",
@@ -275,6 +285,12 @@
       "owner": "foundation",
       "path": "gitops/platform/foundation/overlays/development/resources.json",
       "sha256": "acac99a90b39bb24c78c20e08715d4bc937f11df41cb82402c8aa4bc2f977782"
+    },
+    {
+      "identity": "/Namespace//archive",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "7e6979d1221fdc0d6ae697d318b0142c58d1d5956a2223054b45cfba6a816f9b"
     },
     {
       "identity": "/Namespace//atlas-gateway",
@@ -341,6 +357,12 @@
       "owner": "web-smoke",
       "path": "gitops/workloads/web-smoke/overlays/development/resources.json",
       "sha256": "596de74bb9ed50aab0e80b938a87d3f98081639ffcc86c46dcab354ead930602"
+    },
+    {
+      "identity": "/ResourceQuota/archive/project-budget",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "ae12bec75b341ea2d80c743e0c889546a05b568ed1a8d5c621d8c7eb0483e25d"
     },
     {
       "identity": "/ResourceQuota/atlas-monitoring/platform-budget",
@@ -479,6 +501,12 @@
       "owner": "web-smoke",
       "path": "gitops/workloads/web-smoke/overlays/development/resources.json",
       "sha256": "6beeacd336759df213f4eefd0618501e4bf3f39bb15f4b75a1fa6fa8a6b9b43e"
+    },
+    {
+      "identity": "/ServiceAccount/archive/experiment-archive",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "89c0aacc182a81f923934c95206a266d1da178f70695f9d683f24a678e953918"
     },
     {
       "identity": "/ServiceAccount/argocd/argocd-application-controller",
@@ -1099,6 +1127,12 @@
       "sha256": "8135fde96556a8e28f19a4e0d20d5bc958534060f8d1bc4c98bae1977914f76a"
     },
     {
+      "identity": "argoproj.io/Application/argocd/s2-p-archive-513d74cc0395",
+      "owner": "platform-control",
+      "path": "gitops/platform/applications/overlays/development/resources.json",
+      "sha256": "52b8430cb01b81c9a793c9f1dfaebf358788db96fbf6eed46d312f9cd012d5f8"
+    },
+    {
       "identity": "argoproj.io/Application/argocd/secrets-controller",
       "owner": "platform-control",
       "path": "gitops/platform/applications/overlays/development/resources.json",
@@ -1175,6 +1209,12 @@
       "owner": "local-pki",
       "path": "gitops/platform/management/local-pki/overlays/development/resources.json",
       "sha256": "59959a92d4b97d989ccc394160e1a14d3e1b303dc816ba421f316c415336371f"
+    },
+    {
+      "identity": "cert-manager.io/Certificate/atlas-gateway/s2-8e7c792af1f2-tls",
+      "owner": "local-pki",
+      "path": "gitops/platform/management/local-pki/overlays/development/resources.json",
+      "sha256": "4da267b4f72e12e5a185ee313d0f1d8dbfdbaf0a244ebd8d1d0e650993b92f12"
     },
     {
       "identity": "cert-manager.io/Certificate/atlas-gateway/web-tls",
@@ -1517,6 +1557,30 @@
       "owner": "storage-monitoring",
       "path": "gitops/platform/observability/storage/overlays/development/resources.json",
       "sha256": "b1868b3e6b0219d57d8925f135a6795972c7ed9d5d2bc5bae5843e6eeecff729"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/archive/allow-dns",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "3a9316d21872a6603614b0df9a0498aaff7faf462d208c54fd17ab6e1cfdecc9"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/archive/default-deny",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "36fac5b16c52ca554bf6557b5c1779d69b975a72542ed0c0535fb18cddecc851"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/archive/gateway-experiment-archive",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "4974a2ab695d7a05b68abf25be0b73c6d40ad9d59dbd19a83dbc7d363c0028cc"
+    },
+    {
+      "identity": "networking.k8s.io/NetworkPolicy/archive/metrics-experiment-archive",
+      "owner": "s2-p-archive-513d74cc0395",
+      "path": "gitops/platform/projects/archive/resources.json",
+      "sha256": "28514294e3180ca83998fe76245645844a9c1527fde73768013b842f3b4110b8"
     },
     {
       "identity": "networking.k8s.io/NetworkPolicy/argocd/atlas-refactor-argocd-application-controller",

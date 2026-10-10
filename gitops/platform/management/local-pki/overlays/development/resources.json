@@ -87,6 +87,35 @@
         "renewBefore": "168h",
         "secretName": "web-tls"
       }
+    },
+    {
+      "apiVersion": "cert-manager.io/v1",
+      "kind": "Certificate",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "3"
+        },
+        "name": "s2-8e7c792af1f2-tls",
+        "namespace": "atlas-gateway"
+      },
+      "spec": {
+        "dnsNames": [
+          "experiment-archive.atlas.test"
+        ],
+        "duration": "720h",
+        "issuerRef": {
+          "group": "cert-manager.io",
+          "kind": "Issuer",
+          "name": "development-ca"
+        },
+        "privateKey": {
+          "algorithm": "ECDSA",
+          "rotationPolicy": "Always",
+          "size": 256
+        },
+        "renewBefore": "168h",
+        "secretName": "s2-8e7c792af1f2-tls"
+      }
     }
   ],
   "kind": "List"
