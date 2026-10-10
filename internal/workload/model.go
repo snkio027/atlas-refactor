@@ -268,16 +268,16 @@ func Resolve(in Intent, objectStorage bool) (*Model, error) {
 		}
 		names[w.Name] = true
 		if !imageRE.MatchString(w.Image) || w.Port < 1024 || w.Port > 65535 || w.Replicas < 1 || w.Replicas > 128 {
-			return nil, errors.New("invalid image, port or replicas")
+			return nil, fmt.Errorf("platform/workloads/%s/%s.json: image / port / replicas: require a pinned image, port 1024..65535 and replicas 1..128", w.Project, w.Name)
 		}
 		h, ok := strings.CutSuffix(w.Exposure.Hostname, ".atlas.test")
 		if !ok || !nameRE.MatchString(h) || hosts[w.Exposure.Hostname] || !w.Exposure.TLS {
-			return nil, errors.New("invalid/duplicate HTTPS hostname")
+			return nil, fmt.Errorf("platform/workloads/%s/%s.json: exposure: unique <name>.atlas.test hostname with tls=true required", w.Project, w.Name)
 		}
 		hosts[w.Exposure.Hostname] = true
 		r := w.Resources
 		if !validQuantity(r.Requests) || !validQuantity(r.Limits) || r.Requests.CPU > r.Limits.CPU || r.Requests.Memory > r.Limits.Memory {
-			return nil, errors.New("invalid Workload resource budget")
+			return nil, fmt.Errorf("platform/workloads/%s/%s.json: resources: positive requests must fit limits (memory >= 64 MiB)", w.Project, w.Name)
 		}
 		n := w.Replicas + 1
 		total.Pods += n
@@ -287,7 +287,7 @@ func Resolve(in Intent, objectStorage bool) (*Model, error) {
 		total.LimitsMemory += n * r.Limits.Memory
 	}
 	if total.Pods > q.Pods || total.RequestsCPU > q.RequestsCPU || total.LimitsCPU > q.LimitsCPU || total.RequestsMemory > q.RequestsMemory || total.LimitsMemory > q.LimitsMemory {
-		return nil, errors.New("rolling peak exceeds Project quota")
+		return nil, fmt.Errorf("platform/projects/%s.json: quota: rolling peak %+v exceeds budget %+v; lower Workload requests/limits/replicas or review Project quota", p.Name, total, q)
 	}
 	bindings := map[string]*Binding{}
 	bn := map[string]bool{}
@@ -295,7 +295,7 @@ func Resolve(in Intent, objectStorage bool) (*Model, error) {
 		b := &c.Bindings[i]
 		g := Grant{b.Capability, b.Bucket, b.Access}
 		if b.Schema != 1 || b.Kind != "CapabilityBinding" || b.Project != p.Name || !nameRE.MatchString(b.Name) || bn[b.Name] || bindings[b.Workload] != nil || !names[b.Workload] || !grants[g] || !objectStorage {
-			return nil, errors.New("invalid, duplicate or unauthorized Binding reference")
+			return nil, fmt.Errorf("platform/bindings/%s/%s.json: project / workload / capability / bucket / access: invalid, duplicate or unauthorized Binding reference", b.Project, b.Name)
 		}
 		bn[b.Name] = true
 		bindings[b.Workload] = b
@@ -357,7 +357,12 @@ func ReadIntent(root string) (Intent, error) {
 	projects := 0
 	for _, dir := range []string{"projects", "workloads", "bindings"} {
 		base := filepath.Join(root, "platform", dir)
-		e := filepath.WalkDir(base, func(path string, d os.DirEntry, e error) error {
+		e := filepath.WalkDir(base, func(path string, d os.DirEntry, e error) (resultErr error) {
+			defer func() {
+				if resultErr != nil {
+					resultErr = fmt.Errorf("%s: %w", path, resultErr)
+				}
+			}()
 			if os.IsNotExist(e) && path == base {
 				return nil
 			}

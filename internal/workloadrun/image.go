@@ -2,7 +2,6 @@ package workloadrun
 
 import (
 	"atlas-refactor/internal/installation"
-	"atlas-refactor/internal/observation"
 	"atlas-refactor/internal/oci"
 	"atlas-refactor/internal/workload"
 	"context"
@@ -26,12 +25,17 @@ func (w *Workflow) imageArchive() ([]byte, string, error) {
 		return nil, "", errors.New("missing workload")
 	}
 	ref := w.Model.Intent.Workloads[0].Image
-	if !strings.HasPrefix(ref, "atlas.local/s2-web:v1@sha256:") {
+	if !w.application() && !strings.HasPrefix(ref, "atlas.local/s2-web:v1@sha256:") {
 		return nil, "", errors.New("local slice requires the verified Web OCI artifact")
 	}
 	for _, v := range w.Model.Intent.Workloads {
 		if v.Image != ref {
 			return nil, "", errors.New("slice Workloads must use the same reviewed image")
+		}
+	}
+	if w.application() {
+		if e = oci.VerifyApplication(w.Config.ImageArchive, ref); e != nil {
+			return nil, "", e
 		}
 	}
 	if e = oci.Verify(w.Config.ImageArchive, ref); e != nil {
@@ -72,15 +76,13 @@ func (w *Workflow) ImportImage(ctx context.Context, p Plan, approval string) err
 // importWebImage registers the canonical name that CRI actually resolves.
 // ParseDockerRef strips the tag from repo:tag@digest; registering only the
 // literal authored name in containerd leaves kubelet unable to find the image.
-// The authored image and archive remain unchanged. This adapter is limited to
-// the S2 fixture image, not a general image-reference parser or recovery API.
+// The authored image and archive remain unchanged. Only the validated bounded
+// repository:tag@sha256 form is supported; this is not a registry puller.
 func importWebImage(run func([]byte, ...string) ([]byte, error), node string, archive []byte, ref string) error {
-	const prefix = "atlas.local/s2-web:v1@sha256:"
-	digest, ok := strings.CutPrefix(ref, prefix)
-	if !ok || !observation.Hash(digest) {
-		return errors.New("invalid S2 image reference")
+	tag, canonical, digest, err := oci.Reference(ref)
+	if err != nil {
+		return err
 	}
-	canonical := "atlas.local/s2-web@sha256:" + digest
 	if _, e := run(archive, "exec", "-i", node, "ctr", "--namespace", "k8s.io", "images", "import", "--digests", "-"); e != nil {
 		return fmt.Errorf("node %s image import: %w", node, e)
 	}
@@ -90,12 +92,12 @@ func importWebImage(run func([]byte, ...string) ([]byte, error), node string, ar
 		return fmt.Errorf("node %s image digest lookup: %w", node, e)
 	}
 	matching := strings.Fields(string(refs))
-	if !slices.Contains(matching, "atlas.local/s2-web:v1") {
+	if !slices.Contains(matching, tag) {
 		return fmt.Errorf("node %s imported tag does not identify the locked manifest", node)
 	}
 	if !slices.Contains(matching, canonical) {
 		// No --force: an existing conflicting canonical name must fail closed.
-		if _, e = run(nil, "exec", node, "ctr", "--namespace", "k8s.io", "images", "tag", "atlas.local/s2-web:v1", canonical); e != nil {
+		if _, e = run(nil, "exec", node, "ctr", "--namespace", "k8s.io", "images", "tag", tag, canonical); e != nil {
 			return fmt.Errorf("node %s canonical image registration: %w", node, e)
 		}
 	}

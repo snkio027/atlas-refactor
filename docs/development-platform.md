@@ -20,23 +20,24 @@ ADR-0004 保持 Proposed，实验启动授权不等于生产替换或主分支�
 | 能力 | 当前实现 | 用途与边界 |
 | --- | --- | --- |
 | CNI | Cilium 1.20.2，IPv4，Kubernetes IPAM，保留 kube-proxy | 承载 Pod 通信和标准 NetworkPolicy；关闭 Cilium Ingress/Gateway/L7 proxy/Hubble/TLS secret 同步，东西向流量不强制经过 Envoy |
-| 入口 API | Gateway API 1.6.1 standard CRDs | 业务使用 HTTPRoute；不用 Ingress，也不手工维护代理 Endpoints |
-| 入口控制器 | Envoy Gateway 1.9.1，Envoy distroless 1.39.1 | 平台声明 GatewayClass/EnvoyProxy/Gateway，控制器生成代理 Deployment/Service；单副本适配本地开发 |
+| 入口 API | Gateway API 1.6.3 standard CRDs | 业务使用 HTTPRoute；不用 Ingress，也不手工维护代理 Endpoints |
+| 入口控制器 | Envoy Gateway 1.9.2，Envoy distroless 1.39.3 | 平台声明 GatewayClass/EnvoyProxy/Gateway，控制器生成代理 Deployment/Service；单副本适配本地开发 |
 | 本地访问 | `web.atlas.test`；HTTP `127.0.0.1:8080`；HTTPS `127.0.0.1:8443` | Kind 映射 NodePort 30080/30443；HTTP 跳转到 HTTPS 8443；只映射 loopback，不依赖云 LoadBalancer、MetalLB 或修改系统 DNS |
 | IPv4 DNS | EnvoyProxy listener IPv4；xDS bootstrap `V4_ONLY`；BackendTrafficPolicy `lookupFamily: IPv4` | 兼顾控制面连接和 FQDN 后端解析，避免 OrbStack/Kind 中 IPv6 解析选择造成延迟 |
 | TLS | cert-manager 1.21.2；namespaced self-signed Issuer → CA Certificate → CA Issuer → leaf Certificate | 自动生成开发 CA 和 `web.atlas.test` 证书；Git 只保存 Secret 引用；私钥在运行时生成，不自动安装主机信任 |
 | Namespace 治理 | 5 个 namespace，业务 namespace 启用 restricted Pod Security、ResourceQuota、LimitRange | 业务有明确资源预算和安全默认值；控制器使用各自平台 namespace |
 | 网络隔离 | `workload-web` 双向默认拒绝；允许 CoreDNS；只允许指定 Gateway 代理标签访问 Web 8080 | 通过 namespaceSelector 与 podSelector 授权；新外部 API、数据库连接须显式增加策略，不能依赖 Pod CIDR 放行 |
-| 本地存储 | 接管 Kind 0.32.0 的 local-path provisioner 定义，锁定 controller/helper 镜像；新增 `atlas-local-retain` | PVC 明确指定 Retain + WaitForFirstConsumer；保留 Kind 自带 `standard`，不依赖它的默认选择；本地卷不提供跨节点或集群删除后的数据恢复 |
+| 本地存储 | 接管 Kind 0.33.0 的 local-path provisioner 定义，锁定 controller/helper 镜像；新增 `atlas-local-retain` | PVC 明确指定 Retain + WaitForFirstConsumer；保留 Kind 自带 `standard`，不依赖它的默认选择；本地卷不提供跨节点或集群删除后的数据恢复 |
 | Web 示例 | 非 root BusyBox 1.38.0 HTTP 服务、PVC、Service、HTTP/HTTPS HTTPRoute | 首次启动写入实例标识，重建 Pod 后应读取同一文件；验证完整网络/TLS/存储路径；不是业务框架或数据库平台 |
 | GitOps 编排 | 3 个 canonical AppProject、3 个 Root macro child、平铺能力 Application | 业务权限限制在 `workload-web`；不能创建 Argo、RBAC、namespace、CRD 或其他集群对象 |
 | 健康 Gate | 原 Application 健康脚本；新增 Issuer/Certificate/GatewayClass/Gateway/HTTPRoute/BackendTrafficPolicy Lua | 要求当前 generation 的成功条件；Gateway 检查每个 listener，路由检查每个 parent 与 controller；波次不是单纯目录顺序 |
 | 本地工具 | 独立 Go `atlas-platform render/check`，只使用标准库 | Helm 仅渲染固定本地 chart；Kustomize 只构建本地目录；工具没有 apply、集群 client、下载或恢复命令 |
 
 Gateway API 版本按 [Envoy 1.9 兼容矩阵](https://gateway.envoyproxy.io/news/releases/matrix/) 选择。
-Kubernetes 保持既有锁定的 1.36.1，符合
-[Cilium 兼容范围](https://docs.cilium.io/en/stable/network/kubernetes/compatibility/) 与
-[cert-manager 1.21 支持范围](https://cert-manager.io/docs/releases/)。
+当前源码候选使用 Kind 官方 Kubernetes 1.37.0 镜像与 kubectl 1.37.1。
+[Cilium 1.20 兼容矩阵](https://docs.cilium.io/en/stable/network/kubernetes/compatibility/)
+尚未列入 1.37；新组合的运行时兼容性未验证。版本来源、例外与验证范围见
+[2026-10-10 依赖升级](dependency-upgrade-20261010.md)。历史实例仍绑定原锁。
 Network Standard 的 IPv4-only DNS 要求在当前 Envoy API 中映射为上述两个字段；
 没有把不存在的 `dnsLookupFamily: V4Only` 字段直接写进 EnvoyProxy。
 
@@ -89,7 +90,7 @@ Cilium 与 Argo Seed 分别与对应 GitOps 叶子字节一致，启动集成会
 `bootstrap/root.json` 和 `bootstrap/project.json` 是独立模板，不在任何 Kustomization 中。
 禁止对整个 `platform/development/bootstrap/` 执行递归 apply。
 
-需要预装 Go 1.27.1、Helm 4.2.3、kubectl 1.36.3、yq 4.53.6、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）。
+需要预装 Go 1.27.2、Helm 4.3.0、kubectl 1.37.1、yq 4.54.1、Lua 5.5.1、kubeseal 0.40.0（当前 checksum lock 为 darwin/arm64）。
 依赖不会由质量命令自动下载。工具已在 `.state/tools/` 或 PATH 且版本匹配时：
 
 ```sh
@@ -162,8 +163,8 @@ task quality \
 
 ## 本地验证的已知限制
 
-官方 egctl 1.9.1 可离线验证 Gateway/EnvoyProxy API、TLS listener 引用和 Envoy bootstrap 转换。
-但其 [YAML loader](https://github.com/envoyproxy/gateway/blob/v1.9.1/internal/gatewayapi/resource/load.go)
+官方 egctl 1.9.2 可离线验证 Gateway/EnvoyProxy API、TLS listener 引用和 Envoy bootstrap 转换。
+但其 [YAML loader](https://github.com/envoyproxy/gateway/blob/v1.9.2/internal/gatewayapi/resource/load.go)
 构造 Namespace 时只保留 name，丢弃 labels（277–288 行），导致 Selector 路由离线被报告
 `NotAllowedByListeners`。这不能作为已证明可用的 route attachment，也不能因此改真实清单为 `All`。
 本地 conformance 会检查 selector 与指定 namespace 标签一致；真实跨 namespace 绑定留给上述验收。

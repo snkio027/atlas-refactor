@@ -347,7 +347,7 @@ func (w *Workflow) observe(ctx context.Context, result workload.Result, revision
 		}
 		if ref.Kind == "Certificate" {
 			if e = certificateReady(live, fact.Generation); e != nil {
-				return report, e
+				return report, fmt.Errorf("%s: %w", r.Identity, e)
 			}
 		}
 		report.UID[r.Identity] = fact.UID
@@ -474,7 +474,7 @@ func (w *Workflow) readBaseline(ctx context.Context, p Plan) (map[string]string,
 	}
 	ids := map[string]string{}
 	for _, v := range baseInv {
-		if r.Inventory.Files[v.Path] == "" && v.Path != workload.StoragePath && v.Path != workload.CredentialsPath {
+		if !(w.application() && p.Parent != p.BaseCommit && strings.HasPrefix(v.Path, "gitops/workloads/projects/"+p.Project+"/")) && r.Inventory.Files[v.Path] == "" && v.Path != workload.StoragePath && v.Path != workload.CredentialsPath {
 			continue
 		}
 		o := desired[v.Identity]
@@ -533,12 +533,4 @@ func applicationConditions(apps map[string]Object) map[string][]Object {
 		}
 	}
 	return out
-}
-
-func (w *Workflow) observeLatest(ctx context.Context, result workload.Result, revision string) (Observation, error) {
-	report, err := w.Observe(ctx, result, revision)
-	if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
-		return report, e
-	}
-	return report, err
 }

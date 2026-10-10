@@ -1,5 +1,7 @@
 # 四节点开发环境
 
+
+> 本文保留 schema 3 历史工作流，须使用其原提交与工具锁；当前依赖候选仅由 D1 新实例消费，见 [依赖升级](dependency-upgrade-20261010.md)。
 本轮全新创建及自动验收已通过，实例化提交为 `f6d35ec44dcd12b3812145a561590a94af558ce6`。
 实际执行 6 分 35 秒，最终四节点 Ready、26 个 Pod Ready、15 个 Application Synced/Healthy，
 52 项持久 Seed ownership 成立，External Root 只创建一次，重复 apply 零 Kubernetes 写入。

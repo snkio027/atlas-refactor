@@ -62,7 +62,7 @@
     "thanosImage": {
       "registry": "quay.io",
       "repository": "thanos/thanos",
-      "tag": "v0.41.0"
+      "tag": "v0.42.4"
     }
   },
   "prometheus": {
@@ -289,6 +289,9 @@
         "limits": {
           "memory": "128Mi"
         }
+      },
+      "image": {
+        "tag": "2.14.1"
       }
     },
     "grafana.ini": {
@@ -305,6 +308,9 @@
       "plugins": {
         "plugin_admin_enabled": false
       }
+    },
+    "image": {
+      "tag": "13.2.3-distroless"
     }
   },
   "kube-state-metrics": {

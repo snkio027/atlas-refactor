@@ -14,6 +14,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Plan struct {
@@ -41,7 +42,7 @@ type Plan struct {
 
 func (w *Workflow) Plan(ctx context.Context) (Plan, error) {
 	p := Plan{Schema: 2, Cluster: w.Install.Config.Cluster, ClusterUID: w.Install.Record.ClusterUID, InstallID: w.Install.Record.InstallID, Repository: w.Context.Repository, Branch: w.Context.Branch, BaseCommit: w.Install.Record.FullCommit, ProductSHA256: w.Install.ProductDigest, CompilerSHA256: w.BinarySHA256, ConfigSHA256: workload.Digest(workload.JSON(w.Config)), IntentSHA256: workload.Digest(workload.JSON(w.Model.Intent)), CertificateSHA256: w.Install.Record.CertificateSHA256, Project: w.Model.Intent.Project.Name, CredentialTargets: []string{}, Phases: publicationPhases(true)}
-	if len(w.Model.Intent.Bindings) == 0 || len(w.Model.Intent.Workloads) <= len(w.Model.Intent.Bindings) {
+	if !w.application() && (len(w.Model.Intent.Bindings) == 0 || len(w.Model.Intent.Workloads) <= len(w.Model.Intent.Bindings)) {
 		return p, errors.New("this S2 acceptance runner requires both bound and unbound WebServices")
 	}
 	if e := w.checkPublicationAccess(ctx); e != nil {
@@ -79,13 +80,18 @@ func (w *Workflow) Plan(ctx context.Context) (Plan, error) {
 	if e != nil {
 		return p, e
 	}
-	p.CredentialTargets = append(p.CredentialTargets, "atlas-storage/seaweedfs-auth")
+	if len(w.Model.Intent.Bindings) > 0 {
+		p.CredentialTargets = append(p.CredentialTargets, "atlas-storage/seaweedfs-auth")
+	}
 	for _, b := range w.Model.Intent.Bindings {
 		p.CredentialTargets = append(p.CredentialTargets, b.Project+"/"+b.Secret())
 	}
 	return p, nil
 }
 func (w *Workflow) ReadPlan() (Plan, error) {
+	if w.observationPlan != nil {
+		return *w.observationPlan, nil
+	}
 	var p Plan
 	b, e := regular(filepath.Join(w.Config.StateDirectory, "plan.json"), true)
 	if e == nil {
@@ -94,6 +100,9 @@ func (w *Workflow) ReadPlan() (Plan, error) {
 	return p, e
 }
 func (w *Workflow) approve(p Plan, digest string) error {
+	if w.observationPlan != nil {
+		return errors.New("recorded observation view has no mutation authority")
+	}
 	if p.SourceDirty || w.BuildDirty || !fullSHA.MatchString(p.ImplementationCommit) || p.ImplementationCommit != w.BuildSource || p.GoVersion != w.BuildGoVersion {
 		return errors.New("execution requires a clean, source-bound compiled binary")
 	}
@@ -155,6 +164,9 @@ func (w *Workflow) validatePredecessor(files Files) error {
 	old, e := workload.Resolve(in, true)
 	if e != nil {
 		return e
+	}
+	if old.Intent.Project.Name != w.Model.Intent.Project.Name {
+		return fmt.Errorf("deployment branch already owns Project %q; use its existing workspace or a dedicated completed D1 instance", old.Intent.Project.Name)
 	}
 	// Consumer-only updates have no prerequisite Gate before new TLS listeners.
 	// Keep additive authoring separate from the currently supported publication
@@ -228,7 +240,10 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 		if e != nil {
 			return receipt, e
 		}
-		report, err := w.observeLatest(ctx, r, expectedParent)
+		// A closing-read race is Pending, just as during the post-publication
+		// Gate. Keep one bounded read session (including UID history); never
+		// retry the publication, intent creation or push around this wait.
+		report, err := w.ObserveFor(ctx, r, expectedParent, 15*time.Minute)
 		if err != nil {
 			return receipt, fmt.Errorf("%s gate: %w", prior.Phase, err)
 		}

@@ -1,5 +1,5 @@
-// atlas-platform compiles local manifests and performs explicit read-only observation.
-// It has no cluster mutation authority.
+// atlas-platform compiles manifests, publishes explicitly approved business
+// intent, and observes deployments. It does not acquire Bootstrap authority.
 package main
 
 import (
@@ -17,6 +17,13 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "app" {
+		if e := runApp(os.Args[2:]); e != nil {
+			fmt.Fprintln(os.Stderr, e)
+			os.Exit(1)
+		}
+		return
+	}
 	if len(os.Args) > 1 && os.Args[1] == "workload" {
 		if e := runWorkload(os.Args[2:]); e != nil {
 			fmt.Fprintln(os.Stderr, e)
@@ -36,7 +43,7 @@ func main() {
 	capabilities := fs.String("capabilities", "monitoring,object-storage,storage-monitoring", "complete desired capability set for plan/select; removal is unsupported")
 	yq := fs.String("yq", "yq", "locked yq executable")
 	fs.Usage = func() {
-		fmt.Fprintln(fs.Output(), "Usage: atlas-platform render|check|plan|select|prepare-credentials [flags] (local files only; legacy flags-first accepted)")
+		fmt.Fprintln(fs.Output(), "Everyday application delivery: atlas-platform app --help\nAdvanced platform commands: atlas-platform render|check|plan|select|prepare-credentials [flags] (local files only; legacy flags-first accepted)")
 		fs.PrintDefaults()
 	}
 	command, err := parseLocalCommand(fs, os.Args[1:])

@@ -45,7 +45,7 @@ func TestCRDDefaultStability(t *testing.T) {
 			definition := customDefinition("Namespaced")
 			schema := mapping(field(mapping(slice(field(definition, "spec", "versions"))[0]), "schema", "openAPIV3Schema"))
 			mapping(schema["properties"])["spec"] = decode(tc.schema)
-			model, err := newResourceModel(registryFixture(t), "1.36.1", []Object{definition})
+			model, err := newResourceModel(registryFixture(t), "1.37.0", []Object{definition})
 			if err != nil {
 				t.Fatal(err)
 			}

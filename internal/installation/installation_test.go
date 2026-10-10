@@ -154,6 +154,22 @@ func TestReleaseBoundBootstrapWithoutSourceCheckout(t *testing.T) {
 	if nested(signal, "metadata", "namespace") != "argocd" {
 		t.Fatal("signal identity")
 	}
+	repeated, e := a.Render(context.Background())
+	if e != nil || !bytes.Equal(f[signalPath], repeated[signalPath]) {
+		t.Fatal("repeat rendering changed the installation's adoption signal", e)
+	}
+	other := Workflow{Config: testConfig(t), Product: p, ProductDigest: w.ProductDigest, BinaryDigest: w.BinaryDigest}
+	if e = other.Open(true); e != nil {
+		t.Fatal(e)
+	}
+	otherApp, e := other.app(context.Background(), strings.Repeat("b", 40))
+	if e != nil {
+		t.Fatal(e)
+	}
+	otherFiles, e := otherApp.Render(context.Background())
+	if e != nil || bytes.Equal(f[signalPath], otherFiles[signalPath]) {
+		t.Fatal("independent installation reused an adoption signal", e)
+	}
 	if _, e = os.Stat(filepath.Join(w.runtimeDir(), ".git")); !os.IsNotExist(e) {
 		t.Fatal("runtime should not need source checkout")
 	}

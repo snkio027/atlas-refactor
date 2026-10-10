@@ -191,7 +191,7 @@ func TestDevelopmentSeedOwnershipRemainsInAuthorityGate(t *testing.T) {
 		})
 	}
 }
-func TestDevelopmentCandidateSignalMatchesBundle(t *testing.T) {
+func TestHistoricalDevelopmentProfileRejectsUpgradedDependencies(t *testing.T) {
 	root, e := filepath.Abs("../..")
 	if e != nil {
 		t.Fatal(e)
@@ -201,16 +201,8 @@ func TestDevelopmentCandidateSignalMatchesBundle(t *testing.T) {
 		t.Fatal(e)
 	}
 	a := &App{Root: root, Config: c, Lock: l}
-	files, e := a.Render(context.Background())
-	if e != nil {
-		t.Fatal(e)
-	}
-	got, e := readFile(root, developmentSignal)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if !bytes.Equal(got, files[developmentSignal]) {
-		t.Fatal("development signal is stale; run task platform:render")
+	if _, e := a.Render(context.Background()); e == nil || !strings.Contains(e.Error(), "frozen instantiation contract changed: platform/development/versions.lock.json") {
+		t.Fatalf("upgraded inputs must not reuse the historical schema-3 identity: %v", e)
 	}
 }
 

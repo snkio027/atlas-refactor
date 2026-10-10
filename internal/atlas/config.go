@@ -205,7 +205,8 @@ func (l Lock) Validate() error {
 	}
 	hash := regexp.MustCompile(`^[a-f0-9]{64}$`)
 	image := regexp.MustCompile(`^[^\s]+:[^\s@:]+@sha256:[a-f0-9]{64}$`)
-	if l.Schema != 1 || l.Chart != "vendor/charts/argo-cd-10.3.3.tgz" || !hash.MatchString(l.ChartSHA256) {
+	chart := regexp.MustCompile(`^vendor/charts/argo-cd-[0-9]+\.[0-9]+\.[0-9]+\.tgz$`)
+	if l.Schema != 1 || !chart.MatchString(l.Chart) || !hash.MatchString(l.ChartSHA256) {
 		return errors.New("invalid chart lock")
 	}
 	for _, v := range []string{l.NodeImage, l.ArgoImage, l.RedisImage} {

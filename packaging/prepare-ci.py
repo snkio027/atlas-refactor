@@ -35,7 +35,7 @@ for tool in runtime_locks:
     os.chmod(destination / tool["name"], 0o700)
     print("Prepared " + tool["name"] + " " + tool["version"], flush=True)
 locks = json.loads((root / "packaging/ci-tools.json").read_text())
-for tool in locks:
+def prepare_extra_tool(tool, destination):
     archive_path = destination / (tool["name"] + ".download")
     if not archive_path.exists():
         with urllib.request.urlopen(tool["url"], timeout=120) as response:
@@ -75,3 +75,20 @@ for tool in locks:
         (destination / tool["name"]).write_bytes(binary)
     os.chmod(destination / tool["name"], 0o700)
     print("Prepared " + tool["name"] + " " + tool["version"], flush=True)
+
+
+for tool in locks:
+    prepare_extra_tool(tool, destination)
+
+# Historical render fixtures use their own immutable toolchain, never the new
+# product tools. These executables are not shipped in installation packages.
+frozen_commit = "697ebf04e9362abcce9a4b8db005ee747493417d"
+frozen_locks = []
+for path in ("packaging/tools-darwin-arm64.json", "packaging/ci-tools.json"):
+    frozen_locks.extend(json.loads(subprocess.check_output(
+        ["git", "show", frozen_commit + ":" + path], cwd=root, text=True)))
+historical = destination / "ot1"
+historical.mkdir(parents=True, exist_ok=True, mode=0o700)
+for name in ("helm", "kubectl", "yq"):
+    tool = next(t for t in frozen_locks if t["name"] == name)
+    prepare_extra_tool(tool, historical)

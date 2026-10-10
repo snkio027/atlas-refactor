@@ -1,27 +1,27 @@
 [
   {
     "name": "helm",
-    "version": "4.2.3",
-    "url": "https://get.helm.sh/helm-v4.2.3-darwin-arm64.tar.gz",
-    "sha256": "048ecf5ad3160f83d918f9fe945238d2132b079640f7b106175331c25f242c64",
+    "version": "4.3.0",
+    "url": "https://get.helm.sh/helm-v4.3.0-darwin-arm64.tar.gz",
+    "sha256": "d3870437e1e95b67f8edbde964156c84a26503f560821d40c542441658934fba",
     "member": "darwin-arm64/helm",
-    "binarySHA256": "e8fe1a6caf4091026ad776eb2fe059a2d7a82fc69c22bd08cbcb3689d93e5c0d"
+    "binarySHA256": "ed7defb5950888de567b2ba32f6795efbba172227aba7dfd2ee110549194f5c4"
   },
   {
     "name": "kind",
-    "version": "0.32.0",
-    "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.32.0/kind-darwin-arm64",
-    "sha256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb",
+    "version": "0.33.0",
+    "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-darwin-arm64",
+    "sha256": "0c8c7dbe5e23594a198b786c4bc13dacc101fa6196b0cb0b23a1ca44e61f4b4f",
     "member": "",
-    "binarySHA256": "dca67911095a110c2b5c36e26df6cac860c602033e456c0db47be498cdef1ebb"
+    "binarySHA256": "0c8c7dbe5e23594a198b786c4bc13dacc101fa6196b0cb0b23a1ca44e61f4b4f"
   },
   {
     "name": "kubectl",
-    "version": "1.36.3",
-    "url": "https://dl.k8s.io/release/v1.36.3/bin/darwin/arm64/kubectl",
-    "sha256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6",
+    "version": "1.37.1",
+    "url": "https://dl.k8s.io/release/v1.37.1/bin/darwin/arm64/kubectl",
+    "sha256": "fd65982c97ddad3106754b69ffa196d0e543aa591930ae52aed1adfb92f8c77f",
     "member": "",
-    "binarySHA256": "fc8582acde13869a606730a79379d6515f30c68afcced0b5ac8789d5d002b7d6"
+    "binarySHA256": "fd65982c97ddad3106754b69ffa196d0e543aa591930ae52aed1adfb92f8c77f"
   },
   {
     "name": "kubeseal",

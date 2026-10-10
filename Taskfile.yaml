@@ -7,6 +7,7 @@ env:
   GOFLAGS: -mod=readonly
 
 vars:
+  LOCAL_OT1_TOOLS: '{{.ROOT_DIR}}/.state/tools/ot1'
   LOCAL_HELM:
     sh: 'if test -x "{{.ROOT_DIR}}/.state/tools/helm"; then printf "%s" "{{.ROOT_DIR}}/.state/tools/helm"; else printf "%s" "helm"; fi'
   LOCAL_KUBECTL:
@@ -19,7 +20,7 @@ vars:
 tasks:
   toolchain:
     cmds:
-      - test "$(go env GOVERSION)" = "go1.27.1"
+      - test "$(go env GOVERSION)" = "go1.27.2"
   check:
     cmds:
       - task: toolchain
@@ -31,6 +32,7 @@ tasks:
       ATLAS_TEST_HELM: '{{.PLATFORM_HELM | default .LOCAL_HELM}}'
       ATLAS_TEST_KUBECTL: '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}'
       ATLAS_TEST_KUBESEAL: '{{.KUBESEAL | default .LOCAL_KUBESEAL}}'
+      ATLAS_TEST_OT1_TOOL_DIR: '{{.OT1_TOOLS | default .LOCAL_OT1_TOOLS}}'
     cmds:
       - task: toolchain
       # Full S1 fixture suites exceed Go's default 10m budget on hosted ARM runners.
@@ -81,7 +83,8 @@ tasks:
     cmds:
       - task: toolchain
       - go run ./cmd/atlas-platform render --helm '{{.PLATFORM_HELM | default .LOCAL_HELM}}' --kubectl '{{.PLATFORM_KUBECTL | default .LOCAL_KUBECTL}}' --yq '{{.PLATFORM_YQ | default .LOCAL_YQ}}'
-      - go run ./cmd/atlas render --config profiles/development.json --tool-dir "$(dirname "$(command -v '{{.PLATFORM_HELM | default .LOCAL_HELM}}')")" --output .
+      # D1 derives the adoption signal from each installation's own identity.
+      # The legacy schema-3 profile retains its original dependency snapshot.
   platform:check:
     desc: Check local renders, Kustomize, schemas and architecture boundaries
     cmds:

@@ -52,8 +52,9 @@ func prepareFixtureArchives(t *testing.T, a *App) {
 	if e = os.WriteFile(path, jsonBytes(lock), 0600); e != nil {
 		t.Fatal(e)
 	}
-	// The fixture pins its synthetic archive snapshot; production retains the
-	// fixed f6d35ec snapshot digest and has no runtime override input.
+	// This simulator uses current candidate dependencies and synthetic OCI
+	// archives. Bind its temporary snapshot to those inputs; never rewrite the
+	// repository's historical snapshot or expose a runtime override.
 	snapshotPath := filepath.Join(a.Root, "platform/development/bootstrap/baseline-v3.json")
 	snapshotBytes, e := os.ReadFile(snapshotPath)
 	if e != nil {
@@ -63,7 +64,20 @@ func prepareFixtureArchives(t *testing.T, a *App) {
 	if e = json.Unmarshal(snapshotBytes, &snapshot); e != nil {
 		t.Fatal(e)
 	}
-	snapshot["bundleHashes"].(map[string]any)["platform/development/versions.lock.json"] = digest(jsonBytes(lock))
+	for path := range snapshot["bundleHashes"].(map[string]any) {
+		input := path
+		switch path {
+		case "gitops/platform/applications/overlays/development/resources.json":
+			input = "platform/development/capabilities/core-applications.json"
+		case "gitops/platform/management/projects/overlays/development/resources.json":
+			input = "platform/development/capabilities/core-projects.json"
+		}
+		b, err := os.ReadFile(filepath.Join(a.Root, input))
+		if err != nil {
+			t.Fatal(err)
+		}
+		snapshot["bundleHashes"].(map[string]any)[path] = digest(b)
+	}
 	if e = os.WriteFile(snapshotPath, jsonBytes(snapshot), 0600); e != nil {
 		t.Fatal(e)
 	}

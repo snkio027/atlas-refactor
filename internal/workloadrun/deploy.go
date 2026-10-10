@@ -34,6 +34,11 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 		return e
 	}
 	if complete {
+		if w.application() {
+			if e := w.validateApplicationFinal(p); e != nil {
+				return e
+			}
+		}
 		b, e := regular(w.publicationPath(p, "consumer"), true)
 		if e != nil {
 			return e
@@ -42,7 +47,13 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 		if e = workload.StrictDecode(b, &receipt); e != nil {
 			return e
 		}
-		return w.wait(ctx, "consumer", receipt.Commit)
+		if e := w.wait(ctx, "consumer", receipt.Commit); e != nil {
+			return e
+		}
+		if w.application() {
+			return w.applicationReady(ctx)
+		}
+		return nil
 	}
 	if e := probeAvailable(dir); e != nil {
 		return e
@@ -80,8 +91,10 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 	if e := w.ImportImage(ctx, p, approval); e != nil {
 		return e
 	}
-	if e := w.PrepareCredentials(ctx, p, approval); e != nil {
-		return e
+	if !w.application() || len(w.Model.Intent.Bindings) > 0 {
+		if e := w.PrepareCredentials(ctx, p, approval); e != nil {
+			return e
+		}
 	}
 	for _, phase := range p.Phases {
 		if w.Progress != nil {
@@ -107,6 +120,9 @@ func (w *Workflow) Deploy(ctx context.Context, p Plan, approval string) (resultE
 	if e := w.waitMetrics(ctx); e != nil {
 		return e
 	}
+	if w.application() {
+		return w.finishApplication(ctx, p, approval)
+	}
 	return w.Probe(ctx, p, approval)
 }
 func (w *Workflow) waitMetrics(ctx context.Context) error {
@@ -114,7 +130,7 @@ func (w *Workflow) waitMetrics(ctx context.Context) error {
 	// Prometheus' first discovery, and never masks malformed/error responses.
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 	defer cancel()
-	return pollRead(ctx, 5*time.Second, w.Progress, w.metrics)
+	return pollRead(ctx, 5*time.Second, w.readProgress(ctx), w.metrics)
 }
 
 // Only explicitly Waiting reads are retried. The caller owns a single deadline;
@@ -188,7 +204,7 @@ func (w *Workflow) waitObservation(ctx context.Context, initial Observation, int
 			}
 		}
 	}()
-	resultErr = pollRead(ctx, interval, w.Progress, func(ctx context.Context) error {
+	resultErr = pollRead(ctx, interval, w.readProgress(ctx), func(ctx context.Context) error {
 		var err error
 		report, err = read(ctx)
 		if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
@@ -197,4 +213,20 @@ func (w *Workflow) waitObservation(ctx context.Context, initial Observation, int
 		return err
 	})
 	return report, resultErr
+}
+
+// Keep the existing read-only retry contract; add bounded-wait context only to
+// the ordinary user interface. This never resets or extends a deadline.
+func (w *Workflow) readProgress(ctx context.Context) func(string) {
+	if !w.application() || w.Progress == nil {
+		return w.Progress
+	}
+	started := time.Now()
+	return func(reason string) {
+		budget := ""
+		if deadline, ok := ctx.Deadline(); ok {
+			budget = fmt.Sprintf("; remaining %s", time.Until(deadline).Truncate(time.Second))
+		}
+		w.Progress(fmt.Sprintf("%s (read-only wait; elapsed %s%s)", reason, time.Since(started).Truncate(time.Second), budget))
+	}
 }

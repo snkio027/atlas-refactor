@@ -22,6 +22,7 @@ import (
 )
 
 type Config struct {
+	Purpose             string `json:"purpose,omitempty"`
 	Schema              int    `json:"schema"`
 	InstallationConfig  string `json:"installationConfig"`
 	InstallationPackage string `json:"installationPackage"`
@@ -32,17 +33,19 @@ type Config struct {
 	ImageSHA256         string `json:"imageSHA256"`
 }
 type Workflow struct {
-	Config         Config
-	Install        installation.Workflow
-	Model          *workload.Model
-	Context        workload.CompileContext
-	BinarySHA256   string
-	BuildSource    string
-	BuildGoVersion string
-	BuildDirty     bool
-	Progress       func(string)
-	toolsVerified  bool
-	trees          map[string]Files
+	observationPlan *Plan
+	UnpublishedPlan string
+	Config          Config
+	Install         installation.Workflow
+	Model           *workload.Model
+	Context         workload.CompileContext
+	BinarySHA256    string
+	BuildSource     string
+	BuildGoVersion  string
+	BuildDirty      bool
+	Progress        func(string)
+	toolsVerified   bool
+	trees           map[string]Files
 }
 type Object = map[string]any
 type Files = map[string][]byte
@@ -146,7 +149,7 @@ func Load(configPath string) (*Workflow, error) {
 	if e = workload.StrictDecode(b, &w.Config); e != nil {
 		return nil, e
 	}
-	if w.Config.Schema != 1 {
+	if w.Config.Schema != 1 || (w.Config.Purpose != "" && w.Config.Purpose != "application") {
 		return nil, errors.New("unknown S2 config schema")
 	}
 	for _, p := range []string{w.Config.InstallationConfig, w.Config.InstallationPackage, w.Config.IntentDirectory, w.Config.ProductSource, w.Config.StateDirectory} {

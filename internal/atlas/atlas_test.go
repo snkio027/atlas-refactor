@@ -268,7 +268,7 @@ func fixture(t *testing.T) (*App, *simulator) {
 	t.Helper()
 	root := t.TempDir()
 	source := filepath.Join("..", "..")
-	for _, p := range []string{"versions.lock.json", "assets/argocd-values.yaml", "assets/argocd-cm.yaml", "vendor/charts/argo-cd-10.3.3.tgz"} {
+	for _, p := range []string{"versions.lock.json", "assets/argocd-values.yaml", "assets/argocd-cm.yaml", "vendor/charts/argo-cd-10.10.2.tgz"} {
 		b, e := os.ReadFile(filepath.Join(source, p))
 		if e != nil {
 			t.Fatal(e)
