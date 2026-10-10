@@ -43,10 +43,43 @@ changes: race tests, 348 GitOps resources, real Helm/Kustomize, eight Python
 contract tests and the frozen OT-1 entry points. The source tree passed
 go vet and formatting checks. No runtime fixture was enabled.
 
+## r2 runtime result and publication recheck fix
+
+The upgraded `atlas-app-r2` run used implementation
+`9271110a975260dde2eb3d94f7dcf906c3773e1a` and approved review plan
+`631e6e6f78b7bd960ba2b15f493b713581c27251ad37c6a61ed5b9969dbc134a`.
+D1 installation and its independent read-only verification passed. Ordinary v1
+published permissions, project and infrastructure and retained all three Ready
+Gates. Before consumer publication, a closing-read change in Application
+`foundation` correctly produced `Pending`, but the predecessor recheck called a
+single-shot observer and returned it as a terminal failure. The attempt is STOP;
+consumer had no intent/receipt and no business upload ran. Later convergence does
+not change that history. Full private evidence remains in the r2 result bundle.
+
+The fix implements the already accepted ADR-0017 read-wait contract at this
+missing boundary: predecessor rechecks use `ObserveFor` with the existing
+15-minute limit, bounded by the caller deadline, and one rollout session for UID
+and comparison continuity. Only explicit `Pending` reads repeat. Identity/spec/
+ownership/Git drift, unavailable reads, cancellation and timeout still stop;
+intent creation, Git push and all other effects remain outside the wait. Existing
+Ready evidence stays immutable; the latest read records a terminal failure.
+No compiler output, publication order, retryable mutation, recovery command or
+STOP continuation is introduced.
+
+`TestPublicationRecheckPendingPreservesGateAndUIDHistory` uses compiled source
+trees and receipt/Gate fixtures to check Pending → Ready, retained UID history,
+API failures, immutable prior Gates and the dependent effect boundary.
+`TestPublicationRecheckDeadlineAndCancellationStopBeforeEffects` checks the fixed
+budget and cancellation, including a late successful read. These exercise the
+shared production read poll with synthetic reads/effects, not a real push.
+Existing receipt/unknown-outcome tests continue to reject publication replay.
+
 ## Still requires a separately authorized target
 
 Ordinary first deployment, two real business updates, HTTPS business uploads and
-downloads, business error diagnosis and return usage have not been executed.
+downloads, business error diagnosis and return usage have not completed.
 The app mode's DEPLOYED result deliberately leaves functional=UNPROVEN.
 The existing S2 r7 Runtime PASS remains bound to d011813; it is not reassigned
-to this implementation. No new cluster, Trust Root or ciphertext was created.
+to this implementation. The r2 D1 instance created its own Trust Root and three
+public D1 ciphertexts; its two application ciphertext versions remained private
+and unpublished at STOP. A corrected execution needs its own exact plan.

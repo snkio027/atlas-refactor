@@ -14,6 +14,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Plan struct {
@@ -239,7 +240,10 @@ func (w *Workflow) Publish(ctx context.Context, p Plan, approval, phase string) 
 		if e != nil {
 			return receipt, e
 		}
-		report, err := w.observeLatest(ctx, r, expectedParent)
+		// A closing-read race is Pending, just as during the post-publication
+		// Gate. Keep one bounded read session (including UID history); never
+		// retry the publication, intent creation or push around this wait.
+		report, err := w.ObserveFor(ctx, r, expectedParent, 15*time.Minute)
 		if err != nil {
 			return receipt, fmt.Errorf("%s gate: %w", prior.Phase, err)
 		}

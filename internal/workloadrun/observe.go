@@ -534,11 +534,3 @@ func applicationConditions(apps map[string]Object) map[string][]Object {
 	}
 	return out
 }
-
-func (w *Workflow) observeLatest(ctx context.Context, result workload.Result, revision string) (Observation, error) {
-	report, err := w.Observe(ctx, result, revision)
-	if e := save(filepath.Join(w.Config.StateDirectory, "latest-observation.json"), workload.JSON(report), false); e != nil {
-		return report, e
-	}
-	return report, err
-}
