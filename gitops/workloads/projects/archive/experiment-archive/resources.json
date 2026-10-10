@@ -12,7 +12,7 @@
         "namespace": "archive"
       },
       "spec": {
-        "replicas": 1,
+        "replicas": 2,
         "selector": {
           "matchLabels": {
             "atlas.io/project": "archive",
@@ -80,7 +80,7 @@
                     }
                   }
                 ],
-                "image": "atlas.local/experiment-archive:v2@sha256:34a2c510c3f55b3052c0de2d196748632febc6aa930c6c43ee30cd0052162c01",
+                "image": "atlas.local/experiment-archive:v3@sha256:35bb72735d73a2f6ce554455d6ad2f1a54de718b72c5e20e5e24fb65cd785013",
                 "imagePullPolicy": "IfNotPresent",
                 "livenessProbe": {
                   "failureThreshold": 6,
@@ -109,12 +109,12 @@
                 },
                 "resources": {
                   "limits": {
-                    "cpu": "500m",
-                    "memory": "256Mi"
+                    "cpu": "600m",
+                    "memory": "384Mi"
                   },
                   "requests": {
-                    "cpu": "100m",
-                    "memory": "128Mi"
+                    "cpu": "150m",
+                    "memory": "192Mi"
                   }
                 },
                 "securityContext": {

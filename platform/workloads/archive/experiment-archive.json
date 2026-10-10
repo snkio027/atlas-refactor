@@ -4,17 +4,17 @@
   "type": "WebService",
   "project": "archive",
   "name": "experiment-archive",
-  "image": "atlas.local/experiment-archive:v2@sha256:34a2c510c3f55b3052c0de2d196748632febc6aa930c6c43ee30cd0052162c01",
+  "image": "atlas.local/experiment-archive:v3@sha256:35bb72735d73a2f6ce554455d6ad2f1a54de718b72c5e20e5e24fb65cd785013",
   "port": 8080,
-  "replicas": 1,
+  "replicas": 2,
   "resources": {
     "requests": {
-      "cpuMillicores": 100,
-      "memoryMiB": 128
+      "cpuMillicores": 150,
+      "memoryMiB": 192
     },
     "limits": {
-      "cpuMillicores": 500,
-      "memoryMiB": 256
+      "cpuMillicores": 600,
+      "memoryMiB": 384
     }
   },
   "exposure": {
