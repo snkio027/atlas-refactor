@@ -157,6 +157,62 @@
               ],
               "mode": "Terminate"
             }
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "archive",
+                    "kubernetes.io/metadata.name": "archive"
+                  }
+                }
+              }
+            },
+            "hostname": "experiment-archive.atlas.test",
+            "name": "s2-8e7c792af1f2-http",
+            "port": 80,
+            "protocol": "HTTP"
+          },
+          {
+            "allowedRoutes": {
+              "kinds": [
+                {
+                  "group": "gateway.networking.k8s.io",
+                  "kind": "HTTPRoute"
+                }
+              ],
+              "namespaces": {
+                "from": "Selector",
+                "selector": {
+                  "matchLabels": {
+                    "atlas.io/project": "archive",
+                    "kubernetes.io/metadata.name": "archive"
+                  }
+                }
+              }
+            },
+            "hostname": "experiment-archive.atlas.test",
+            "name": "s2-8e7c792af1f2-https",
+            "port": 443,
+            "protocol": "HTTPS",
+            "tls": {
+              "certificateRefs": [
+                {
+                  "group": "",
+                  "kind": "Secret",
+                  "name": "s2-8e7c792af1f2-tls"
+                }
+              ],
+              "mode": "Terminate"
+            }
           }
         ]
       }
