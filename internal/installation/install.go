@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"sort"
 	"strings"
 	"time"
 )
@@ -196,54 +195,6 @@ func nested(o map[string]any, keys ...string) any {
 		x = m[k]
 	}
 	return x
-}
-func (w *Workflow) notify(ctx context.Context, f Files) error {
-	apps, e := applications(f)
-	if e != nil {
-		return e
-	}
-	names := make([]string, 0, len(apps))
-	for n := range apps {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	for _, name := range names {
-		live, e := w.getApp(ctx, name)
-		if e != nil {
-			return e
-		}
-		if live == nil {
-			continue
-		}
-		if !reflect.DeepEqual(live["spec"], apps[name]["spec"]) {
-			return fmt.Errorf("Application spec drift before refresh: %s", name)
-		}
-		if nested(live, "status", "sync", "revision") == w.Record.FullCommit {
-			continue
-		}
-		remote, e := w.remote(ctx)
-		if e != nil {
-			return e
-		}
-		if remote != w.Record.FullCommit {
-			return errors.New("Git changed before notification")
-		}
-		uid := nested(live, "metadata", "uid")
-		rv := nested(live, "metadata", "resourceVersion")
-		if uid == nil || rv == nil {
-			return errors.New("Application lacks UID/RV fence")
-		}
-		patch := []map[string]any{{"op": "test", "path": "/metadata/uid", "value": uid}, {"op": "test", "path": "/metadata/resourceVersion", "value": rv}, {"op": "test", "path": "/spec", "value": live["spec"]}}
-		if nested(live, "metadata", "annotations") == nil {
-			patch = append(patch, map[string]any{"op": "add", "path": "/metadata/annotations", "value": map[string]any{}})
-		}
-		patch = append(patch, map[string]any{"op": "add", "path": "/metadata/annotations/argocd.argoproj.io~1refresh", "value": "hard"})
-		// JSON patch stdin avoids putting any resource data in shell strings.
-		if _, e = w.kube(ctx, JSON(patch), "patch", "application", name, "-n", "argocd", "--type=json", "--patch-file=/dev/stdin"); e != nil {
-			return e
-		}
-	}
-	return nil
 }
 func (w *Workflow) waitApplications(ctx context.Context, f Files) error {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Minute)

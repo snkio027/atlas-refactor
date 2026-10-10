@@ -1,16 +1,13 @@
 package observation
 
 import (
+	kubeconfigtransport "atlas-refactor/internal/kubeconfig"
 	"atlas-refactor/internal/platform"
 	"context"
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -107,64 +104,14 @@ func NewAPIReader(ctx context.Context, kubeconfig, kubectl, kubectlVersion, kube
 	if e != nil {
 		return nil, e
 	}
-	var config struct {
-		Clusters []struct {
-			Name    string
-			Cluster Object
-		}
-		Contexts []struct {
-			Name    string
-			Context Object
-		}
-		Users []struct {
-			Name string
-			User Object
-		}
-	}
+	var config kubeconfigtransport.Projection
 	if e = Decode(b, &config, false); e != nil {
 		return nil, errors.New("invalid kubeconfig projection")
 	}
-	if len(config.Clusters) != 1 || len(config.Contexts) != 1 || len(config.Users) != 1 || config.Contexts[0].Name != target.Context || String(config.Contexts[0].Context["cluster"]) != config.Clusters[0].Name || String(config.Contexts[0].Context["user"]) != config.Users[0].Name {
-		return nil, errors.New("ambiguous kubeconfig target")
-	}
-	c, u := config.Clusters[0].Cluster, config.Users[0].User
-	for key := range c {
-		if key != "server" && key != "certificate-authority-data" {
-			return nil, errors.New("kubeconfig cluster has unsupported transport options")
-		}
-	}
-	for key := range u {
-		if key != "client-certificate-data" && key != "client-key-data" {
-			return nil, errors.New("only explicit Kind client certificates are supported; exec/auth plugins forbidden")
-		}
-	}
-	server := String(c["server"])
-	parsed, e := url.Parse(server)
-	if e != nil || parsed.Scheme != "https" || parsed.Hostname() != "127.0.0.1" || parsed.Port() == "" || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" || parsed.User != nil {
-		return nil, errors.New("explicit loopback HTTPS API is required")
-	}
-	decode := func(v any) ([]byte, error) { return base64.StdEncoding.DecodeString(String(v)) }
-	ca, e := decode(c["certificate-authority-data"])
+	server, transport, e := kubeconfigtransport.Transport(config, target.Context)
 	if e != nil {
-		return nil, errors.New("invalid CA encoding")
+		return nil, e
 	}
-	pool := x509.NewCertPool()
-	if !pool.AppendCertsFromPEM(ca) {
-		return nil, errors.New("invalid API CA")
-	}
-	cert, e := decode(u["client-certificate-data"])
-	if e != nil {
-		return nil, errors.New("invalid client certificate encoding")
-	}
-	key, e := decode(u["client-key-data"])
-	if e != nil {
-		return nil, errors.New("invalid client key encoding")
-	}
-	pair, e := tls.X509KeyPair(cert, key)
-	if e != nil {
-		return nil, errors.New("invalid API client key pair")
-	}
-	transport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: pool, Certificates: []tls.Certificate{pair}}}
 	r := &APIReader{target: target, kubeconfig: kubeconfig, server: server, model: model, discovery: map[string]map[string]string{}, client: &http.Client{Transport: transport, Timeout: 30 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("API redirect forbidden") }}}
 	v, missing, e := r.get(ctx, "/version")
 	if e != nil || missing || String(v["gitVersion"]) != "v"+kubernetesVersion {

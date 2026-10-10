@@ -57,6 +57,31 @@ or resource identity stops execution. A completed installation verifies without
 rotating credentials or creating a gratuitous commit. Concurrency exclusion and
 terminal evidence have distinct purposes; no S1 STOP lock is cleared by D1.
 
+## Bounded D1 reconciliation notification
+
+The initial full-platform publication may race Argo's normal status updates.
+After Git publication, D1 may request a hard refresh on an existing Application;
+it does not own the Application spec or run a reconciliation loop. Keep atomic
+UID, resourceVersion and full-spec JSON Patch tests. Check exact deployment Git
+and cluster identity before every fresh GET, placing slow Git reads before that
+GET to minimize the optimistic-concurrency window.
+
+Classify a rejection from the authenticated API's structured Kubernetes Status,
+not kubectl stderr. Only confirmed HTTP 409/Conflict or 422/Invalid may be
+re-observed within the same invocation (at most five requests and one minute per
+Application). Retry only when resourceVersion changed and the full object is
+unchanged except status, managedFields, resourceVersion and a recognized refresh
+annotation. A pending normal/hard refresh is coalesced, not replaced. UID, spec,
+tracking, labels, deletion or Git/cluster drift stops. Other failures, including
+lost responses, are unknown outcomes and never retried.
+
+Persist an exclusive intent and each exact guarded request before its possible
+effect. Record definite rejection, acknowledged completion or coalescing after
+rejection separately. An intent without confirmed completion cannot reacquire
+write permission, even if the Application subsequently becomes healthy. This is
+a bounded notification protocol, not automatic recovery or a continuation API.
+Existing S1 tooling and historical installation evidence remain frozen.
+
 ## Supply chain and completion
 
 A release contains the executable, runtime projections, pinned dependencies,

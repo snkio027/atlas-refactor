@@ -65,8 +65,10 @@ change. Go continues to have no external module dependencies.
   Kubernetes through 1.36, not 1.37. Latest individual releases do not establish
   compatibility of their combination. A new exact-target runtime review and
   validation are still required before claiming the upgraded product works live.
-- This change does not fix the installer's `notify` GET/PATCH concurrency race.
-  A version bump is not evidence that the app-r1 STOP cause has disappeared.
+- The dependency-only commit does not fix the installer's `notify` GET/PATCH
+  concurrency race. The follow-up correction is documented in
+  [the D1 notification failure note](d1-notification-race.md); version changes
+  alone are not evidence that the app-r1 STOP cause disappeared.
 
 The scope registry was re-derived from Kubernetes 1.37.0 OpenAPI list operations;
 namespace-scoped endpoints take precedence over all-namespaces list endpoints.
