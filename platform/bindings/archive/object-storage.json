@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "kind": "CapabilityBinding",
+  "project": "archive",
+  "name": "object-storage",
+  "workload": "experiment-archive",
+  "capability": "object-storage",
+  "bucket": "uploads",
+  "access": "read-write"
+}
